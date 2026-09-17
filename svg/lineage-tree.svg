@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 850" width="1000" height="850" font-family="Segoe UI, Noto Sans SC, sans-serif">
+  <rect width="1000" height="850" fill="#0b1020"/>
+
+  <!-- ============ 标题 ============ -->
+  <text x="40" y="42" fill="#e2e8f0" font-size="20" font-weight="700">一棵发育树：从神经母细胞到单个神经元</text>
+  <text x="40" y="66" fill="#94a3b8" font-size="13">每个神经元都能沿这棵树回溯到它所属的干细胞与半谱系 —— 这就是 hemilineage 作为分组单位的意义</text>
+
+  <!-- ============ 右侧层级标尺 ============ -->
+  <g font-size="10.5" fill="#526480" font-family="ui-monospace, Consolas, monospace" text-anchor="end">
+    <text x="972" y="124">L1 干细胞</text>
+    <text x="972" y="210">L2 中间前体</text>
+    <text x="972" y="312">L3 半谱系</text>
+    <text x="972" y="444">L4 细胞类型</text>
+    <text x="972" y="604">L5 实例</text>
+  </g>
+
+  <!-- ============ 连接线（先画，压在节点下面） ============ -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <!-- NB → GMC -->
+    <path d="M210,132 L210,172 L300,172"/>
+
+    <!-- 主干：GMC 底 → A 顶（实线） -->
+    <path d="M380,212 L380,270 L298,270"/>
+    <!-- 主干继续向下到 B 顶（虚线，表示穿过 A 所在的高度） -->
+    <path d="M380,252 L380,270 L430,270" stroke-dasharray="6 5"/>
+
+    <!-- A → A 的细胞类型 -->
+    <path d="M209,392 L209,424 L222,424" stroke-dasharray="6 5"/>
+    <path d="M209,344 L209,424 L222,424"/>
+
+    <!-- B → B 的细胞类型 -->
+    <path d="M519,392 L519,424 L530,424" stroke-dasharray="6 5"/>
+    <path d="M519,344 L519,424 L530,424"/>
+  </g>
+
+  <!-- ============ L4 → L5 实例 ============ -->
+  <g fill="none" stroke="#334155" stroke-width="2">
+    <!-- A 侧 -->
+    <path d="M222,456 L222,540 L105,540"/>
+    <path d="M222,456 L222,540 L240,540"/>
+    <path d="M222,456 L222,540 L375,540"/>
+    <path d="M425,540 L462,540" stroke="#475569" stroke-dasharray="4 4"/>
+    <!-- B 侧 -->
+    <path d="M530,456 L530,540 L478,540"/>
+    <path d="M530,456 L530,540 L613,540"/>
+    <path d="M530,456 L530,540 L748,540"/>
+    <path d="M815,540 L852,540" stroke="#475569" stroke-dasharray="4 4"/>
+  </g>
+
+  <!-- ============ L1 神经母细胞 ============ -->
+  <g>
+    <rect x="110" y="104" width="200" height="28" rx="7" fill="#1e293b" stroke="#64748b" stroke-width="1.4"/>
+    <text x="210" y="123" fill="#e2e8f0" font-size="13.5" font-weight="700" text-anchor="middle">神经母细胞 NB</text>
+    <text x="210" y="97" fill="#64748b" font-size="11.5" text-anchor="middle">神经干细胞 · 一个</text>
+  </g>
+  <text x="218" y="160" fill="#8494ad" font-size="11.5">不对称分裂 ↓</text>
+
+  <!-- ============ L2 神经节母细胞 ============ -->
+  <g>
+    <rect x="300" y="172" width="220" height="40" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.4"/>
+    <text x="410" y="189" fill="#e2e8f0" font-size="13.5" font-weight="700" text-anchor="middle">神经节母细胞 GMC</text>
+    <text x="410" y="205" fill="#8494ad" font-size="11.5" text-anchor="middle">ganglion mother cell</text>
+  </g>
+  <text x="330" y="234" fill="#8494ad" font-size="11.5">一次分裂 → 两个<tspan font-weight="700" fill="#e2e8f0">不相等</tspan>的子细胞</text>
+
+  <!-- ============ L3 两个半谱系 ============ -->
+  <g>
+    <!-- A -->
+    <rect x="120" y="270" width="178" height="122" rx="9" fill="#0f2a3d" stroke="#7dd3fc" stroke-width="1.8"/>
+    <text x="209" y="298" fill="#7dd3fc" font-size="16" font-weight="700" text-anchor="middle">半谱系 A</text>
+    <text x="209" y="321" fill="#e2e8f0" font-size="13" text-anchor="middle">Notch ON</text>
+    <text x="209" y="341" fill="#94a3b8" font-size="12.5" text-anchor="middle">dorsal（背侧）</text>
+    <text x="209" y="368" fill="#7dd3fc" font-size="11.5" text-anchor="middle">↓ A-tract</text>
+
+    <!-- B -->
+    <rect x="430" y="270" width="178" height="122" rx="9" fill="#2a1f08" stroke="#fbbf24" stroke-width="1.8"/>
+    <text x="519" y="298" fill="#fbbf24" font-size="16" font-weight="700" text-anchor="middle">半谱系 B</text>
+    <text x="519" y="321" fill="#e2e8f0" font-size="13" text-anchor="middle">Notch OFF</text>
+    <text x="519" y="341" fill="#94a3b8" font-size="12.5" text-anchor="middle">ventral（腹侧）</text>
+    <text x="519" y="368" fill="#fbbf24" font-size="11.5" text-anchor="middle">↓ B-tract</text>
+  </g>
+
+  <!-- 两束轴突的说明 -->
+  <text x="636" y="292" fill="#64748b" font-size="11.5">A-tract + B-tract =</text>
+  <text x="636" y="310" fill="#64748b" font-size="11.5">文献里的</text>
+  <text x="636" y="328" fill="#8494ad" font-size="11.5" font-style="italic">branched secondary</text>
+  <text x="636" y="346" fill="#8494ad" font-size="11.5" font-style="italic">axon tract</text>
+
+  <!-- ============ L4 细胞类型 ============ -->
+  <g>
+    <rect x="118" y="424" width="208" height="62" rx="7" fill="#0d1a12" stroke="#4ade80" stroke-width="1.4"/>
+    <text x="222" y="447" fill="#4ade80" font-size="13.5" font-weight="700" text-anchor="middle">细胞类型 × n</text>
+    <text x="222" y="465" fill="#94a3b8" font-size="11.5" text-anchor="middle">A 半谱系内继续分化</text>
+    <text x="222" y="480" fill="#64748b" font-size="11" text-anchor="middle">如 ALad1 / DALcm1</text>
+
+    <rect x="426" y="424" width="208" height="62" rx="7" fill="#0d1a12" stroke="#4ade80" stroke-width="1.4"/>
+    <text x="530" y="447" fill="#4ade80" font-size="13.5" font-weight="700" text-anchor="middle">细胞类型 × n</text>
+    <text x="530" y="465" fill="#94a3b8" font-size="11.5" text-anchor="middle">B 半谱系内继续分化</text>
+    <text x="530" y="480" fill="#64748b" font-size="11" text-anchor="middle">如 LHd1 / BAmv3</text>
+  </g>
+
+  <!-- ============ L5 实例（body ID） ============ -->
+  <g font-size="12" fill="#b6c2d6" text-anchor="middle">
+    <rect x="48" y="540" width="114" height="30" rx="6" fill="#131c33" stroke="#475569" stroke-width="1.2"/>
+    <text x="105" y="560">左侧</text>
+
+    <rect x="192" y="540" width="96" height="30" rx="6" fill="#131c33" stroke="#475569" stroke-width="1.2"/>
+    <text x="240" y="560">…</text>
+
+    <rect x="316" y="540" width="118" height="30" rx="6" fill="#131c33" stroke="#475569" stroke-width="1.2"/>
+    <text x="375" y="560">右侧</text>
+
+    <rect x="420" y="540" width="116" height="30" rx="6" fill="#131c33" stroke="#475569" stroke-width="1.2"/>
+    <text x="478" y="560">左侧</text>
+
+    <rect x="562" y="540" width="102" height="30" rx="6" fill="#131c33" stroke="#475569" stroke-width="1.2"/>
+    <text x="613" y="560">…</text>
+
+    <rect x="686" y="540" width="120" height="30" rx="6" fill="#131c33" stroke="#475569" stroke-width="1.2"/>
+    <text x="746" y="560">右侧</text>
+  </g>
+  <text x="72" y="598" fill="#64748b" font-size="11.5">每个实例在数据里就是一个 body ID</text>
+
+  <!-- ============ 凋亡分支 ============ -->
+  <g>
+    <rect x="560" y="636" width="400" height="76" rx="10" fill="#1c0f12" stroke="#f87171" stroke-width="1.5" stroke-dasharray="7 5"/>
+    <text x="580" y="662" fill="#f87171" font-size="13" font-weight="700">在很多谱系里，其中一支会被凋亡清除</text>
+    <text x="580" y="684" fill="#b6c2d6" font-size="12">所以一个谱系最终常常只留下 A 或 B 中的一支</text>
+    <text x="580" y="701" fill="#64748b" font-size="11">（次级轴突束不分支的情形）</text>
+  </g>
+
+  <!-- ============ 经验规律 ============ -->
+  <g>
+    <rect x="40" y="636" width="500" height="76" rx="10" fill="#151027" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="60" y="662" fill="#a78bfa" font-size="13" font-weight="700">经验规律（Truman et al. 2010 摘要原文）</text>
+    <text x="60" y="684" fill="#e2e8f0" font-size="12.5">投射神经元多来自 <tspan fill="#fbbf24" font-weight="700">B</tspan> 半谱系，局部中间神经元多来自 <tspan fill="#7dd3fc" font-weight="700">A</tspan> 半谱系。</text>
+    <text x="60" y="702" fill="#94a3b8" font-size="11.5">所以看到 hemilineage，就能大致猜出细胞是投射型还是局部型。</text>
+  </g>
+
+  <!-- ============ 底部纠正 ============ -->
+  <g>
+    <rect x="40" y="736" width="920" height="84" rx="10" fill="#111a2e" stroke="#1e293b" stroke-width="1.4"/>
+    <text x="62" y="762" fill="#fbbf24" font-size="13" font-weight="700">⚠️ 别把名字后缀当成 Notch 标记</text>
+    <text x="62" y="784" fill="#b6c2d6" font-size="12.5">后缀是<tspan fill="#fbbf24">逐谱系不同的位置标签</tspan>（_dorsal / _ventral / _medial / _anterior …），只有一部分谱系有显式 Notch 术语；</text>
+    <text x="62" y="804" fill="#b6c2d6" font-size="12.5">固定的 <tspan fill="#7dd3fc" font-weight="700">A = Notch ON / dorsal</tspan>、<tspan fill="#fbbf24" font-weight="700">B = Notch OFF / ventral</tspan> 约定，只成立于胚胎与 VNC 的编号体系。</text>
+  </g>
+</svg>
