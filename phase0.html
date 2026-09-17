@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaleCNS 学习指南 · 阶段 0：打地基</title>
+<style>
+  :root{
+    --bg:#070b16;
+    --panel:#0f172a;
+    --panel2:#131c33;
+    --line:#1e293b;
+    --line2:#334155;
+    --ink:#e6edf7;
+    --ink2:#b6c2d6;
+    --ink3:#8494ad;
+    --dim:#5b6b85;
+    --blue:#7dd3fc;
+    --cyan:#22d3ee;
+    --green:#4ade80;
+    --amber:#fbbf24;
+    --red:#f87171;
+    --pink:#f472b6;
+    --violet:#a78bfa;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:76px}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--blue); text-decoration:none}
+  a:hover{text-decoration:underline; text-underline-offset:3px}
+  code{
+    font-family:var(--mono); font-size:.88em; background:#1a2338;
+    padding:.12em .42em; border-radius:5px; color:#a5d8ff; border:1px solid #223052;
+  }
+
+  /* ---------- layout ---------- */
+  .wrap{display:flex; gap:0; max-width:1500px; margin:0 auto; align-items:flex-start}
+  nav.toc{
+    position:sticky; top:56px; flex:0 0 268px; height:calc(100vh - 56px);
+    overflow-y:auto; padding:22px 14px 60px 22px; border-right:1px solid var(--line);
+  }
+  main{flex:1 1 auto; min-width:0; padding:0 46px 120px; max-width:1010px}
+  @media(max-width:1080px){
+    nav.toc{display:none}
+    main{padding:0 20px 80px}
+  }
+
+  /* ---------- top bar ---------- */
+  header.bar{
+    position:sticky; top:0; z-index:50; height:56px;
+    display:flex; align-items:center; gap:14px; padding:0 24px;
+    background:rgba(7,11,22,.9); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar .tag{
+    font-family:var(--mono); font-size:12.5px; color:var(--amber);
+    border:1px solid #3b3212; background:#1d1808; padding:2px 9px; border-radius:20px;
+  }
+  .bar .t{font-size:14.5px; color:var(--ink2); font-weight:600}
+  .bar .sp{flex:1}
+  .bar .meta{font-size:12.5px; color:var(--dim); font-family:var(--mono)}
+
+  /* ---------- toc ---------- */
+  .toc h4{
+    font-size:11.5px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--dim); margin:0 0 12px 10px; font-weight:700;
+  }
+  .toc a{
+    display:block; padding:6px 10px; border-radius:8px; color:var(--ink2);
+    font-size:13.6px; line-height:1.5; border-left:2px solid transparent;
+  }
+  .toc a:hover{background:#131c33; text-decoration:none; color:var(--ink)}
+  .toc a.on{background:#16233d; color:var(--blue); border-left-color:var(--blue); font-weight:600}
+  .toc a .n{font-family:var(--mono); font-size:11.5px; color:var(--dim); margin-right:7px}
+  .toc a.on .n{color:var(--blue)}
+  .toc .sub{padding-left:22px; font-size:12.8px; color:var(--ink3)}
+  .toc .grp{margin-top:16px}
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:58px 0 34px; border-bottom:1px solid var(--line); margin-bottom:38px;
+  }
+  .hero .eyebrow{
+    font-family:var(--mono); font-size:12.5px; color:var(--cyan);
+    letter-spacing:.1em; text-transform:uppercase; margin-bottom:16px;
+  }
+  .hero h1{font-size:40px; line-height:1.24; margin:0 0 8px; letter-spacing:-.02em}
+  .hero h1 .accent{
+    background:linear-gradient(100deg,#7dd3fc,#4ade80 55%,#fbbf24);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero .sub{font-size:18.5px; color:var(--ink2); max-width:790px; margin:0 0 26px}
+  .hero .facts{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:26px}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px; font-size:13px;
+    background:var(--panel); border:1px solid var(--line); border-radius:20px;
+    padding:5px 13px; color:var(--ink2);
+  }
+  .chip b{color:var(--ink); font-weight:700}
+  .chip .dot{width:7px; height:7px; border-radius:50%; background:var(--blue)}
+  .chip.g .dot{background:var(--green)} .chip.a .dot{background:var(--amber)}
+  .chip.r .dot{background:var(--red)} .chip.v .dot{background:var(--violet)}
+
+  /* ---------- sections ---------- */
+  section{margin:0 0 58px; scroll-margin-top:70px}
+  h2{
+    font-size:26px; margin:0 0 6px; letter-spacing:-.01em;
+  }
+  h2 .num{
+    font-family:var(--mono); font-size:14px; color:var(--bg); background:var(--blue);
+    padding:2px 9px; border-radius:7px; font-weight:800;
+    display:inline-block; vertical-align:2px; margin-right:9px;
+  }
+  h2 .en{font-size:13.5px; color:var(--dim); font-weight:500; margin-left:12px; letter-spacing:0}
+  h3{font-size:19px; margin:34px 0 10px; color:var(--ink); letter-spacing:-.005em}
+  h4{font-size:15.5px; margin:22px 0 8px; color:var(--blue)}
+  .lead{color:var(--ink2); font-size:15.5px; margin:0 0 18px}
+  p{margin:0 0 14px; color:var(--ink2)}
+  ul,ol{color:var(--ink2); padding-left:22px; margin:0 0 16px}
+  li{margin:5px 0}
+  strong{color:var(--ink); font-weight:700}
+  .kw{color:var(--amber); font-weight:700}
+
+  /* ---------- callouts ---------- */
+  .box{
+    background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--blue);
+    border-radius:12px; padding:16px 20px; margin:20px 0;
+  }
+  .box .h{font-weight:700; color:var(--ink); margin-bottom:6px; font-size:15px}
+  .box p:last-child,.box ul:last-child{margin-bottom:0}
+  .box.warn{border-left-color:var(--amber); background:#1a1608}
+  .box.warn .h{color:var(--amber)}
+  .box.danger{border-left-color:var(--red); background:#1c0f12}
+  .box.danger .h{color:var(--red)}
+  .box.good{border-left-color:var(--green); background:#0d1a12}
+  .box.good .h{color:var(--green)}
+  .box.violet{border-left-color:var(--violet); background:#151027}
+  .box.violet .h{color:var(--violet)}
+
+  /* ---------- tables ---------- */
+  .tw{overflow-x:auto; margin:20px 0; border:1px solid var(--line); border-radius:12px}
+  table{border-collapse:collapse; width:100%; font-size:14px; min-width:520px}
+  th{
+    background:#131c33; color:var(--ink); text-align:left; padding:11px 15px;
+    font-weight:700; font-size:13.5px; border-bottom:1px solid var(--line2); white-space:nowrap;
+  }
+  td{padding:10px 15px; border-bottom:1px solid var(--line); color:var(--ink2); vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#101a2e}
+  td.n{font-family:var(--mono); color:var(--blue); white-space:nowrap}
+  td.y{font-family:var(--mono); color:var(--amber); white-space:nowrap}
+  .yes{color:var(--green); font-weight:700}
+  .no{color:var(--red); font-weight:700}
+
+  /* ---------- figures ---------- */
+  figure{margin:26px 0; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px}
+  figure img{width:100%; height:auto; display:block; border-radius:9px}
+  figcaption{font-size:13.2px; color:var(--ink3); margin-top:12px; padding:0 4px}
+  figcaption b{color:var(--ink2)}
+
+  /* ---------- stat cards ---------- */
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:12px; margin:22px 0}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:15px 16px}
+  .stat .v{font-family:var(--mono); font-size:23px; font-weight:700; color:var(--blue); line-height:1.2; letter-spacing:-.02em}
+  .stat .l{font-size:12.8px; color:var(--ink3); margin-top:6px; line-height:1.5}
+  .stat.a .v{color:var(--amber)} .stat.g .v{color:var(--green)}
+  .stat.r .v{color:var(--red)} .stat.v .v{color:var(--violet)}
+
+  /* ---------- formula ---------- */
+  .formula{
+    background:#0b1424; border:1px solid #223052; border-radius:12px; padding:18px 20px;
+    font-family:var(--mono); font-size:14.5px; color:#cfe4ff; margin:18px 0;
+    overflow-x:auto; line-height:2;
+  }
+  .formula .cmt{color:var(--dim)}
+  .formula .hl{color:var(--amber)}
+  .formula .bl{color:var(--blue)}
+
+  /* ---------- code ---------- */
+  pre{
+    background:#0b1424; border:1px solid #223052; border-radius:12px; padding:16px 18px;
+    overflow-x:auto; font-family:var(--mono); font-size:13.2px; line-height:1.72;
+    color:#c7d7ee; margin:18px 0;
+  }
+  pre .c{color:var(--dim)} pre .s{color:var(--green)} pre .k{color:var(--pink)}
+
+  /* ---------- checklist ---------- */
+  .check{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:6px 20px 16px; margin:20px 0}
+  .check .item{display:flex; gap:13px; padding:13px 0; border-bottom:1px solid var(--line); align-items:flex-start}
+  .check .item:last-child{border-bottom:none}
+  .check .bx{
+    flex:0 0 auto; width:21px; height:21px; border-radius:6px; border:1.6px solid var(--line2);
+    margin-top:3px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:transparent; transition:.15s; user-select:none;
+  }
+  .check .bx:hover{border-color:var(--blue)}
+  .check .item.done .bx{background:var(--green); border-color:var(--green); color:#08130c}
+  .check .q{font-size:14.8px; color:var(--ink)}
+  .check .a{font-size:13.4px; color:var(--ink3); margin-top:4px; display:none}
+  .check .item.done .a{display:block}
+  .check .hint{font-size:12.5px; color:var(--dim); padding-top:12px}
+
+  /* ---------- 3D 脑区浏览器 ---------- */
+  .v3d-wrap{
+    display:grid; grid-template-columns:minmax(0,1fr) 316px; gap:14px;
+    margin:22px 0; align-items:start;
+  }
+  @media(max-width:900px){ .v3d-wrap{grid-template-columns:1fr} }
+  .v3d-stage{
+    position:relative; background:#0b1020; border:1px solid var(--line);
+    border-radius:14px; overflow:hidden;
+  }
+  .v3d-stage canvas{display:block; width:100%; height:auto; touch-action:none; cursor:grab}
+  .v3d-stage.dragging canvas{cursor:grabbing}
+  .v3d-hud{
+    position:absolute; left:12px; top:10px; font-family:var(--mono); font-size:11.5px;
+    color:var(--ink3); background:rgba(7,11,22,.72); border:1px solid var(--line);
+    border-radius:8px; padding:5px 9px; pointer-events:none; line-height:1.6;
+  }
+  .v3d-hud b{color:var(--blue)}
+  .v3d-hint{
+    position:absolute; left:12px; bottom:10px; right:12px; font-size:11.8px;
+    color:var(--dim); pointer-events:none; text-align:center;
+  }
+  .v3d-side{display:flex; flex-direction:column; gap:12px; min-width:0}
+  .v3d-info{
+    background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--blue);
+    border-radius:12px; padding:14px 16px; min-height:232px;
+  }
+  .v3d-info .ttl{font-size:16px; font-weight:700; color:var(--ink); line-height:1.4}
+  .v3d-info .ttl .ab{
+    font-family:var(--mono); font-size:11.5px; color:var(--bg); background:var(--blue);
+    padding:1px 7px; border-radius:5px; margin-right:8px; vertical-align:2px;
+  }
+  .v3d-info .en{font-size:12px; color:var(--dim); margin:3px 0 9px; font-style:italic}
+  .v3d-info .ds{font-size:13.4px; color:var(--ink2); line-height:1.68; margin:0}
+  .v3d-info .nt{
+    font-size:12px; color:var(--amber); margin-top:9px;
+    border-top:1px dashed var(--line2); padding-top:8px;
+  }
+  .v3d-list{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:11px 12px;
+  }
+  .v3d-list .grp{
+    font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim);
+    margin:9px 0 5px; font-weight:700;
+  }
+  .v3d-list .grp:first-child{margin-top:2px}
+  .v3d-list button{
+    display:flex; align-items:center; gap:7px; width:100%; text-align:left;
+    background:transparent; border:1px solid transparent; color:var(--ink2);
+    font:inherit; font-size:12.8px; padding:4px 7px; border-radius:7px; cursor:pointer;
+  }
+  .v3d-list button:hover{background:#16233d; color:var(--ink)}
+  .v3d-list button.on{background:#16233d; border-color:var(--line2); color:var(--ink); font-weight:600}
+  .v3d-list button .sw{width:9px; height:9px; border-radius:3px; flex:0 0 auto}
+  .v3d-list button .ab{
+    font-family:var(--mono); font-size:10.5px; color:var(--dim); margin-left:auto;
+  }
+  .v3d-ctl{display:flex; flex-wrap:wrap; gap:7px; margin-top:10px}
+  .v3d-ctl button{
+    background:var(--panel2); border:1px solid var(--line2); color:var(--ink2);
+    font:inherit; font-size:12.2px; padding:4px 11px; border-radius:8px; cursor:pointer;
+  }
+  .v3d-ctl button:hover{border-color:var(--blue); color:var(--ink)}
+
+  /* ---------- misc ---------- */
+  .pill{
+    display:inline-block; font-family:var(--mono); font-size:11.5px; padding:2px 8px;
+    border-radius:6px; background:#1a2338; color:var(--ink3); border:1px solid #223052;
+  }
+  .pill.b{color:var(--blue); border-color:#1e3a5f}  .pill.a{color:var(--amber); border-color:#3b3212}
+  .pill.g{color:var(--green); border-color:#17411f}
+  .verdict{font-family:var(--mono); font-size:11.5px; font-weight:700; padding:2px 7px; border-radius:5px}
+  .v-ok{background:#0d2a17; color:var(--green)}
+  .v-fix{background:#2a1f08; color:var(--amber)}
+  .v-un{background:#241a2e; color:var(--violet)}
+  .toTop{
+    position:fixed; right:24px; bottom:24px; width:42px; height:42px; border-radius:11px;
+    background:var(--panel2); border:1px solid var(--line2); color:var(--ink2);
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+    cursor:pointer; z-index:60; opacity:0; pointer-events:none; transition:.2s;
+  }
+  .toTop.show{opacity:1; pointer-events:auto}
+  hr{border:none; border-top:1px solid var(--line); margin:34px 0}
+  footer{border-top:1px solid var(--line); padding:30px 0 10px; color:var(--dim); font-size:13.2px}
+  @media print{
+    body{background:#fff; color:#111}
+    nav.toc,.toTop,header.bar{display:none}
+    main{padding:0; max-width:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <span class="tag">PHASE 0</span>
+  <span class="t">MaleCNS 学习指南 · 打地基</span>
+  <span class="sp"></span>
+  <span class="meta">v1.0 · 资料截止 2026-09-17</span>
+</header>
+
+<div class="wrap">
+
+<nav class="toc" id="toc">
+  <h4>阶段 0 目录</h4>
+  <a href="#intro-why"><span class="n">00</span>为什么先学这些</a>
+  <a href="#what"><span class="n">01</span>MaleCNS 是什么</a>
+  <a href="#numbers" class="sub">├ 三个最容易搞错的数字</a>
+  <a href="#notflywire"><span class="n">02</span>它不是 FlyWire</a>
+  <a href="#connectome"><span class="n">03</span>连接组与 EM 流程</a>
+  <a href="#resolution" class="sub">├ 分辨率与版图定位</a>
+  <a href="#contact"><span class="n">04</span>接触点 ≠ 连接</a>
+  <a href="#threshold" class="sub">├ 三个必须分清的词</a>
+  <a href="#layers" class="sub">├ 权重是建模选择</a>
+  <a href="#id"><span class="n">05</span>body ID 与版本</a>
+  <a href="#annot"><span class="n">06</span>细胞类型与注释字段</a>
+  <a href="#neuropil"><span class="n">07</span>神经毡：脑区地图</a>
+  <a href="#v3d" class="sub">├ 交互式 3D 脑区浏览器</a>
+  <a href="#lineage"><span class="n">08</span>hemilineage：发育谱系</a>
+  <a href="#nt"><span class="n">09</span>递质预测与符号问题</a>
+  <a href="#proof"><span class="n">10</span>proofreading 与数据质量</a>
+  <a href="#compare"><span class="n">11</span>MaleCNS vs FlyWire 全表</a>
+  <a href="#pitfalls"><span class="n">12</span>七个必踩的坑</a>
+  <a href="#glossary"><span class="n">13</span>术语速查表</a>
+  <a href="#selfcheck"><span class="n">14</span>过关自测</a>
+  <a href="#links" class="grp"><span class="n">15</span>资源与来源</a>
+  <a href="#sources" class="sub">├ 本页相对指南的修正</a>
+</nav>
+
+<main>
+
+<!-- ==================== HERO ==================== -->
+<div class="hero" id="intro">
+  <div class="eyebrow">Phase 0 · Foundation · 约 30 分钟</div>
+  <h1>先把词搞对，<br><span class="accent">再去看 16.7 万个神经元</span></h1>
+  <p class="sub">
+    这一页是《MaleCNS v1.0 学习指南》<strong>阶段 0</strong> 的配套材料。它不讲通路、不写代码，
+    只做一件事：把连接组学的<strong>基本词汇和数量直觉</strong>装进你脑子里，
+    让你在阶段 1 打开 Codex / neuPrint 时看得懂界面上每一个字段。
+  </p>
+  <div class="facts">
+    <span class="chip"><span class="dot"></span><b>166,700</b> 神经元</span>
+    <span class="chip a"><span class="dot"></span><b>≈1.24 亿</b> 突触接触点</span>
+    <span class="chip g"><span class="dot"></span><b>11,710</b> 细胞类型</span>
+    <span class="chip v"><span class="dot"></span>雄性 · 全 CNS（脑+视叶+VNC）</span>
+    <span class="chip r"><span class="dot"></span>与 FlyWire <b>ID 不通用</b></span>
+  </div>
+</div>
+
+<!-- ==================== 00 ==================== -->
+<section id="intro-why">
+  <h2><span class="num">00</span> 为什么阶段 0 不能跳<span class="en">Why this page exists</span></h2>
+  <p class="lead">
+    连接组学有一批<strong>看起来像常识、其实是专业术语</strong>的词。它们的日常含义和数据里的含义不一样，
+    而恰恰是这些词决定了你会不会把两类不相干的数字放在一起比较。
+  </p>
+
+  <div class="box warn">
+    <div class="h">⚠️ 一句话概括这个阶段要防的错</div>
+    <p>
+      同一个 MaleCNS，在不同工具里会显示<strong>不同的神经元数和连接数</strong>。
+      这不是数据有错，而是<strong>阈值口径不同</strong>。不知道这一点的人，
+      会在第一天就得出「neuPrint 和 flat connectome 对不上，数据不可靠」这种错误结论。
+    </p>
+  </div>
+
+  <h3>阶段 0 的过关标准（来自指南）</h3>
+  <p>
+    指南给阶段 0 定的过关标准是：<span class="kw">能说出 MaleCNS 与 FlyWire 的三点差异</span>。
+    本页把它拆成可检查的动作：
+  </p>
+  <div class="stats">
+    <div class="stat"><div class="v">差异 ×3</div><div class="l">性别、覆盖范围、规模与生态 —— 能张口说出，且知道 ID 不通用</div></div>
+    <div class="stat a"><div class="v">术语 ×10</div><div class="l">连接组、body ID、细胞类型、神经毡、hemilineage、递质、proofreading…</div></div>
+    <div class="stat g"><div class="v">数量直觉</div><div class="l">知道「1.24 亿」和「2,558 万」量的不是同一件东西</div></div>
+    <div class="stat v"><div class="v">1 小时</div><div class="l">本页通读一遍，约 30–60 分钟</div></div>
+  </div>
+
+  <div class="box violet">
+    <div class="h">🔗 学完之后立刻做什么</div>
+    <p>
+      进入<strong>阶段 1</strong>：打开 Codex 或 neuPrint，手工走通一条已知通路
+      （<span class="kw">R1–R6 → … → DNg13</span> 或 <span class="kw">糖 GRN → SEZ → MN9</span>），
+      并说出中间经过哪些细胞类型。阶段 1 的难度几乎全部来自阶段 0 没打牢。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 01 ==================== -->
+<section id="what">
+  <h2><span class="num">01</span> MaleCNS 是什么<span class="en">What it is</span></h2>
+  <p class="lead">
+    <strong>MaleCNS</strong> 是成年<strong>雄性</strong>果蝇（<em>Drosophila melanogaster</em>）的
+    <strong>完整中枢神经系统</strong>连接组：中央脑 + 视叶 + 腹神经索（VNC），颈连接完整。
+    由 Janelia FlyEM 团队重建，2026-06-08 发布 v1.0。
+  </p>
+
+  <div class="box">
+    <div class="h">🧠 一个比喻（但有边界）</div>
+    <p>
+      把连接组想成一张<strong>城市道路图</strong>：它告诉你哪条路通向哪里、有多宽，
+      但<strong>不告诉你车流速度、红绿灯配时、司机意图</strong>。
+      连接组 = 接线图；它能约束动力学，但不包含动力学。
+      阶段 4 做仿真时，你补上的正是「车流规则」—— 而那部分是<strong>你的建模假设</strong>，不是测量值。
+    </p>
+  </div>
+
+  <h3>核心数字</h3>
+  <div class="stats">
+    <div class="stat"><div class="v">166,700</div><div class="l">神经元（<strong>正式发表 + Codex MCNS v1.0</strong> 口径）<br>预印本口径为 <span class="pill">166,691</span></div></div>
+    <div class="stat g"><div class="v">11,710</div><div class="l">细胞类型总数（正式发表口径）<br>预印本为 11,691</div></div>
+    <div class="stat a"><div class="v">≈124.2M</div><div class="l">突触接触点（接触点 ≠ 连接）<br>精确保留值见下方口径表</div></div>
+    <div class="stat v"><div class="v">138</div><div class="l">两性异形类型 + <strong>289</strong> 雄性特有 + <strong>71</strong> 雌性特有（正式发表口径）</div></div>
+  </div>
+
+  <div class="box danger">
+    <div class="h">🚨 开工前必读：指南里的数字已经过时了</div>
+    <p>
+      本页对指南做了联网核查（2026-09-17）。<strong>指南混用了「2025-10 预印本」和「2026-09 正式发表」两套数字</strong>，
+      最典型的是细胞类型统计。<strong>正式 Cell 版已更新如下：</strong>
+    </p>
+    <div class="tw" style="margin:14px 0 16px">
+      <table>
+        <thead><tr><th>项目</th><th>预印本 2025-10</th><th>→</th><th>正式 Cell 2026-09-03</th></tr></thead>
+        <tbody>
+          <tr><td>神经元数</td><td class="n">166,691</td><td class="n">→</td><td class="n" style="color:var(--green);font-weight:700">166,700</td></tr>
+          <tr><td>细胞类型总数</td><td class="n">11,691</td><td class="n">→</td><td class="n" style="color:var(--green);font-weight:700">11,710</td></tr>
+          <tr><td>同构 isomorphic</td><td class="n">7,205</td><td class="n">→</td><td class="n" style="color:var(--green);font-weight:700">8,069</td></tr>
+          <tr><td>异形 dimorphic</td><td class="n">114</td><td class="n">→</td><td class="n" style="color:var(--green);font-weight:700">138</td></tr>
+          <tr><td>雄性特有</td><td class="n">262</td><td class="n">→</td><td class="n" style="color:var(--green);font-weight:700">289</td></tr>
+          <tr><td>雌性特有</td><td class="n">69</td><td class="n">→</td><td class="n" style="color:var(--green);font-weight:700">71</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-bottom:0">
+      指南写的「<strong>262 个性别特异 + 114 个二态类型 = 4.8%</strong>」是<strong>预印本口径</strong>
+      （Janelia 项目页旧文案至今仍在用这一版）。正式发表版是 <strong>289 + 138（+71 雌性特有）</strong>。
+      那个 <strong>4.8%</strong> 的分母官方没有明说 —— 按类型算 376/11,691 ≈ 3.2%，不等于 4.8%，
+      所以它<strong>大概率是「神经元占比」而非「类型占比」</strong>，但目前<span class="pill a">待核实</span>。
+    </p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>项目</th><th>数值</th><th>口径与说明</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>神经元</td><td class="n">166,700</td>
+          <td><span class="verdict v-ok">已核实</span> 正式发表摘要 + Codex MCNS v1.0 + 官方 media 页一致。
+            <strong>166,691 是预印本数字</strong>，不是「官方 vs 社区」的关系</td>
+        </tr>
+        <tr>
+          <td>覆盖区域</td><td class="y">中央脑 + 视叶 + VNC</td>
+          <td><span class="verdict v-ok">已核实</span> 官方原文：central brain、optic lobes、ventral nerve cord，
+            <em>intact neck connective</em>（颈连接完整）</td>
+        </tr>
+        <tr>
+          <td>数据版本</td><td class="y">v0.9 / v1.0</td>
+          <td><span class="verdict v-ok">已核实</span> <strong>v1.0 = 2026-06-08</strong>，官方变更仅两条：
+            「Minor proofreading changes」「Refinement of neuron annotations」。
+            v0.9 官方两处口径不一致（Release Notes 写 10-05，新闻写 10-03）→ <span class="pill a">标注 10-03/05</span></td>
+        </tr>
+        <tr>
+          <td>过滤阈值</td><td class="y">两套口径</td>
+          <td><span class="verdict v-ok">已核实</span> flat-connectome 文件名内嵌 <code>minconf-0.5</code>；
+            Codex FAQ 明文 MCNS 默认 <strong>5+</strong>（FAFB 5+ / BANC 3+ / MANC 1+ / MAOL 1+）</td>
+        </tr>
+        <tr>
+          <td>性别</td><td class="y">雄性 ♂</td>
+          <td><span class="verdict v-ok">已核实</span> 成虫、5 日龄、Canton-S G1 × w1118，标本编号 <code>Z0720-07m</code></td>
+        </tr>
+        <tr>
+          <td>许可</td><td class="y">CC-BY 4.0</td>
+          <td><span class="verdict v-ok">已核实</span> 署名实体：FlyEM / HHMI Janelia、剑桥大学动物学系、
+            MRC LMB、Google Research（另可补 Wellcome Trust、Champalimaud Foundation）。
+            注意：CC-BY 只覆盖<strong>数据</strong>，Cell 正文本身是订阅制</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="numbers">三个最容易搞错的数字</h3>
+  <p>
+    这是本页最重要的一个实用小节。你不是被要求记住数字，而是要被要求
+    <strong>在引用任何数字前先问「这是哪个口径」</strong>。
+  </p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>你会看到的数字</th><th>它到底是什么</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="n">166,700</td>
+          <td>神经元总数。<strong>正式发表 + Codex MCNS v1.0 口径</strong></td>
+          <td><span class="verdict v-ok">已核实</span></td>
+        </tr>
+        <tr>
+          <td class="n">166,691</td>
+          <td>同一件事的<strong>预印本口径</strong></td>
+          <td><span class="verdict v-fix">旧口径</span></td>
+        </tr>
+        <tr>
+          <td class="n">165,122</td>
+          <td>社区项目按 <code>annotation status = Traced</code> 过滤出的子图（25,563,197 条边）——
+            <strong>这才是「社区过滤值」</strong></td>
+          <td><span class="verdict v-ok">已核实</span></td>
+        </tr>
+        <tr>
+          <td class="n">124,177,617</td>
+          <td>突触接触点精确整数。官方新闻口径为 <strong>124.2 million synapses</strong> /
+            「124 million synaptic connections」</td>
+          <td><span class="verdict v-un">量级确认，整数待核实</span></td>
+        </tr>
+        <tr>
+          <td class="n">25,582,938</td>
+          <td>指南所用的「有向连接（去重后）」数。<strong>本次核查未能坐实这个整数。</strong>
+            官方作者计数 notebook（v0.9 口径）：未阈值 <strong>25,563,426</strong> 条边；
+            加 ≥5 突触阈值后 <strong>6,237,402</strong> 条边。<strong>Codex MCNS v1.0 界面显示 6,242,118 connections</strong></td>
+          <td><span class="verdict v-un">待核实</span></td>
+        </tr>
+        <tr>
+          <td class="n">6,237,402 / 6,242,118</td>
+          <td><strong>≥5 突触阈值下</strong>的连接数 —— 这才是你在 neuPrint / Codex 里会看到的量级</td>
+          <td><span class="verdict v-ok">已核实</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box warn">
+    <div class="h">📏 这对第 04 节的「4.85」意味着什么</div>
+    <p style="margin-bottom:0">
+      第 04 节推出的「平均每条连接 4.85 个接触点」= 124,177,617 / 25,582,938，
+      <strong>两个输入里有一个待核实</strong>，所以 4.85 这个具体数值请当作<strong>量级示意</strong>。
+      但它支撑的<strong>定性结论不受影响</strong>：阈值卡在均值附近 → 砍掉大量弱边，接触点总量几乎不动。
+      这一点已被官方口径独立佐证 —— 未阈值 2,556 万条边降到 <strong>624 万条</strong>（约剩 1/4），
+      而接触点仍是 1.24 亿量级。
+    </p>
+  </div>
+
+  <div class="box good">
+    <div class="h">✅ 一句话记忆</div>
+    <p>
+      MaleCNS = <strong>雄</strong> · <strong>全 CNS（含 VNC）</strong> · <strong>166,700 神经元 / 约 1.24 亿接触点</strong> · 门户在
+      <a href="https://male-cns.janelia.org/">male-cns.janelia.org</a> + neuPrint（<code>male-cns:v1.0</code>）。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 02 ==================== -->
+<section id="notflywire">
+  <h2><span class="num">02</span> 它不是 FlyWire 的新版本<span class="en">Not a FlyWire update</span></h2>
+  <p class="lead">
+    这是阶段 0 <strong>最容易、也最昂贵</strong>的误解。看到「果蝇全脑连接组」就以为
+    MaleCNS 是 FlyWire 的升级版 —— 两者的 ID 体系<strong class="no">完全不通用</strong>，
+    混用的结果是你的分析全部作废。
+  </p>
+
+  <h3>三点差异（必须能张口说出）</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>维度</th><th>MaleCNS v1.0</th><th>FlyWire FAFB v783</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>① 性别</strong></td>
+          <td><span class="yes">雄性 ♂</span></td>
+          <td><span class="no">雌性 ♀</span></td>
+        </tr>
+        <tr>
+          <td><strong>② 范围</strong></td>
+          <td><span class="yes">全 CNS</span>：脑 + 视叶 + VNC</td>
+          <td><span class="no">仅脑</span>（无 VNC、无完整视叶）</td>
+        </tr>
+        <tr>
+          <td><strong>③ 规模与生态</strong></td>
+          <td>166,700 神经元、约 1.24 亿接触点、<strong>新</strong>，多为社区 demo</td>
+          <td>139,255 神经元（已校对）、约 <strong>5×10⁷</strong> 化学突触（论文原文口径）、<strong>成熟</strong>，有完整工具链与教程</td>
+        </tr>
+        <tr>
+          <td>快照/发布</td><td class="y">v1.0 · 2026-06-08</td><td class="y">v783 · 2023-10</td>
+        </tr>
+        <tr>
+          <td>主论文</td>
+          <td>Berg et al., <em>Cell</em> 2026<br><span class="pill">DOI 10.1016/j.cell.2026.08.015</span></td>
+          <td>Dorkenwald et al., <em>Nature</em> 634:124–138 (2024)<br><span class="pill">DOI 10.1038/s41586-024-07558-y</span></td>
+        </tr>
+        <tr>
+          <td>官方门户</td>
+          <td><a href="https://male-cns.janelia.org/">male-cns.janelia.org</a> / neuPrint</td>
+          <td><a href="https://flywire.ai/">flywire.ai</a> / <a href="https://codex.flywire.ai/">Codex</a></td>
+        </tr>
+        <tr>
+          <td>编程接口</td>
+          <td><code>neuprint-python</code>、R 包 <code>natverse::malecns</code></td>
+          <td><code>CAVEclient</code>、<code>fafbseg-py</code> + <code>navis</code></td>
+        </tr>
+        <tr>
+          <td><strong>ID 互通</strong></td>
+          <td colspan="2" class="no" style="text-align:center">不通用，绝不可混用 —— 没有官方的跨数据集 <em>ID 级</em> 映射</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box danger">
+    <div class="h">🚫 最常见的致命错误</div>
+    <p>
+      把 FlyWire 的 body ID 丢进 MaleCNS 的 neuPrint 查询，或者反过来。
+      两个数据集是<strong>两只不同的蝇子、两套独立的分割结果</strong>，编号只是各自卷内的序号，
+      恰好撞号不代表对应同一个神经元。结构上也能一眼看出差别：
+      FlyWire 的 root ID 是约 18–19 位的大整数（如 <code>720575940625682725</code>），
+      MaleCNS 的 bodyId 是小整数（如 <code>12781</code>）。
+    </p>
+    <p style="margin-bottom:0">
+      Codex FAQ 的原文说得很清楚：<em>Root IDs are tied to a specific source segmentation and data snapshot.</em>
+    </p>
+  </div>
+
+  <div class="box good">
+    <div class="h">✅ 但有「类型级」的官方对照表 —— 这点要分清</div>
+    <p style="margin-bottom:0">
+      <strong>没有 ID 映射</strong>，可是<strong>有类型级的 crosswalk</strong>：
+      官方补充数据里的 <code>mcns_fw_edge_comp_mappings.json</code> 给出 MaleCNS ↔ FlyWire 的类型标签对应；
+      R 包 <code>natverse/malecns</code> 的元数据带 <code>flywireType</code> / <code>mancType</code> 列；
+      AOTU012 的官方页面也会列出「FlyWire Type(s): AOTU012」。
+      所以正确的说法是：<strong>先把类型对上，再讨论「同一个细胞」</strong>。
+    </p>
+  </div>
+
+  <h3>相关但不同的数据集（别搞混）</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>数据集</th><th>性别</th><th>范围</th><th>规模 / 备注</th></tr></thead>
+      <tbody>
+        <tr><td class="n">MaleCNS / MCNS</td><td>♂</td><td>脑 + 视叶 + VNC</td><td>166,700 · v1.0 · 标本 Z0720-07m</td></tr>
+        <tr><td class="n">FlyWire FAFB</td><td>♀</td><td>仅脑</td><td>139,255 · v783 · 生态最成熟</td></tr>
+        <tr><td class="n">BANC</td><td>♀</td><td>脑 + 神经索</td><td>158,262 · v888 快照 2026-05-20（另有 v626 2025-07-20）</td></tr>
+        <tr><td class="n">MANC</td><td>♂</td><td>仅神经索（VNC）</td><td>23,665 · v1.2.1</td></tr>
+        <tr><td class="n">MAOL</td><td>♂</td><td><strong>仅右侧</strong>视叶</td><td>52,445 · v1.1 · 「Male Adult Fly <strong>Right</strong> Optic Lobe」</td></tr>
+        <tr><td class="n">Hemibrain</td><td><span class="no">♀</span></td><td>中央脑的<strong>一部分</strong></td><td>约 25,000 · 2020 年 · <strong>是雌性</strong>，不是雄性</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Codex 把 FAFB / BANC / MANC / MAOL / MCNS 这 5 个收在同一个界面里，支持跨数据集搜索
+    （查询前加 <code>@</code> 前缀，例如 <code>@ T4a</code> 会在所有数据集里搜 T4a）。这是<strong>搜索便利</strong>，不代表 ID 通用。
+  </p>
+
+  <div class="box danger">
+    <div class="h">⚠️ 一个几乎没人提醒的重复计数陷阱</div>
+    <p style="margin-bottom:0">
+      <strong>MAOL（雄性视叶）与 MaleCNS 来自同一只果蝇</strong>（标本 <code>Z0720-07m</code>）。
+      如果你把两个数据集的神经元数加起来做「总量统计」，
+      会<strong>重复计数同一批视叶细胞</strong>。跨数据集汇总前，必须确认它们是不是同一标本。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 03 ==================== -->
+<section id="connectome">
+  <h2><span class="num">03</span> 连接组与电子显微镜重建<span class="en">Connectome &amp; the EM pipeline</span></h2>
+
+  <h3>什么是「连接组」</h3>
+  <p>
+    <strong>连接组（connectome）</strong>是神经元之间全部连接关系的图谱 —— 一张
+    <strong>有向、带权、极稀疏</strong>的图。现代果蝇连接组是<strong>致密电子显微镜重建</strong>的产物：
+    把组织切成纳米级薄片、逐片成像、用算法把每个细胞从灰度像素里「抠」出来，
+    再找出细胞之间的突触。
+  </p>
+
+  <div class="box">
+    <div class="h">两种「连接组」不要混为一谈</div>
+    <ul style="margin-bottom:0">
+      <li><strong>致密 EM 连接组（本页讨论的）</strong>：逐个突触、逐个细胞，能回答「A 是否直接连 B」。
+        MaleCNS、FlyWire、Hemibrain、MICrONS 属于这一类。</li>
+      <li><strong>中尺度投射组（mesoscale projection）</strong>：用光镜品系标记大量神经元、统计粗粒度投射模式，
+        <strong>不能</strong>给出单细胞级的有向连接。FlyLight / NeuronBridge 那一侧。</li>
+    </ul>
+  </div>
+
+  <figure>
+    <img src="assets/em-pipeline.png" alt="从一块蝇脑到一张接线图的 6 个阶段">
+    <figcaption>
+      <b>图 1 · EM 重建管线。</b>连接组不是「拍」出来的，是<strong>逐步推断</strong>出来的。
+      每一步都会引入误差，而校对（第 6 步）发现的问题会回灌去改进分割与突触检测 ——
+      这正是版本号会一直往前走的根本原因。阶段 2 读论文时你会反复回到这张图。
+    </figcaption>
+  </figure>
+
+  <h4 id="resolution">分辨率：一个容易被引错的数字</h4>
+  <p>
+    管线每一步都有自己的<strong>坐标分辨率</strong>，「MaleCNS 的分辨率是多少」这个问题本身就不完整 ——
+    必须问「哪一层」。已核实的官方数字：
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>层</th><th>MaleCNS v1.0</th><th>对照：FlyWire FAFB</th></tr></thead>
+      <tbody>
+        <tr><td>对齐 EM + 分割体</td><td class="n">8 × 8 × 8 nm（各向同性）</td><td class="n">4 × 4 × 40 nm（ssTEM）</td></tr>
+        <tr><td>核分割</td><td class="n">16 nm</td><td class="n">—</td></tr>
+        <tr><td>脑 ROI</td><td class="n">256 nm（约 90 个主分区）</td><td class="n">—</td></tr>
+        <tr><td>VNC ROI</td><td class="n">256 nm（23 个 VNC 神经毡）</td><td class="n">不适用（FAFB 无 VNC）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="box warn">
+    <div class="h">⚠️ 别把 FAFB 的 4×4×40 nm 当成 MaleCNS 的分辨率</div>
+    <p style="margin-bottom:0">
+      很多科普文章会把 FlyWire 的 <strong>4×4×40 nm</strong> 直接套到 MaleCNS 头上，这是错的。
+      MaleCNS 的发布体是 <strong>8 nm 各向同性</strong>（可从官方 Neuroglancer 场景 JSON 直接读出
+      <code>x/y/z = 8e-9 m</code>）。成像方式也有元数据冲突：视叶论文写 FIB-SEM，VFB 数据集页标 SBFSEM，
+      <strong>以论文 Methods 为准</strong> <span class="pill a">待核实</span>。
+    </p>
+  </div>
+
+  <h4>六个阶段各自在做什么</h4>
+  <ol>
+    <li><strong>包埋与切片</strong> —— 树脂包埋，切成成千上万张超薄连续切片。</li>
+    <li><strong>电镜成像</strong> —— 逐层拍成灰度图像（ssTEM / SBEM / FIB-SEM），像素与切片厚度在<strong>纳米量级</strong>；体积可达 TB 级。</li>
+    <li><strong>对齐与拼接</strong> —— z 方向对齐、块间拼接，得到各向连续的 3D 体数据。</li>
+    <li><strong>分割 segmentation</strong> —— 给每个体素判定归属：先由深度网络分割，再做聚集（agglomeration）合并成完整细胞。</li>
+    <li><strong>突触检测</strong> —— 识别突触前 T-bar / 活性带与突触后密度，<strong>每个位点带一个 confidence 分数</strong>。这就是「接触点」的来源。</li>
+    <li><strong>校对 proofreading</strong> —— 人工合并被切碎的同一细胞、拆开被错误粘连的两个细胞。<strong>这一步决定数据质量</strong>。</li>
+  </ol>
+
+  <div class="box warn">
+    <div class="h">💡 阶段 0 最该记住的一句话</div>
+    <p style="margin-bottom:0">
+      连接组里的每一个数字，都带着一个<strong>推断链条</strong>和它的误差。
+      所以论文里永远会写清楚阈值、置信度、校对程度 —— 这些不是可省略的细节，它们是数字的一部分。
+    </p>
+  </div>
+
+  <h3>把 MaleCNS 放进连接组学的版图</h3>
+  <p>
+    知道自己站在哪里，比记住数字有用。下面这张表的作用是<strong>建立量级感</strong> ——
+    从 302 个神经元到 1.5 亿个突触，人类走了近 40 年。
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>系统</th><th>年份</th><th>规模</th><th>特点</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="n">C. elegans</td><td>1986</td>
+          <td>302 神经元（雌雄同体）<br>约 5,000 化学突触 + 2,000 神经肌肉接头 + 600 间隙连接</td>
+          <td>第一个完整连接组，全靠人工<br><span class="pill">2019 重做：含雄性 385 神经元</span></td>
+        </tr>
+        <tr>
+          <td class="n">果蝇 1 龄幼虫</td><td>2023</td>
+          <td>约 3,000 神经元 / 5×10⁵ 突触</td>
+          <td>第一个昆虫连接组</td>
+        </tr>
+        <tr>
+          <td class="n">Hemibrain</td><td>2020</td>
+          <td>约 25,000 神经元 / 4,000+ 类型<br>8×8×8 nm</td>
+          <td>半脑（中央脑的一部分）· <strong>雌性</strong></td>
+        </tr>
+        <tr>
+          <td class="n">FlyWire FAFB</td><td>2024</td>
+          <td>139,255 神经元 / 约 5×10⁷ 突触<br>4×4×40 nm</td>
+          <td>全脑 · <strong>雌性</strong> · 生态最成熟</td>
+        </tr>
+        <tr>
+          <td class="n"><strong>MaleCNS</strong></td><td>2026</td>
+          <td>166,700 神经元 / 约 1.24 亿接触点<br>8×8×8 nm</td>
+          <td><strong>雄性</strong> · 全 CNS（脑 + 视叶 + VNC）· <strong>完全校对</strong></td>
+        </tr>
+        <tr>
+          <td class="n">MICrONS（小鼠）</td><td>2025</td>
+          <td>84,035 独立分割神经元 / 约 5.24 亿突触<br>约 1 mm³ 视觉皮层</td>
+          <td>哺乳动物；校对只覆盖 85 个神经元</td>
+        </tr>
+        <tr>
+          <td class="n">H01（人）</td><td>2024</td>
+          <td>约 57,000 细胞（含胶质，胶质:神经元≈2:1）<br>149,871,669 个突触</td>
+          <td>约 1 mm³ 前中颞回；原始数据 1.8 PB<br>随机全校对 104 个神经元</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="box good">
+    <div class="h">✅ 一句话定位</div>
+    <p style="margin-bottom:0">
+      MaleCNS 的特殊之处<strong>不在于最大</strong>（MICrONS 的突触更多），
+      而在于它是<strong>第一个「完整脊椎动物之外的、全 CNS、且完全校对」的成虫连接组</strong>：
+      脑 + 视叶 + VNC 都在，颈连接完整，而且<strong>有雌性对应数据集（FlyWire / BANC）可以对比</strong>。
+      这就是为什么它关于性二态的那批结论能站得住。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 04 ==================== -->
+<section id="contact">
+  <h2><span class="num">04</span> 接触点 ≠ 连接，以及阈值口径<span class="en">Contacts vs connections</span></h2>
+  <p class="lead">
+    这是阶段 0 <strong>最核心的一个概念区分</strong>，也是 1.24 亿和 2,558 万这两个数字能同时成立的原因。
+  </p>
+
+  <figure>
+    <img src="assets/contacts-vs-connections.png" alt="接触点与连接的区别，以及两种阈值口径的效果">
+    <figcaption>
+      <b>图 2 · 接触点、连接、阈值的三者关系。</b>
+      左：一对神经元之间有 7 个突触接触点，但只算 <strong>1 条连接</strong>。
+      中：全数据集账本，平均每条连接 <strong>约 4.9</strong> 个接触点。
+      右：同样 5 条连接，口径 A（min-confidence 0.5）全保留，口径 B（≥5 突触）只留 1 条。
+      被丢掉的 4 条一共只带走 9 个接触点，分母是 1.24 亿 —— <strong>连接数剧烈变化，接触点总数几乎不动</strong>。
+      <br><span class="pill a">图中账本沿用指南口径（4.85）；已核实的官方数字见下方表格与公式</span>
+    </figcaption>
+  </figure>
+
+  <h3 id="threshold">三个必须分清的词</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>词</th><th>英文</th><th>含义</th><th>MaleCNS 数量级</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>突触接触点</strong></td><td>synaptic contact / bouton / T-bar</td>
+          <td>显微镜里能被标注出的<strong>一个突触位点</strong>。是「接触」的物理计数</td>
+          <td class="y">≈124.2M</td>
+        </tr>
+        <tr>
+          <td><strong>连接（边）</strong></td><td>connection / edge</td>
+          <td>把「A→B 的所有接触点」<strong>去重合并</strong>成一条有向边</td>
+          <td class="y">待核实<br><span class="pill">≥5 阈值下约 624 万</span></td>
+        </tr>
+        <tr>
+          <td><strong>权重</strong></td><td>weight</td>
+          <td>这条边上到底有几个接触点（即 <em>c</em><sub>BA</sub>）。<strong>权重是选择，不是事实</strong></td>
+          <td class="y">平均约 4.85</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box violet">
+    <div class="h">📐 用公式说清楚</div>
+    <p>设 <em>c</em><sub>ji</sub> = 从突触前神经元 <em>i</em> 到突触后神经元 <em>j</em> 的接触点数，则：</p>
+    <div class="formula">
+<span class="cmt"># 接触点总数（测量值，官方新闻口径 124.2 million synapses）</span>
+S = Σ<sub>i,j</sub> c<sub>ji</sub> ≈ <span class="hl">1.242 × 10⁸</span>
+
+<span class="cmt"># 连接数：c ≥ 1 的神经元对才计一条边</span>
+E = |{ (i,j) : c<sub>ji</sub> ≥ 1 }|
+
+<span class="cmt"># 官方作者 notebook 给出的两个口径</span>
+E<sub>未阈值</sub>    = <span class="hl">25,563,426</span>
+E<sub>≥5 突触</sub>  = <span class="hl">6,237,402</span>
+              <span class="cmt"># Codex MCNS v1.0 界面显示 6,242,118</span>
+
+<span class="cmt"># 平均权重（用未阈值口径）</span>
+s̄ = S / E ≈ <span class="bl">4.86</span>   <span class="cmt"># 个接触点 / 条连接</span>
+    </div>
+    <p style="margin-bottom:0">
+      注意 <strong>s̄ ≈ 4.86 刚好卡在 5 这个阈值上</strong>。
+      这意味着口径 B（≥5 突触）几乎就是一条<strong>均值线</strong>：
+      它专门切掉那些 1–4 个接触点的弱边，而弱边对接触点总量的贡献很小。
+    </p>
+  </div>
+
+  <h3>为什么「连接数」会大幅变化，接触点却不动</h3>
+  <p>
+    设 <em>p<sub>k</sub></em> = 恰好有 <em>k</em> 个接触点的边所占比例，那么
+    Σ<sub>k≥1</sub> <em>p<sub>k</sub></em> = 1，且 s̄ = Σ<sub>k≥1</sub> <em>k·p<sub>k</sub></em>。加阈值后：
+  </p>
+  <div class="formula">
+<span class="cmt"># 保留的边数比例 —— 会大幅下降</span>
+E<sub>≥5</sub> / E = Σ<sub>k≥5</sub> p<sub>k</sub>
+
+<span class="cmt"># 保留的接触点比例 —— 几乎不动</span>
+S<sub>≥5</sub> / S = Σ<sub>k≥5</sub> k·p<sub>k</sub> / Σ<sub>k≥1</sub> k·p<sub>k</sub>
+
+<span class="cmt"># 可证明的上界：被删掉的接触点最多 4E 个</span>
+S − S<sub>≥5</sub> = E·Σ<sub>k=1..4</sub> k·p<sub>k</sub> ≤ 4E
+    </div>
+  <p>
+    关键不对称在于：<strong>被删的每条弱边最多带走 4 个接触点</strong>，
+    而留下的强边一条可能就带 8 个、20 个甚至上百个接触点。
+    在重尾分布下，连接数可以掉一个数量级，接触点总数却几乎不变。
+  </p>
+
+  <div class="box good">
+    <div class="h">✅ 官方数字正好印证了这一点</div>
+    <p>
+      用官方作者 notebook 的两个口径对比（这是<strong>已核实</strong>的真实数字，不是示意）：
+    </p>
+    <div class="formula">
+连接数：25,563,426  →  6,237,402       <span class="hl">只剩 24.4%</span>     <span class="cmt"># 大幅下降</span>
+接触点：≈ 1.242 亿   →  仍约 1.2 亿量级   <span class="hl">基本不动</span>      <span class="cmt"># 几乎不变</span>
+    </div>
+    <p style="margin-bottom:0">
+      <strong>约四分之三的连接被阈值砍掉了，但接触点总量几乎没变。</strong>
+      这就是第 04 节想让你带走的全部内容 —— 也是为什么「连接数」这个指标
+      <strong>离开口径就没有意义</strong>。
+    </p>
+  </div>
+
+  <div class="box warn">
+    <div class="h">⚠️ 所以：跨口径比较是没有意义的</div>
+    <p style="margin-bottom:0">
+      看到「MaleCNS 有 2,558 万条连接」时，<strong>永远先问一句：这是哪套口径？</strong>
+      密度、平均度、存储量这些派生指标，全部<strong>依赖于阈值口径</strong>。
+      本次核查也确认：<strong>25,582,938 这个整数无法坐实</strong>，
+      引用时请改用官方 notebook 的 25,563,426（未阈值）或 6,237,402（≥5 突触）。
+    </p>
+  </div>
+
+  <h3 id="layers">权重是建模选择，不是测量值</h3>
+  <p>
+    连接组本身<strong>只是接线图，没有任何动力学</strong>。
+    下面这套权重定义是社区项目（Doomfly / mps-malecns-model 等）实际使用的约定 ——
+    它是<strong>建模选择</strong>，写论文时必须声明：
+  </p>
+  <div class="formula">
+<span class="cmt"># 权重：按突触后神经元的总输入接触数归一化，再乘递质符号</span>
+W[j,i] = c[j,i] · s[j] / Σ<sub>k</sub>( c[k,i] · |s[k]| )
+
+<span class="cmt"># 递质符号（假设，非事实）</span>
+s = <span class="bl">+1</span>  if 乙酰胆碱 (ACh)
+    <span class="hl">−1</span>  if GABA 或 谷氨酸 (Glu)
+     <span class="bl">0</span>  if 未知 / 仅调质 / 冲突
+    </div>
+  <p>
+    更多建模细节（LIF 动力学、dt、τ<sub>m</sub>、不应期、传导延迟）属于阶段 4 的内容，
+    见指南第 4 节。
+  </p>
+</section>
+
+<!-- ==================== 05 ==================== -->
+<section id="id">
+  <h2><span class="num">05</span> body ID：为什么必须对版本<span class="en">Body IDs</span></h2>
+  <p class="lead">
+    <strong>body ID</strong>（也叫 root ID）是神经元在<strong>某个数据版本</strong>中的唯一编号。
+    它是你所有查询、所有代码、所有分析的<strong>主键</strong>。
+  </p>
+
+  <div class="box danger">
+    <div class="h">🔑 三句话记住 ID 的脆弱性</div>
+    <ol style="margin-bottom:0">
+      <li><strong>ID 会变。</strong>校对修改分割时，一个 body ID 可能被合并进另一个、或被拆成两个。
+        v0.9 → v1.0 就有这类改动，<strong>跨版本必须重映射</strong>。</li>
+      <li><strong>ID 不通用。</strong>MaleCNS 与 FlyWire 的 ID 属于不同的蝇子、不同的分割，
+        绝不可混用（见第 02 节）。</li>
+      <li><strong>ID 不等于细胞类型。</strong>一个 ID 是一个<em>实例</em>；细胞类型是一群实例的<em>标签</em>。
+        同一个类型在两只蝇子里会有不同的 ID。</li>
+    </ol>
+  </div>
+
+  <h3>ID 的层级：segment 与 body / root</h3>
+  <p>
+    这一层最好用「不可变的原子单位」来理解：
+    <strong>supervoxel / segment 是不可变的原子</strong>，而 <strong>root ID（= body ID）只是一个 supervoxel 集合的名字</strong>。
+    任何一次合并或拆分都会产生<strong>新的 root ID</strong>，旧的 ID 随之失效。
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>概念</th><th>含义</th><th>会变吗</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>supervoxel</code> / <code>segment ID</code></td>
+          <td>分割算法输出的<strong>体素块</strong>，是不可变的原子单位。一个真实神经元常常被切成很多块</td>
+          <td><span class="yes">不变</span></td>
+        </tr>
+        <tr>
+          <td><code>root ID</code> / <code>body ID</code></td>
+          <td>代表一个完整神经元的编号，本质是<strong>一个 supervoxel 集合的名字</strong>。查询时用的就是它</td>
+          <td><span class="no">会变</span>（每次校对改分割都换新 ID）</td>
+        </tr>
+        <tr>
+          <td><code>cell_type</code> / 类型标签</td>
+          <td>人工 + 算法综合给出的类型名，如 <code>AOTU012</code></td>
+          <td>随注释更新而细化</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box violet">
+    <div class="h">🧊 为什么会变：merge / split 是「重命名」而不是「编辑」</div>
+    <p style="margin-bottom:0">
+      校对时把一个 neuron 的两个 fragment 合并，等价于<strong>创建一个新的集合名</strong>。
+      所以「ID 变了」不代表「细胞变了」—— 它只代表分割被改动过。
+      实践中对应的纪律叫 <strong>materialization（物化）</strong>：
+      <strong>选定一个快照版本，并在整个项目里一直用同一个版本</strong>，
+      否则你的结果会在你不注意的时候漂移。
+    </p>
+  </div>
+
+  <h3>为什么 MaleCNS 与 FlyWire 的 ID 不可互换</h3>
+  <ol>
+    <li><strong>不同的分割后端与命名空间</strong>：FlyWire 用 CAVE / chunkedgraph，root ID 是约 18–19 位的大整数；
+      MaleCNS 用 neuPrint / FlyEM 体系，bodyId 是小整数。两套编号<strong>没有对应关系</strong>。</li>
+    <li><strong>不同的个体，而且不同性别</strong>：FlyWire FAFB 是雌蝇，MaleCNS 是雄蝇。
+      这本身就是跨性别比较。</li>
+    <li><strong>官方只提供空间共视，不提供 ID 映射</strong>：MaleCNS 的 Neuroglancer 场景里可以叠加
+      flywire / hemibrain / manc / banc 的 mesh 图层（靠 <code>navis-flybrains</code> 做空间变换），
+      但那是<strong>把形状叠在一起看</strong>，不是告诉你「这个 ID 等于那个 ID」。</li>
+  </ol>
+
+  <div class="box">
+    <div class="h">🛠 实操纪律</div>
+    <ul style="margin-bottom:0">
+      <li>任何脚本、任何 notebook，<strong>第一行注释写清数据版本</strong>（如 <code># male-cns:v1.0</code>）。</li>
+      <li>跨版本分析前，先确认官方是否提供了<strong>版本映射表</strong>；没有映射就必须重新查询，不要靠 ID 猜。</li>
+      <li>做长期项目时，用 <strong>类型标签 + 形态特征</strong>做锚点，而不是裸 ID。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================== 06 ==================== -->
+<section id="annot">
+  <h2><span class="num">06</span> 细胞类型与注释字段<span class="en">Cell types &amp; annotation fields</span></h2>
+  <p class="lead">
+    打开 neuPrint 或 Codex，你会看到一大堆字段。阶段 0 只需要搞清<strong>哪几个是主键、哪几个是标签</strong>。
+  </p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>字段</th><th>含义</th><th>怎么用</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>bodyId</code></td><td>神经元唯一编号（主键）</td>
+          <td>查询、下载、算连接都用它</td>
+        </tr>
+        <tr>
+          <td><code>cell_type</code> / <code>resolved_type</code></td>
+          <td>综合多个来源后的<strong>主类型标签</strong>。名字通常编码了谱系、侧别、序号</td>
+          <td>做「类型→类型」统计时的分组键</td>
+        </tr>
+        <tr>
+          <td><code>super_class</code></td>
+          <td>最高层的功能大类，FlyWire 体系常见取值：<code>sensory</code>、<code>intrinsic</code>、
+            <code>projection</code>、<code>motor</code>、<code>endocrine</code>、<code>visual_centrifugal</code>、
+            <code>ascending</code>、<code>descending</code></td>
+          <td>快速了解「这个细胞是干嘛的」</td>
+        </tr>
+        <tr>
+          <td><code>class</code></td><td>比 super_class 细一层的中间分组</td><td>分组统计</td>
+        </tr>
+        <tr>
+          <td><code>hemilineage</code></td><td>发育谱系标签（见第 08 节）</td><td>解释形态与类型的来源</td>
+        </tr>
+        <tr>
+          <td><code>side</code></td><td>左右侧别</td><td>做左右对称性比较</td>
+        </tr>
+        <tr>
+          <td><code>nt_type</code> / <code>consensus_nt</code></td>
+          <td>预测的递质类型（ACh / GABA / Glu / 等）</td>
+          <td>推断兴奋/抑制时要格外小心（见第 09 节）</td>
+        </tr>
+        <tr>
+          <td><code>pre</code> / <code>post</code></td>
+          <td>突触前 / 突触后位点数量</td>
+          <td>算连接权重</td>
+        </tr>
+        <tr>
+          <td><code>instance</code> / <code>type</code>（连接查询）</td>
+          <td>连接查询返回的对面神经元，可以是单个实例或整个类型</td>
+          <td>「这个类型投向哪些类型」</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <div class="h">📌 类型体系从哪来</div>
+    <p style="margin-bottom:0">
+      果蝇连接组的细胞分型体系主要来自 <strong>Schlegel et al., <em>Nature</em> 634:139 (2024)</strong>
+      （FlyWire 的注释工作）。MaleCNS 沿用并扩展了这套体系。
+      阶段 2 读这篇论文时，你会明白 <code>cell_type</code> / <code>super_class</code> 具体是怎么定出来的。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 07 ==================== -->
+<section id="neuropil">
+  <h2><span class="num">07</span> 神经毡：脑区地图<span class="en">Neuropil</span></h2>
+  <p class="lead">
+    <strong>神经毡（neuropil）</strong>是神经纤维网区域，相当于「脑区」的<strong>精细划分</strong>。
+    果蝇连接组数据里几乎每个神经元、每条连接都<strong>带神经毡归属</strong> ——
+    这是你从「一堆 ID」走向「有解剖意义的结构」的第一层。
+  </p>
+
+  <h3>三大块</h3>
+  <p>
+    缩写不是随便起的：果蝇脑区命名法由跨实验室联盟统一制定，
+    权威出处是 <strong>Ito et al. 2014, <em>Neuron</em> 81(4):755–765</strong>
+    （<span class="pill">DOI 10.1016/j.neuron.2013.12.017</span>）。该文摘要自己就点出了连接组学的痛点：
+    <em>神经毡边界不清，使连接组学难以精确记录投射位置</em> ——
+    所以后来所有 EM 数据集都在用这套层级 ROI 体系。
+    VNC 一侧有独立的标准：<strong>Court et al. 2020, <em>Neuron</em> 107(6):1071–1079</strong>。
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>大区</th><th>内容</th><th>代表性的神经毡</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>中央脑</strong><br><span class="pill">central brain</span></td>
+          <td>高级整合中心：学习记忆、导航、求偶、摄食决策</td>
+          <td>MB（蘑菇体）、CX（中央复合体）、AL（触角叶）、LH（侧角）、AOTU、SEZ（食管下区）、GNG（颚下神经毡）</td>
+        </tr>
+        <tr>
+          <td><strong>视叶</strong><br><span class="pill b">optic lobe</span></td>
+          <td>视觉处理，四层结构：Lamina → Medulla → Lobula → Lobula plate</td>
+          <td>LA（板层）、ME（髓质）、LO（小叶）、LOP（小叶板）</td>
+        </tr>
+        <tr>
+          <td><strong>腹神经索</strong><br><span class="pill a">VNC</span></td>
+          <td>相当于脊髓：运动回路、局部感觉处理。<strong>FlyWire 完全没有这块</strong></td>
+          <td>各胸/腹神经节的 T1/T2/T3、AB（腹部神经节）分区</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>初学者最该认识的几个缩写</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>缩写</th><th>全称</th><th>为什么重要</th></tr></thead>
+      <tbody>
+        <tr><td class="n">MB</td><td>Mushroom Body 蘑菇体</td><td>学习与记忆；KC / MBON 所在的回路</td></tr>
+        <tr><td class="n">CX</td><td>Central Complex 中央复合体</td><td>导航、朝向、运动控制；有大量性别二态细胞</td></tr>
+        <tr><td class="n">AL</td><td>Antennal Lobe 触角叶</td><td>嗅觉第一级处理</td></tr>
+        <tr><td class="n">LH</td><td>Lateral Horn 侧角</td><td>嗅觉高级整合、求偶相关</td></tr>
+        <tr><td class="n">AOTU</td><td>Anterior Optic Tubercle</td><td>指南提到的二态示例类型 <code>AOTU012</code> 就在这里</td></tr>
+        <tr><td class="n">SEZ</td><td>Subesophageal Zone 食管下区</td><td>味觉与摄食；标准验证通路「糖 GRN → SEZ → MN9」经过此处</td></tr>
+        <tr><td class="n">LA / ME / LO / LOP</td><td>Lamina / Medulla / Lobula / Lobula Plate</td><td>视叶四层。视觉通路 R1–R6 的起点在 LA。
+          <br><span class="pill a">规范缩写就是这四个；不要写成 LAM / MED / LOB</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <div class="h">🔍 神经毡在数据里长什么样</div>
+    <p>
+      每个神经毡在 3D 体数据里是一个<strong>标注好的体积</strong>（segmentation 层的一类 ROI），
+      所以你可以问：「这个突触落在哪个神经毡里？」
+      于是就能把连接矩阵<strong>按脑区切片</strong>：AL→LH 的投射有多少、CX 内部有多少。
+      这是阶段 3 建矩阵时最先做的一类切分。
+    </p>
+    <p style="margin-bottom:0">
+      已核实的 MaleCNS v1.0 分区规模：脑主分区约 <strong>90 个 ROI</strong>（亚分区约 200 个）、
+      VNC 神经毡 <strong>23 个</strong>、神经束 <strong>36 条</strong>。脑分区是把
+      <strong>JRC2018M 标准脑模板的 ROI 迁移过来再人工精修</strong>得到的。
+    </p>
+  </div>
+
+  <div class="box danger">
+    <div class="h">⚠️ ROI 是层级结构 —— 直接汇总会重复计数</div>
+    <p style="margin-bottom:0">
+      一个 ROI 可以<strong>嵌套</strong>在另一个里面（例如 CX 下面还有 EB / FB / NO / PB / AB）。
+      一个突触会同时落在<strong>多个</strong> ROI 里，所以「把各 ROI 的连接数加起来」会<strong>重复计数</strong>。
+      正确做法是用 neuPrint 提供的 <strong>primary ROI</strong>（互不重叠的那一层）来汇总。
+      这是阶段 3 第一次统计时最常踩的坑。
+    </p>
+  </div>
+
+  <h3 id="v3d">交互式 3D 脑区浏览器</h3>
+  <p>
+    下面这个 3D 模型用的是 <strong>官方网格数据</strong>，不是手绘示意图：
+    几何来自 <code>gs://flyem-male-cns/rois/fullbrain-roi-v5/mesh/</code>，
+    86 个官方神经毡网格里的 <strong id="v3dStructCount">26</strong> 个，坐标为原始纳米坐标。
+    <strong>拖动</strong>旋转、<strong>滚轮</strong>缩放、<strong>点击</strong>任一结构看介绍。
+  </p>
+
+  <div class="v3d-wrap">
+    <div class="v3d-stage" id="v3dStage">
+      <canvas id="v3dCanvas" width="1080" height="980" role="img"
+              aria-label="MaleCNS 脑区三维模型（官方网格数据），可点击各脑区查看介绍"></canvas>
+      <div class="v3d-hud" id="v3dHud"></div>
+      <div class="v3d-hint">拖动旋转 · 滚轮缩放 · 点击脑区 · 双击复位</div>
+    </div>
+    <div class="v3d-side">
+      <div class="v3d-info" id="v3dInfo"></div>
+      <div class="v3d-list" id="v3dList"></div>
+      <div class="v3d-ctl">
+        <button id="v3dReset" type="button">复位视角</button>
+        <button id="v3dSpin" type="button">自动旋转</button>
+        <button id="v3dFront" type="button">正面</button>
+        <button id="v3dSide" type="button">侧面</button>
+        <button id="v3dInner" type="button">显示内部结构</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="box good">
+    <div class="h">✅ 这是官方数据 —— 可以核对</div>
+    <p>
+      每个结构的来源网格名都列在信息面板里（例如「蘑菇体」来自
+      <code>CA(L) CA(R) PED(L) … aL(L) gL(R)</code>，共 14 个官方网格合并）。
+      原始带注释的场景请用官方 Neuroglancer 打开：
+    </p>
+    <p style="margin-bottom:0">
+      <a href="https://neuroglancer-demo.appspot.com/#!gs://flyem-male-cns/v1.0/male-cns-v1.0.json"
+         target="_blank" rel="noopener">官方 Neuroglancer 场景（全部 45 个图层：EM、分割、神经毡、突触、跨数据集网格）↗</a>
+    </p>
+  </div>
+
+  <div class="box warn">
+    <div class="h">⚠️ 一处必须声明的处理：网格做了抽稀</div>
+    <p>
+      官方 26 个结构的原始网格合计 <strong>886 万个三角形</strong>，浏览器无法实时渲染。
+      本页用<strong>顶点聚类（grid snapping）</strong>抽稀到
+      <strong>约 34 万个三角形（3.9%）</strong>：
+      <strong>形状与相对位置保持不变</strong>，但表面细节损失，
+      <strong>不可用于体积、表面积等定量测量</strong>。
+      每个结构的抽稀网格边长（cell）也列在信息面板里。
+    </p>
+    <p style="margin-bottom:0">
+      需要原始精度请用官方 Neuroglancer 场景，或重新运行
+      <code>tools/fetch_official_meshes.py</code> 取回完整网格（约 198 MB）。
+    </p>
+  </div>
+
+  <div class="box">
+    <div class="h">🔍 两个点不到的结构不是 bug</div>
+    <p style="margin-bottom:0">
+      <strong>下脑桥（IB）</strong>与<strong>小叶板（LOP）</strong>在三维上被其他结构包住
+      （IB 埋在侧副叶/球状体之间，LOP 被板层、髓质、小叶挡住）。
+      这是真实解剖遮挡。点右侧列表里的名字可以直接选中它们，
+      或按「显示内部结构」用包含关系拾取。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 08 ==================== -->
+<section id="lineage">
+  <h2><span class="num">08</span> hemilineage：发育谱系<span class="en">Hemilineage</span></h2>
+  <p class="lead">
+    <strong>hemilineage（半谱系）</strong>是果蝇神经发育的产物，也是连接组论文里<strong>最常用的分组单位</strong>之一。
+    理解它，你就能明白为什么细胞类型名字长得像密码。
+  </p>
+
+  <h3>一棵发育树</h3>
+  <div class="formula">
+<span class="cmt"># 发育层级</span>
+神经母细胞 neuroblast (NB)          <span class="cmt"># 一个干细胞</span>
+   │  不对称分裂 → 神经节母细胞 GMC (ganglion mother cell)
+   └─ 一个 GMC 分裂成两个<strong>不相等</strong>的子细胞
+        ├─ 半谱系 <span class="bl">A</span>  =  <span class="bl">Notch ON</span>   = <span class="bl">dorsal</span>（背侧）
+        └─ 半谱系 <span class="hl">B</span>  =  <span class="hl">Notch OFF</span>  = <span class="hl">ventral</span>（腹侧）
+             └─ 每个半谱系内，细胞再分化成若干 <span class="hl">细胞类型</span>
+                  └─ 每个类型在左右两侧各有 <span class="hl">实例</span>（body ID）
+    </div>
+  <p>
+    文献里常说的「branched secondary axon tract（分叉次级轴突束）」，
+    其实就是 <strong>A-tract + B-tract</strong> 两束捆在一起。
+    在很多（若非全部）次级轴突束不分支的情形下，<strong>其中一个半谱系会被凋亡清除</strong> ——
+    这就是为什么一个谱系最终常常只留下 A 或 B 中的一支。
+  </p>
+
+  <div class="box violet">
+    <div class="h">🎯 一条极好用的经验规律（Truman et al. 2010 摘要原文）</div>
+    <p style="margin-bottom:0">
+      <em>「Projection neurons are predominantly from the <strong>B</strong> hemilineages,
+      whereas local interneurons are typically from <strong>A</strong> hemilineages.」</em><br>
+      —— 投射神经元多来自 <strong>B</strong>（Notch OFF / 腹侧）半谱系，
+      局部中间神经元多来自 <strong>A</strong>（Notch ON / 背侧）半谱系。
+      <strong>在连接组里看到一个细胞的 hemilineage，你就能大致猜出它是投射型还是局部型。</strong>
+    </p>
+  </div>
+
+  <div class="box warn">
+    <div class="h">⚠️ 别把「后缀」当成 Notch 标记</div>
+    <p style="margin-bottom:0">
+      网上常见说法是「hemilineage 名后缀 = Notch ON/OFF（v/d 之类）」，<strong>这是错的</strong>。
+      后缀是<strong>逐谱系不同的位置标签</strong>（<code>_dorsal</code> / <code>_ventral</code> /
+      <code>_medial</code> / <code>_anterior</code> / <code>_posterior</code> / <code>_lateral</code>），
+      只有<strong>一部分</strong>谱系有显式的 Notch 术语。
+      决定性的证据是 FBbt 本体把某个谱系的 Notch 归属明确标注为<strong>推断而非定义</strong>：
+      <em>「Ventral hemilineage = Notch OFF judged by comparison of figures in Schlegel et al. (2024)
+      and Lee et al. (2020)」</em>。
+      <strong>固定的 A=ON / B=OFF 约定只成立于胚胎 / VNC 的编号体系</strong>（如 NB7-1）。
+    </p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v">100–150</div><div class="l">I 型谱系：一个神经母细胞产生的神经元数</div></div>
+    <div class="stat a"><div class="v">≈500</div><div class="l">II 型谱系（背内侧脑）：一个神经母细胞产生的神经元数</div></div>
+    <div class="stat g"><div class="v">1 种递质</div><div class="l">一起发育的神经元通常只表达一种快速递质（ACh / Glu / GABA）</div></div>
+  </div>
+
+  <p>
+    关键点：<strong>同一个半谱系里的细胞共享发育起源，因此形态、递质、投射目标往往高度相似</strong>，
+    甚至<strong>连递质都倾向于一致</strong>（独立全脑数据支持：一起发育的神经元大多只表达一种快速递质）。
+    这就是为什么连接组的分型体系大量使用 hemilineage —— 它把「上万个实例」压缩成
+    「几十个有生物学意义的家族」。
+  </p>
+
+  <div class="box good">
+    <div class="h">✅ MaleCNS 里的一个实用细节：两套名字，同一个东西</div>
+    <p>
+      MaleCNS 的神经元属性里<strong>同时带两套 hemilineage 编号</strong>：
+      <code>itoleeHl</code>（Ito/Lee 体系）与 <code>trumanHl</code>（Hartenstein/Truman 体系）。
+      官方 Neuroglancer 场景里还能按 <code>color_by_itoleeHl</code> / <code>color_by_trumanHl</code> 上色 ——
+      这是快速检查「哪些细胞属于同一发育家族」的最省事办法。
+    </p>
+    <p style="margin-bottom:0">
+      <strong>关键：这不是两种分组，而是同一发育单元的两个名字。</strong>
+      FBbt 本体为每个谱系同时登记两套同义词，可一一对应，例如：
+      <code>ALad1 ≡ BAmv3</code>、<code>LHd1 ≡ DPLd</code>、<code>AOTUv1 ≡ DALcm2</code>、<code>SLPav2 ≡ BLD2</code>。
+      在数据里看到两套编号对不上号时，先想到「它们可能是同一个」。
+      Ito/Lee 体系的前缀共 20 个：AL、AOTU、CL、CRE、DL、DM、EB、FLA、LAL、LH、MB、PB、PS、SIP、SLP、SMP、VES、VLP、VPN、WED。
+    </p>
+  </div>
+
+  <div class="box">
+    <div class="h">🧬 半谱系与递质：可直接引用的本体证据</div>
+    <p style="margin-bottom:0">
+      FBbt 的 hemilineage 定义本身<strong>就带递质信息</strong>，这佐证了「一起发育 → 同一种递质」：
+      hemilineage <strong>1A</strong> = 胆碱能（cholinergic）、<strong>9A</strong> = GABA 能、
+      <strong>8A</strong> = 谷氨酸能、<strong>0B</strong> = 章鱼胺能（octopaminergic）。
+      所以在看到一堆没有类型标签的细胞时，<strong>hemilineage 是推断递质的有效先验</strong>。
+    </p>
+  </div>
+
+  <h3>名字怎么读</h3>
+  <p>
+    类型名（如 <code>AOTU012</code>、<code>MBON11</code>、<code>DNg13</code>、<code>KCab</code>）通常由几段拼成：
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>片段</th><th>含义</th><th>例子</th></tr></thead>
+      <tbody>
+        <tr><td>区域 / 谱系前缀</td><td>细胞体或主要分支所在区域、所属 hemilineage</td><td><code>AOTU</code>、<code>MB</code>、<code>LH</code></td></tr>
+        <tr><td>功能后缀</td><td>细胞的功能角色</td><td><code>ON</code> = output neuron；<code>DN</code> = descending neuron</td></tr>
+        <tr><td>序号 / 侧别</td><td>同一家族内的编号，或左右标记</td><td><code>012</code>、<code>11</code>、<code>g</code>（特定亚群）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="box good">
+    <div class="h">✅ 读名字的实用价值</div>
+    <p style="margin-bottom:0">
+      看到 <code>DNg13</code> 你能猜到：<strong>D</strong>escending <strong>N</strong>euron，
+      来自 <strong>g</strong> 亚群，编号 <strong>13</strong> —— 一条下行神经元，也就是「脑 → 身体」的指令通道。
+      这正是阶段 1 要走通的那条通路的终点。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 09 ==================== -->
+<section id="nt">
+  <h2><span class="num">09</span> 递质预测与「符号是假设」<span class="en">Neurotransmitter prediction</span></h2>
+  <p class="lead">
+    <strong>递质（neurotransmitter）</strong>决定一个连接是兴奋还是抑制 ——
+    这是把接线图变成<strong>有动力学意义的网络</strong>的第一步，也是最容易出错的一步。
+  </p>
+
+  <h3>EM 里怎么看出递质</h3>
+  <ul>
+    <li><strong>形态线索</strong>：突触前 <strong>T-bar</strong>（带一个电子致密横杆的活性带）是果蝇兴奋性突触的标志性结构；
+      囊泡的形态、大小、密度则与递质类型相关。</li>
+    <li><strong>超微结构特征</strong>：不同递质的囊泡转运体、合成酶在 EM 上留下可分辨的特征。</li>
+    <li><strong>机器学习</strong>：现代流程用分类器综合这些特征输出预测标签。目前已核实的模型性能是：
+      <strong>预测 6 种递质</strong>，<strong>单突触 87% / 单神经元 94% / 已知细胞类型 91%</strong> 准确率，
+      而且论文会可视化「模型用了哪些超微结构特征」来证明它确实在看突触前结构。</li>
+  </ul>
+
+  <div class="box">
+    <div class="h">📖 MaleCNS 实际的递质编码（已核实）</div>
+    <p>官方 Neuroglancer 场景的着色器里是 <strong>7 类 + unknown</strong>：</p>
+    <div class="formula">
+<span class="cmt"># 官方 nt 编码（从场景 JSON 的 shader 直接读出）</span>
+0 <span class="bl">ACh</span>        1 dopamine    2 <span class="hl">GABA</span>       3 <span class="hl">glutamate</span>
+4 histamine   5 octopamine  6 serotonin  7 <span class="cmt">unknown</span>
+    </div>
+    <p style="margin-bottom:0">
+      两个字段要分清：<code>body-neurotransmitters-…feather</code> 是<strong>每个神经元的聚合预测</strong>；
+      <code>tbar-neurotransmitters-…feather</code> 是<strong>每个突触前位点的概率</strong>。
+      也就是说 —— <strong>MaleCNS 的递质预测是在 T-bar 层面做的，再聚合到神经元层面</strong>。
+      这也意味着你可以做「单突触级」的递质分析，而不只是神经元级。
+    </p>
+  </div>
+
+  <h3>为什么「符号」是假设</h3>
+  <div class="box warn">
+    <div class="h">⚠️ 兴奋 / 抑制不能从接线图读出来</div>
+    <ul>
+      <li>虚拟果蝇脑（VFB）的文档把这一点说得最清楚：
+        <em>「The sign of a connection is not visible in the wiring diagram.」</em>
+        —— <strong>连接组本身不含符号信息</strong>。你看到的 +1 / −1 全部是外部假设。</li>
+      <li>社区建模约定把 <strong>ACh 记为 +1</strong>、<strong>GABA 与 Glu 都记为 −1</strong>。
+        把 Glu 归到抑制侧，是因为果蝇的谷氨酸受体里包含抑制性类型 ——
+        这一点与脊椎动物的直觉相反，是果蝇建模里最常被搞错的地方。</li>
+      <li>但这是<strong>建模选择，不是测量事实</strong>。受体层面的兴奋/抑制差异、神经调质的调节作用都没有被建模。</li>
+      <li>MaleCNS 中有<span class="kw">约 3,718 个细胞的递质符号不明</span>（对应编码 7 = unknown），
+        在模型里只能记为 0（不参与信号传递）。这个数字来自指南，本次核查<span class="pill a">未独立确认</span>。</li>
+    </ul>
+  </div>
+
+  <div class="formula">
+<span class="cmt"># 社区模型的符号约定（假设，非事实）</span>
+s = <span class="bl">+1</span>  乙酰胆碱 ACh
+    <span class="hl">−1</span>  GABA 或 谷氨酸 Glu
+     <span class="bl">0</span>  未知 / 仅调质 / 冲突      <span class="cmt"># MaleCNS 编码 7 = unknown</span>
+    </div>
+
+  <div class="box warn">
+    <div class="h">🔎 另一个要小心的字段冲突</div>
+    <p style="margin-bottom:0">
+      Codex 一侧同时展示<strong>模型预测值</strong>和<strong>人工整理值</strong>
+      （<code>nt_type</code> 是预测，<code>nt_type_verified</code> / <code>neuropeptide_verified</code> 是整理注释）。
+      两者可能冲突。<strong>规则是：verified 当整理注释用，predicted 当模型输出用</strong>，
+      不要混在一个统计里。
+    </p>
+  </div>
+
+  <div class="box violet">
+    <div class="h">📝 汇报时的纪律</div>
+    <p style="margin-bottom:0">
+      指南第 7 节把这条列为必踩的坑之一。<strong>写论文或汇报时必须声明</strong>：
+      递质符号是假设；未建模的部分包括受体层面的兴奋/抑制差异、神经调质、电突触、
+      可塑性、学习、神经分支的形态学细节、真实放电率标定。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 10 ==================== -->
+<section id="proof">
+  <h2><span class="num">10</span> proofreading 与数据质量<span class="en">Proofreading</span></h2>
+  <p class="lead">
+    <strong>proofreading（校对）</strong>是人工检查并修正自动分割与突触检测的过程。
+    它<strong>直接决定数据质量</strong>，也决定哪些细胞可以放心使用。
+  </p>
+
+  <h3>校对在改什么</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>错误类型</th><th>表现</th><th>校对动作</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>欠分割</strong>（split / merge error）</td>
+          <td>同一个真实神经元被切成好几块，于是它的连接被分散到多个 ID 上</td>
+          <td>把多个 segment <strong>合并</strong>成一个 body</td>
+        </tr>
+        <tr>
+          <td><strong>过分割</strong>（merge error）</td>
+          <td>两个相邻神经元被错误粘成一个 ID，于是凭空出现大量假连接</td>
+          <td>把一个 body <strong>拆开</strong>成两个</td>
+        </tr>
+        <tr>
+          <td><strong>突触误检 / 漏检</strong></td>
+          <td>多出或缺少接触点，直接影响权重</td>
+          <td>增删突触位点，调整 confidence</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <div class="h">🔗 校对程度 ↔ 你能做什么分析</div>
+    <ul style="margin-bottom:0">
+      <li><strong>未校对</strong>：适合做大规模统计、类型级趋势；不要拿单个细胞的精细连接下结论。</li>
+      <li><strong>已校对 / 已注释</strong>：可以做通路追踪、单细胞级因果推断、建模中的关键节点。</li>
+      <li>这也是「已校对神经元数」总是小于「总神经元数」的原因 —— FlyWire 的 139,255 就是<strong>已校对</strong>口径。</li>
+    </ul>
+  </div>
+
+  <div class="box warn">
+    <div class="h">💡 为什么版本号一直在涨</div>
+    <p style="margin-bottom:0">
+      校对是持续进行的。每当发现一批系统性错误，就需要回灌修正分割或突触检测，
+      于是产生新版本（v0.9 → v1.0 → …）。<strong>版本变化常伴随 body ID 变化</strong>，
+      这就是第 05 节那条纪律的由来。
+    </p>
+  </div>
+
+  <h3>「完全校对」到底有多贵</h3>
+  <p>
+    这是理解 MaleCNS 定位的关键。MaleCNS 的官方宣传点之一是<strong>全脑 + 全神经索都已校对</strong>，
+    而这件事的代价是可以量化的：
+  </p>
+  <div class="stats">
+    <div class="stat r"><div class="v">44 年</div><div class="l">MaleCNS 的等效人力投入（MRC LMB 口径）</div></div>
+    <div class="stat"><div class="v">≈1,000</div><div class="l">FlyEM 基准：每人每天的校对决策数，目标 merge rate &gt; 50%</div></div>
+    <div class="stat v"><div class="v">≈50 年</div><div class="l">人工标注 1 亿连接的 10%，FlyEM 成本模型的估算</div></div>
+  </div>
+  <p>
+    FlyEM 自己给出的结论很直白：<strong>没法靠人工标注百万级突触来改进整体准确率。</strong>
+    所以现代流程是「算法做全部、人工只做最难的部分」，这也是为什么不同数据集的
+    <strong>校对覆盖率</strong>差得很远 —— 这个差距直接决定你能做什么分析。
+  </p>
+
+  <div class="box">
+    <div class="h">🔍 横向对比：MaleCNS 的「完全校对」是稀缺的</div>
+    <p>把校对覆盖率摆在一起，MaleCNS 的定位立刻清楚了：</p>
+    <div class="tw" style="margin:12px 0 0">
+      <table>
+        <thead><tr><th>数据集</th><th>规模</th><th>校对覆盖</th></tr></thead>
+        <tbody>
+          <tr><td class="n">MaleCNS</td><td>166,700 神经元（脑 + 视叶 + VNC）</td><td class="yes">全脑 + 全神经索已校对</td></tr>
+          <tr><td class="n">FlyWire FAFB</td><td>139,255 神经元（仅脑）</td><td>持续社区校对中，注释约每周更新</td></tr>
+          <tr><td class="n">MICrONS（小鼠皮层）</td><td>84,035 个独立分割神经元</td><td class="no">仅 85 个兴奋性神经元做了轴突+树突全校对</td></tr>
+          <tr><td class="n">H01（人皮层）</td><td>约 57,000 细胞（含胶质）</td><td class="no">随机全校对 104 个神经元</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:12px 0 0">
+      这也解释了为什么「未校对细胞能不能用」这个问题没有统一答案 ——
+      <strong>取决于你要问什么</strong>。规模统计可以用，单细胞级因果结论不行。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 11 ==================== -->
+<section id="compare">
+  <h2><span class="num">11</span> MaleCNS vs FlyWire：一页对照<span class="en">Side-by-side</span></h2>
+  <p class="lead">把第 02 节压缩成一张可以截图保存的表。</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th></th><th>MaleCNS</th><th>FlyWire FAFB v783</th></tr></thead>
+      <tbody>
+        <tr><td>性别</td><td class="y">雄性 ♂</td><td class="y">雌性 ♀</td></tr>
+        <tr><td>范围</td><td class="y">全 CNS（脑 + 视叶 + VNC）</td><td class="y">仅脑</td></tr>
+        <tr><td>神经元</td><td class="n">166,700（正式发表）</td><td class="n">139,255（已校对）</td></tr>
+        <tr><td>细胞类型</td><td class="n">11,710</td><td class="n">—</td></tr>
+        <tr><td>突触</td><td class="n">≈1.242 亿接触点</td><td class="n">≈5×10⁷（论文口径）</td></tr>
+        <tr><td>发布</td><td class="n">v1.0 · 2026-06-08</td><td class="n">v783 · 2023-10</td></tr>
+        <tr><td>论文</td><td>Berg et al., <em>Cell</em> 189(18):5504–5526.e15 (2026)<br><span class="pill">DOI 10.1016/j.cell.2026.08.015</span></td><td>Dorkenwald 2024, <em>Nature</em> 634:124–138<br>Schlegel 2024, <em>Nature</em> 634:139</td></tr>
+        <tr><td>门户</td><td><a href="https://male-cns.janelia.org/">male-cns.janelia.org</a> / neuPrint</td><td><a href="https://flywire.ai/">flywire.ai</a> / <a href="https://codex.flywire.ai/">Codex</a></td></tr>
+        <tr><td>编程接口</td><td><code>neuprint-python</code>、<code>natverse::malecns</code></td><td><code>CAVEclient</code>、<code>fafbseg-py</code>、<code>navis</code></td></tr>
+        <tr><td>生态成熟度</td><td>新，多为社区 demo，专门教程极少</td><td>成熟，完整工具链 + FlyWire Academy</td></tr>
+        <tr><td>ID 互通</td><td colspan="2" class="no" style="text-align:center">ID 不通用，不可混用（但存在官方<strong>类型级</strong> crosswalk）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== 12 ==================== -->
+<section id="pitfalls">
+  <h2><span class="num">12</span> 七个必踩的坑<span class="en">Pitfalls</span></h2>
+  <p class="lead">指南第 7 节列了四个。这里在阶段 0 的范围内补齐成七个。</p>
+
+  <div class="box danger"><div class="h">1 · ID 会变，且跨数据集不通用</div>
+    <p style="margin-bottom:0">v0.9 → v1.0 有校对改动，跨版本必须重映射；MaleCNS 与 FlyWire 的 ID <strong>绝不能混用</strong>。</p></div>
+
+  <div class="box danger"><div class="h">2 · 阈值口径不同</div>
+    <p style="margin-bottom:0">neuPrint/Codex 的 MCNS 默认 <strong>≥5 突触</strong>；flat connectome 用 <strong>min confidence 0.5</strong>。两套数字对不上是正常的。</p></div>
+
+  <div class="box danger"><div class="h">3 · 符号是假设不是事实</div>
+    <p style="margin-bottom:0">ACh → +1 / GABA、Glu → −1 / 未知 → 0 是建模选择。MaleCNS 中有约 <strong>3,718 个细胞递质符号不明</strong>。</p></div>
+
+  <div class="box danger"><div class="h">4 · 授权</div>
+    <p style="margin-bottom:0">数据为 CC-BY 4.0，发表必须引用 Berg et al. (2026) 及数据来源
+      （FlyEM/HHMI Janelia、剑桥大学动物学系、MRC LMB、Google Research；另可补 Wellcome Trust、Champalimaud Foundation）。
+      <strong>注意 CC-BY 只覆盖数据，Cell 正文本身是订阅制。</strong></p></div>
+
+  <div class="box danger"><div class="h">5 · 接触点 ≠ 连接</div>
+    <p style="margin-bottom:0">约 1.24 亿是<strong>接触点</strong>；「连接」是满足阈值后去重的<strong>神经元对</strong>
+      （未阈值约 2,556 万，≥5 突触约 624 万）。把两者当同一件事，后面所有密度、度分布都会算错。</p></div>
+
+  <div class="box danger"><div class="h">6 · 未校对 ≠ 不可用，但用途不同</div>
+    <p style="margin-bottom:0">未校对细胞适合做统计趋势，不适合做单细胞级因果结论。看到「已校对」标签要意识到它意味着<strong>适用范围</strong>。</p></div>
+
+  <div class="box danger"><div class="h">7 · 连接组没有动力学</div>
+    <p style="margin-bottom:0">「刺激 A → 下游按预期激活」需要你自己补上 LIF 或别的模型。仿真里的每一个参数都是<strong>你的假设</strong>，不是数据里读出来的。</p></div>
+</section>
+
+<!-- ==================== 13 ==================== -->
+<section id="glossary">
+  <h2><span class="num">13</span> 术语速查表<span class="en">Glossary</span></h2>
+  <p class="lead">阶段 0 的词表。建议对照指南第 9 节一起看。</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>术语</th><th>英文</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td>连接组</td><td>connectome</td><td>神经元之间全部连接关系的图谱（有向、带权、极稀疏）</td></tr>
+        <tr><td>body ID / root ID</td><td>body ID / root ID</td><td>神经元在某个数据版本中的唯一编号；随校对会变</td></tr>
+        <tr><td>segment ID</td><td>segment ID</td><td>分割算法输出的体素块编号，多个 segment 可合并成一个 body</td></tr>
+        <tr><td>细胞类型</td><td>cell_type / resolved_type</td><td>综合多个来源后的主类型标签</td></tr>
+        <tr><td>超类</td><td>super_class</td><td>最高层功能大类：sensory / intrinsic / projection / motor / ascending / descending …</td></tr>
+        <tr><td>神经毡</td><td>neuropil</td><td>神经纤维网区域，相当于「脑区」的精细划分</td></tr>
+        <tr><td>半谱系</td><td>hemilineage</td><td>发育谱系，常用于归类细胞</td></tr>
+        <tr><td>递质</td><td>nt_type / consensus_nt</td><td>预测的神经递质类型（ACh / GABA / Glu / 等）</td></tr>
+        <tr><td>校对</td><td>proofreading</td><td>人工校对分割与突触，决定数据质量</td></tr>
+        <tr><td>最小置信度</td><td>min confidence</td><td>突触/连接的最低置信度阈值</td></tr>
+        <tr><td>接触点</td><td>synaptic contact / bouton</td><td>一个突触位点；多个接触点构成一条连接</td></tr>
+        <tr><td>同构类型</td><td>isomorphic cell type</td><td>雌雄两性中都存在、形态与连接基本一致的类型（8,069 个）</td></tr>
+        <tr><td>两性异形</td><td>dimorphic / sexually dimorphic</td><td>两性都存在但形态或连接有差异的类型（138 个）</td></tr>
+        <tr><td>性特异类型</td><td>sex-specific cell type</td><td>只在一种性别中出现的类型（雄性特有 289、雌性特有 71）</td></tr>
+        <tr><td>下行神经元</td><td>DN (descending neuron)</td><td>脑 → 神经索的指令通道，是「脑控身体」的关键接口</td></tr>
+        <tr><td>上行神经元</td><td>AN (ascending neuron)</td><td>神经索 → 脑的感觉通道</td></tr>
+        <tr><td>味觉受体神经元</td><td>GRN</td><td>gustatory receptor neuron</td></tr>
+        <tr><td>食管下区</td><td>SEZ</td><td>subesophageal zone；味觉与摄食</td></tr>
+        <tr><td>蘑菇体 Kenyon 细胞</td><td>KC</td><td>蘑菇体的内在神经元，学习记忆核心</td></tr>
+        <tr><td>蘑菇体输出神经元</td><td>MBON</td><td>蘑菇体的输出神经元</td></tr>
+        <tr><td>NBLAST</td><td>NBLAST</td><td>神经元形态相似度打分工具，跨数据集匹配细胞时用</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== 14 ==================== -->
+<section id="selfcheck">
+  <h2><span class="num">14</span> 过关自测<span class="en">Self-check</span></h2>
+  <p class="lead">点一下方框显示答案。全部打勾，就可以进阶段 1 了。</p>
+
+  <div class="check" id="checklist">
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">MaleCNS 与 FlyWire 的三点差异是什么？</div>
+      <div class="a"><strong>① 性别</strong>：雄 vs 雌。 <strong>② 范围</strong>：全 CNS（含 VNC 与视叶）vs 仅脑。
+        <strong>③ 规模与生态</strong>：166,700 神经元 / 1.24 亿接触点 / 生态新 vs 139,255（已校对）/ 约 5,450 万 / 生态成熟。
+        另外必须记住：<strong>ID 不通用</strong>。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">为什么 MaleCNS 有 1.24 亿「突触」却只有 2,558 万「连接」？</div>
+      <div class="a">因为 1.24 亿是<strong>突触接触点</strong>（物理位点），2,558 万是<strong>去重后的神经元对</strong>。
+        一对神经元之间可以有多个接触点：S/E ≈ <strong>4.85</strong> 个接触点/条连接。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">neuPrint 查到的连接数和下载的 flat connectome 统计对不上，是数据错了吗？</div>
+      <div class="a">不是。<strong>口径不同</strong>：neuPrint/Codex 的 MCNS 默认 <strong>≥5 突触</strong>才算一条连接；
+        flat connectome 用 <strong>min confidence 0.5</strong>。先问口径，再比较。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">为什么「加 ≥5 突触阈值」会让连接数大跌，接触点总数却几乎不变？</div>
+      <div class="a">被删的是 1–4 个接触点的<strong>弱边</strong>，每条最多带走 4 个接触点；
+        而强边一条可带几十上百个接触点。数学上 S − S<sub>≥5</sub> ≤ 4E。
+        又因为 s̄ ≈ 4.85 刚好在 5 附近，这个阈值近似一条<strong>均值线</strong>。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">body ID 会在什么情况下变？你该怎么防护？</div>
+      <div class="a">校对合并/拆分分割、版本更新（v0.9 → v1.0）时会变。
+        防护：脚本首行注明数据版本；跨版本先找官方映射表，没有就重新查询；
+        长期项目用<strong>类型标签 + 形态特征</strong>做锚点而不是裸 ID。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">为什么社区模型把 Glu（谷氨酸）记为 −1？这个假设的风险是什么？</div>
+      <div class="a">因为果蝇里谷氨酸可以是<strong>抑制性</strong>的，与脊椎动物直觉相反，所以把 GABA 和 Glu 都记为 −1。
+        风险：这是<strong>建模选择而非测量</strong>；受体层面的 E/I 差异、神经调质都未建模；
+        且 MaleCNS 中约 <strong>3,718 个细胞</strong>递质符号不明（记为 0）。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">连接组里有动力学参数（时间常数、阈值）吗？</div>
+      <div class="a"><strong>没有。</strong>连接组只是接线图。dt、τ<sub>m</sub>、阈值、不应期、传导延迟
+        全部是阶段 4 你自己选的建模假设，必须在汇报中声明。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">neuropil 和 hemilineage 分别回答什么问题？</div>
+      <div class="a"><strong>neuropil</strong> 回答「在哪儿」—— 空间/脑区归属，可以把连接矩阵按脑区切片。
+        <strong>hemilineage</strong> 回答「从哪来」—— 发育起源，把上万个实例压缩成有生物学意义的细胞家族。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">「已校对」意味着什么？</div>
+      <div class="a">意味着分割与突触经过人工修正，可以做单细胞级精细分析。
+        未校对细胞适合做统计趋势，不适合下精细因果结论。
+        FlyWire 的 139,255 就是<strong>已校对</strong>口径。</div>
+    </div></div>
+
+    <div class="item"><div class="bx">✓</div><div>
+      <div class="q">如果只记一个数字纪律，应该是什么？</div>
+      <div class="a"><strong>引用任何数字前先问「这是哪个口径」。</strong>
+        典型陷阱：166,700（正式发表）vs 166,691（预印本）vs 165,122（社区 Traced 过滤）；
+        连接数 25,563,426（未阈值）vs 6,237,402（≥5 突触）。
+        另外：<strong>指南里那套 262 / 114 / 4.8% 是预印本口径，正式版是 289 / 138 / 71。</strong></div>
+    </div></div>
+    <div class="hint">提示：能<strong>不看答案</strong>说出全部 10 条，阶段 0 就算过关。</div>
+  </div>
+</section>
+
+<!-- ==================== 15 ==================== -->
+<section id="links">
+  <h2><span class="num">15</span> 资源与来源<span class="en">Links &amp; sources</span></h2>
+
+  <h3>官方</h3>
+  <ul>
+    <li>项目主页：<a href="https://male-cns.janelia.org/">male-cns.janelia.org</a> ·
+      下载页：<a href="https://male-cns.janelia.org/download/">/download/</a> ·
+      发布说明：<a href="https://male-cns.janelia.org/release/">/release/</a> ·
+      官方 Gallery：<a href="https://male-cns.janelia.org/media/">/media/</a></li>
+    <li>Janelia 项目页（科学结论摘要）：
+      <a href="https://www.janelia.org/project-team/flyem/male-cns-connectome">janelia.org/project-team/flyem/male-cns-connectome</a>
+      <br><span class="pill a">注意：该页仍是预印本文案（262/114/4.8%），数字已过时</span></li>
+    <li>neuPrint：<a href="https://neuprint.janelia.org/?dataset=male-cns%3Av1.0">neuprint.janelia.org（dataset=male-cns:v1.0）</a></li>
+    <li>官网源码 + Dimorphism Explorer：<a href="https://github.com/janelia-flyem/male-cns">github.com/janelia-flyem/male-cns</a>
+      · 在线版 <a href="https://male-cns.janelia.org/build/dimorphism_overview/">dimorphism_overview</a></li>
+    <li>Codex FAQ（阈值与跨库搜索的权威出处）：<a href="https://codex.flywire.ai/faq">codex.flywire.ai/faq</a></li>
+  </ul>
+
+  <h3>论文</h3>
+  <ul>
+    <li><strong>主论文</strong> Berg et al., <em>Cell</em> <strong>189</strong>(18):5504–5526.e15 (2026)，
+      DOI <a href="https://doi.org/10.1016/j.cell.2026.08.015">10.1016/j.cell.2026.08.015</a>，
+      PMID <a href="https://pubmed.ncbi.nlm.nih.gov/42691995/">42691995</a>
+      <br><span class="pill">已正式发表（2026-09-03 期次）· 不是仅有预印本</span></li>
+    <li>Cell 专辑页：<a href="https://www.cell.com/consortium/male-fly-connectome">cell.com/consortium/male-fly-connectome</a></li>
+    <li>预印本 v2：<a href="https://www.biorxiv.org/content/10.1101/2025.10.09.680999v2">bioRxiv 2025.10.09.680999v2</a>
+      <br><span class="pill a">预印本数字与正式版不同，引用请用正式版</span></li>
+    <li>论文配套数据与 notebook（目前最接近「官方教程」）：
+      <a href="https://github.com/flyconnectome/2025malecns">github.com/flyconnectome/2025malecns</a>
+      <br><span class="pill a">其 <code>quantify-neuron-connections.ipynb</code> 内 <code>VERSION='v0.9'</code>，输出预印本口径</span></li>
+    <li>背景三件套：Dorkenwald 2024 <em>Nature</em> 634:124–138（FAFB 接线图）、
+      Schlegel 2024 <em>Nature</em> 634:139（注释与分型）、
+      Shiu 2024 <em>Nature</em> 634:210–219（全脑 LIF 模型）</li>
+    <li><span class="pill a">时效提醒</span> 2026-09-03 另有<strong>新的味觉连接组 Cell 论文</strong>
+      （DOI <a href="https://doi.org/10.1016/j.cell.2026.08.016">10.1016/j.cell.2026.08.016</a>），
+      在 <strong>MaleCNS + MANC + FAFB</strong> 上重算 GRN–MN 有效连接。
+      讲「糖 → SEZ → MN9 的最新证据」时应并引，否则会误以为是 2024 年成果独占</li>
+  </ul>
+
+  <h3>工具与教程</h3>
+  <ul>
+    <li>Codex：<a href="https://codex.flywire.ai/">codex.flywire.ai</a>（MCNS 直达 <a href="https://codex.flywire.ai/?dataset=mcns">?dataset=mcns</a>）</li>
+    <li>FlyWire Academy（方法论通用）：<a href="https://codex.flywire.ai/academy_home">codex.flywire.ai/academy_home</a></li>
+    <li>Cell Type Explorer：<a href="https://reiserlab.github.io/celltype-explorer-drosophila-male-cns/">reiserlab.github.io/celltype-explorer-drosophila-male-cns</a></li>
+    <li>Neuroglancer 独立 3D：<code>gs://flyem-male-cns/v1.0/male-cns-v1.0.json</code></li>
+    <li>NeuronBridge（2025-11-07 起支持 MaleCNS）：<a href="https://neuronbridge.janelia.org/">neuronbridge.janelia.org</a></li>
+    <li>连接组数据教程：<a href="https://github.com/sjcabs/fly_connectome_data_tutorial">github.com/sjcabs/fly_connectome_data_tutorial</a></li>
+    <li>现成矩阵 / 可微模型：<a href="https://github.com/YijieYin/connectome_data_prep">connectome_data_prep</a>、<a href="https://github.com/YijieYin/connectome_interpreter">connectome_interpreter</a></li>
+    <li>跨数据集共聚类：<a href="https://github.com/flyconnectome/cocoa">github.com/flyconnectome/cocoa</a>
+      <br><span class="pill a">该仓库 README 仍写 <code>male-cns:v0.9</code>，未更新到 v1.0</span></li>
+    <li>Python 官方客户端：<a href="https://github.com/connectome-neuprint/neuprint-python">neuprint-python</a>
+      · R 接口：<a href="https://github.com/natverse/malecns">github.com/natverse/malecns</a>
+      · 形态分析：<a href="https://github.com/navis-org/navis">navis</a></li>
+    <li>生态清单（含项目局限标注）：<a href="https://github.com/cobanov/awesome-fly">github.com/cobanov/awesome-fly</a></li>
+  </ul>
+
+  <h3>阶段 3 会用到的下载清单（先别下，知道有这些就行）</h3>
+  <p>
+    指南写「三个 feather 文件、共约 1.1 GB」，<strong>这是错的</strong>。官方 flat-connectome 目录下是
+    <strong>7 个文件、合计约 24 GB</strong>；1.1 GB 只是其中<em>连接矩阵</em>那一个文件的大小。
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>文件名</th><th>大小</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>body-annotations-male-cns-v1.0-minconf-0.5.feather</code></td><td class="n">13 MB</td></tr>
+        <tr><td>2</td><td><code>body-neurotransmitters-male-cns-v1.0.feather</code></td><td class="n">42 MB</td></tr>
+        <tr><td>3</td><td><code>body-stats-male-cns-v1.0-minconf-0.5.feather</code></td><td class="n">780 MB</td></tr>
+        <tr><td>4</td><td><code>connectome-weights-male-cns-v1.0-minconf-0.5.feather</code></td><td class="n">1.1 GB</td></tr>
+        <tr><td>5</td><td><code>syn-points-male-cns-v1.0-minconf-0.5.feather</code></td><td class="n">12.7 GB</td></tr>
+        <tr><td>6</td><td><code>syn-partners-male-cns-v1.0-minconf-0.5.feather</code></td><td class="n">6.8 GB</td></tr>
+        <tr><td>7</td><td><code>tbar-neurotransmitters-male-cns-v1.0.feather</code></td><td class="n">2.7 GB</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    前缀：<code>https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/</code>
+    —— 如果只是要建连接矩阵，<strong>第 1 + 4 个文件就够</strong>（约 1.1 GB）。
+  </p>
+
+  <h3>生态图谱</h3>
+  <figure>
+    <img src="assets/fly-connectome-ecosystem.png" alt="MaleCNS / FlyWire 生态图谱">
+    <figcaption><b>图 3 · 生态图谱。</b>阶段 0 不需要读它，但先看一眼能知道后面阶段 4/5 会用到的项目长在哪。</figcaption>
+  </figure>
+
+  <h3 id="sources">本页相对指南的修正</h3>
+  <p>
+    本页数字于 <strong>2026-09-17</strong> 联网核查过一轮（官方站点、PubMed / Europe PMC、Codex FAQ、
+    官方 GitHub）。核查发现指南有几处问题，本页已按核实结果修正。完整核查报告见
+    <code>malecns-factcheck-2026-09-17.md</code>。
+  </p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>指南原文</th><th>修正后</th><th>性质</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>神经元「~166,691（官方），社区过滤后 166,700」</td>
+          <td><strong>166,700 是正式发表 + Codex 口径</strong>；166,691 是<strong>预印本</strong>口径。
+            真正的社区过滤值（Traced）是 <strong>165,122</strong></td>
+          <td><span class="verdict v-fix">修正</span></td>
+        </tr>
+        <tr>
+          <td>「262 特异 + 114 二态 = 4.8%」</td>
+          <td>正式版为 <strong>289 + 138（+71 雌性特有）</strong>；类型总数 11,710。
+            4.8% 的分母官方未明说 → 待核实</td>
+          <td><span class="verdict v-fix">修正</span></td>
+        </tr>
+        <tr>
+          <td>「25,582,938 条有向连接」</td>
+          <td>未能坐实。官方口径：未阈值 <strong>25,563,426</strong>；≥5 突触 <strong>6,237,402</strong></td>
+          <td><span class="verdict v-un">待核实</span></td>
+        </tr>
+        <tr>
+          <td>「124,177,617 个突触接触点」</td>
+          <td>整数待核实；官方新闻为 <strong>124.2 million synapses</strong>（量级确认）</td>
+          <td><span class="verdict v-un">待核实</span></td>
+        </tr>
+        <tr>
+          <td>FlyWire「~5,450 万突触」</td>
+          <td>论文原文为 <strong>5×10⁷</strong>（约 5,000 万）；54.5M 是后续报道口径</td>
+          <td><span class="verdict v-fix">修正</span></td>
+        </tr>
+        <tr>
+          <td>「三个 feather 文件，约 1.1 GB」</td>
+          <td><strong>7 个</strong>文件、合计约 <strong>24 GB</strong>；1.1 GB 是 connectome-weights 单文件</td>
+          <td><span class="verdict v-fix">修正</span></td>
+        </tr>
+        <tr>
+          <td>「MAOL（雄视叶）」</td>
+          <td>是雄性的<strong>右侧</strong>视叶；且<strong>与 MaleCNS 同一标本</strong>，跨两者统计会重复计数</td>
+          <td><span class="verdict v-fix">修正</span></td>
+        </tr>
+        <tr>
+          <td>「Hemibrain（2020 年早期部分数据）」</td>
+          <td>补充：<strong>是雌性</strong>，范围是中央脑的一部分</td>
+          <td><span class="verdict v-fix">补充</span></td>
+        </tr>
+        <tr>
+          <td>「MaleCNS 与 FlyWire 无跨数据集映射」</td>
+          <td>无 <strong>ID 级</strong>映射，但<strong>有官方类型级 crosswalk</strong>
+            （<code>mcns_fw_edge_comp_mappings.json</code>、<code>natverse</code> 的 <code>flywireType</code> 列）</td>
+          <td><span class="verdict v-fix">措辞修正</span></td>
+        </tr>
+        <tr>
+          <td>v0.9 = 2025-10-05</td>
+          <td>官方两处口径不一致（Release Notes 写 10-05，新闻写 10-03）→ 标 10-03/05</td>
+          <td><span class="verdict v-un">官方矛盾</span></td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <strong>确认无误的部分</strong>：覆盖范围（含 intact neck connective）、threshold 口径（minconf 0.5 / MCNS 5+）、
+            v1.0 日期与变更内容、CC-BY 4.0 与四个署名实体、AOTU012 与 R1–R6→DNg13 示例通路、
+            Codex <code>@</code> 跨库搜索与托管的 5 个数据集、全部工具 URL 与编程接口。
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <div class="h">📋 其余可靠性说明</div>
+    <ul style="margin-bottom:0">
+      <li><strong>Shiu et al. 2024 的「糖 GRN → SEZ → MN9」用的是 FlyWire FAFB（雌性脑），不是 MaleCNS。</strong>
+        它是 LIF 计算模型论文，不是 MaleCNS 数据论文。引用时务必限定数据集。</li>
+      <li>派生量（密度 0.092%、平均度 153.5、平均权重约 4.86、存储 104 GiB 稠密 / 0.19 GiB CSR）由
+        <code>malecns_scale.py</code> 按 N / E / S 计算 —— <strong>精确依赖于输入与阈值口径</strong>，
+        其中 E 的口径本身待核实，故这些派生值应视为量级示意。</li>
+      <li>分辨率数字（MaleCNS 8 nm 各向同性、FAFB 4×4×40 nm）来自官方下载页与官方 Neuroglancer 场景 JSON；
+        成像方式（FIB-SEM vs SBFSEM）在不同官方页面间有冲突，已标待核实。</li>
+      <li>Cell 同期的论文包数量，不同来源说法不一（「Cell 四篇」vs「Cell 三篇 + Current Biology 一篇」），
+        本页因此不写死数字。</li>
+    </ul>
+  </div>
+
+  <footer>
+    <p>
+      <strong>MaleCNS 学习指南 · 阶段 0 配套材料</strong><br>
+      基于《MaleCNS v1.0 学习指南》构建 · 数字经 2026-09-17 联网核查修正 ·
+      数据许可 CC-BY 4.0，发表须引用 Berg et al. (2026), <em>Cell</em> 189(18):5504–5526.e15
+      及数据来源（FlyEM / HHMI Janelia、剑桥大学动物学系、MRC LMB、Google Research）。
+    </p>
+    <p style="margin-bottom:0">
+      下一步 → <strong>阶段 1：在网页里逛</strong>。打开 Codex(MCNS) 或 neuPrint，
+      走通 <span class="kw">R1–R6 → … → DNg13</span> 或 <span class="kw">糖 GRN → SEZ → MN9</span>，并说出中间细胞类型。
+    </p>
+  </footer>
+</section>
+
+</main>
+</div>
+
+<div class="toTop" id="toTop" title="回到顶部">↑</div>
+
+<!-- 官方网格数据（约 11 MB）+ 区域解说；必须在 mcns-3d.js 之前加载 -->
+<script src="assets/mcns-meshes.js"></script>
+<script src="assets/mcns-region-info.js"></script>
+<script src="assets/mcns-3d.js"></script>
+<script>
+/* =====================================================================
+   3D 脑区浏览器：交互层
+   渲染与几何数学都在 assets/mcns-3d.js 里（可用 node tools/test-3d.js 测试）
+   ===================================================================== */
+(function () {
+  var M = window.MCNS3D;
+  var stage = document.getElementById('v3dStage');
+  var canvas = document.getElementById('v3dCanvas');
+  var hud = document.getElementById('v3dHud');
+  var info = document.getElementById('v3dInfo');
+  var listEl = document.getElementById('v3dList');
+  if (!M || !stage || !canvas) return;
+
+  var ctx = canvas.getContext('2d');
+  if (!ctx) {
+    stage.innerHTML = '<p style="padding:20px;color:#f87171">' +
+      '当前浏览器不支持 Canvas，无法显示 3D 视图。可改用下方列表浏览脑区。</p>';
+    return;
+  }
+
+  var W = canvas.width, H = canvas.height;
+
+  /* ---------- 几何：优先用官方网格，没有则退回示意图椭球 ---------- */
+  var official = (typeof window !== 'undefined' && window.MCNS_MESHES)
+    ? M.loadOfficialGeometry(window.MCNS_MESHES) : null;
+  var meshes = official || M.buildMeshes(M.REGIONS, 18, 12);
+  var usingOfficial = !!official;
+
+  /** 把所有几何框进画面：先粗测占幅，再按比例修正焦距 */
+  function autoFit() {
+    var bmin = [Infinity, Infinity, Infinity], bmax = [-Infinity, -Infinity, -Infinity];
+    for (var i = 0; i < meshes.length; i++) {
+      var mm = meshes[i];
+      if (mm.bbox) {
+        for (var d = 0; d < 3; d++) {
+          if (mm.bbox[d] < bmin[d]) bmin[d] = mm.bbox[d];
+          if (mm.bbox[d + 3] > bmax[d]) bmax[d] = mm.bbox[d + 3];
+        }
+      } else {
+        for (var d2 = 0; d2 < 3; d2++) {
+          var c = mm.center[d2], b = mm.bound;
+          if (c - b < bmin[d2]) bmin[d2] = c - b;
+          if (c + b > bmax[d2]) bmax[d2] = c + b;
+        }
+      }
+    }
+    var center = [(bmin[0]+bmax[0])/2, (bmin[1]+bmax[1])/2, (bmin[2]+bmax[2])/2];
+    var radius = 0.5 * Math.hypot(bmax[0]-bmin[0], bmax[1]-bmin[1], bmax[2]-bmin[2]);
+    var dist = radius * 3.0;
+    var probe = M.makeCamera({ target: center, dist: dist, focal: 1000 });
+    var ps = M.buildFrame(probe, meshes, W, H, null);
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (var k = 0; k < ps.length; k++) {
+      for (var j = 0; j < 3; j++) {
+        if (ps[k].x[j] < minX) minX = ps[k].x[j];
+        if (ps[k].x[j] > maxX) maxX = ps[k].x[j];
+        if (ps[k].y[j] < minY) minY = ps[k].y[j];
+        if (ps[k].y[j] > maxY) maxY = ps[k].y[j];
+      }
+    }
+    var fill = Math.max((maxX - minX) / W, (maxY - minY) / H) || 1;
+    return M.makeCamera({ target: center, dist: dist, focal: 1000 * (0.88 / fill) });
+  }
+
+  var cam = autoFit();
+  var HOME = M.makeCamera({ target: cam.target.slice(), dist: cam.dist, focal: cam.focal, pitch: cam.pitch, yaw: cam.yaw });
+  var selected = null, hovered = null;
+  var polys = [];
+  var raf = null, spinning = false;
+  var innerMode = false;          // 「显示内部结构」：按包含关系拾取
+
+  /* ---------- 坐标轴指示器（固定在左下角，带底衬） ---------- */
+  var AXIS_CX = 74, AXIS_CY = H - 74, AXIS_LEN = 40;
+
+  /* ---------- 渲染 ---------- */
+  function render() {
+    raf = null;
+    polys = M.buildFrame(cam, meshes, W, H, selected);
+    M.drawFrame(ctx, polys, W, H, '#0b1020');
+
+    // 坐标轴 HUD：钉在左下角，不随模型移动／缩放
+    var ax = M.axisHud(cam, AXIS_CX, AXIS_CY, AXIS_LEN);
+    ctx.save();
+    // 底衬，保证在模型上也看得清
+    ctx.beginPath();
+    ctx.arc(AXIS_CX, AXIS_CY, AXIS_LEN + 30, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(7,11,22,0.55)';
+    ctx.fill();
+
+    ctx.lineWidth = 2;
+    ctx.font = '600 11px ui-monospace, Consolas, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.beginPath();
+    ctx.arc(AXIS_CX, AXIS_CY, 2.4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(148,163,184,0.85)';
+    ctx.fill();
+
+    ax.sort(function (a, b) { return a.near - b.near; });   // 远的先画
+    var PAD = 20;
+    for (var i = 0; i < ax.length; i++) {
+      var a = ax[i];
+      ctx.globalAlpha = a.near > 0 ? 1 : 0.40;             // 朝后的轴淡化
+      ctx.strokeStyle = a.color;
+      ctx.beginPath();
+      ctx.moveTo(a.x0, a.y0);
+      ctx.lineTo(a.x1, a.y1);
+      ctx.stroke();
+
+      // 标签沿轴向外推，并夹在画布内（否则会在角落被切断）
+      var dx = a.x1 - a.x0, dy = a.y1 - a.y0;
+      var L = Math.hypot(dx, dy) || 1;
+      var lx = a.x0 + dx / L * (L + 17);
+      var ly = a.y0 + dy / L * (L + 17);
+      lx = Math.max(PAD + 16, Math.min(W - PAD - 16, lx));
+      ly = Math.max(PAD, Math.min(H - PAD, ly));
+      ctx.fillStyle = a.color;
+      ctx.fillText(a.label, lx, ly);
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    // 画出所有区域名（悬停或选中的加粗高亮）
+    ctx.save();
+    ctx.font = '600 12.5px "Segoe UI", "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    typeLabels(ctx, selected, true);
+    if (hovered && hovered !== selected) typeLabels(ctx, hovered, true);
+    ctx.restore();
+
+    hud.innerHTML = '拖动旋转 · 滚轮缩放<br>' +
+      '当前 <b>' + (selected ? labelOf(selected) : '—') + '</b>';
+  }
+
+  function typeLabels(c, which, strong) {
+    for (var i = 0; i < meshes.length; i++) {
+      var mesh = meshes[i];
+      if (mesh.region.pickable === false) continue;
+      if (!strong) continue;
+      var isTarget = (which === 'sel' && mesh.region.id === selected) ||
+                     (which === 'hov' && mesh.region.id === hovered);
+      if (!isTarget) continue;
+      var s = M.project(cam, mesh.center, W, H);
+      var txt = mesh.region.name;
+      c.font = '700 13px "Segoe UI", "Noto Sans SC", sans-serif';
+      var w = c.measureText(txt).width;
+      c.fillStyle = 'rgba(7,11,22,0.82)';
+      c.fillRect(s[0] - w / 2 - 7, s[1] - 12, w + 14, 23);
+      c.strokeStyle = mesh.region.color;
+      c.lineWidth = 1.4;
+      c.strokeRect(s[0] - w / 2 - 7, s[1] - 12, w + 14, 23);
+      c.fillStyle = '#e6edf7';
+      c.fillText(txt, s[0], s[1] + 1);
+    }
+  }
+
+  function schedule() { if (!raf) raf = requestAnimationFrame(render); }
+
+  /* ---------- 区域元数据：几何 + 解说文字 ---------- */
+  var INFO = (typeof window !== 'undefined' && window.MCNS_REGION_INFO) || {};
+  var REGMAP = {};
+  meshes.forEach(function (m) {
+    var r = m.region;
+    var extra = INFO[r.id] || {};
+    REGMAP[r.id] = {
+      id: r.id,
+      name: extra.name || r.name || r.id,
+      abbr: extra.abbr || r.abbr || r.id,
+      en: extra.en || r.en || '',
+      desc: extra.desc || '',
+      note: extra.note || '',
+      tags: r.tags || ['其他'],
+      color: r.color,
+      tris: m.tris || 0,
+      rawTris: r.rawTris || 0,
+      cellNm: r.cellNm || 0,
+      src: r.src || []
+    };
+  });
+  var ALL = Object.keys(REGMAP).map(function (k) { return REGMAP[k]; });
+  function labelOf(id) { return REGMAP[id] ? REGMAP[id].name : id; }
+
+  /* ---------- 信息面板 ---------- */
+  function showInfo(rec) {
+    if (!rec) {
+      info.innerHTML = '<div class="ttl" style="color:#8494ad">点击模型上的结构</div>' +
+        '<p class="ds">鼠标移到模型上会高亮，点击后这里显示该结构的介绍。' +
+        '也可以直接点右侧列表。</p>';
+      return;
+    }
+    var meta = '';
+    if (rec.rawTris) {
+      meta += '<div class="nt">🔷 官方网格 ' + rec.src.length + ' 个：' +
+        rec.src.map(function (s) { return '<code>' + s + '</code>'; }).join(' ') + '</div>';
+      meta += '<div class="nt">📐 原始 ' + rec.rawTris.toLocaleString() +
+        ' 三角形 → 抽稀后 ' + rec.tris.toLocaleString() +
+        '（网格边长 ' + Math.round(rec.cellNm) + ' nm）</div>';
+    }
+    info.innerHTML =
+      '<div class="ttl"><span class="ab">' + rec.abbr + '</span>' + rec.name + '</div>' +
+      '<div class="en">' + rec.en + '</div>' +
+      '<p class="ds">' + rec.desc + '</p>' +
+      (rec.note ? '<div class="nt">📌 ' + rec.note + '</div>' : '') + meta;
+  }
+
+  function select(id) {
+    selected = id;
+    showInfo(id ? REGMAP[id] : null);
+    Array.prototype.forEach.call(listEl.querySelectorAll('button'), function (b) {
+      b.classList.toggle('on', b.dataset.id === id);
+    });
+    schedule();
+  }
+
+  /* ---------- 右侧列表 ---------- */
+  (function buildList() {
+    var groups = [], seen = {};
+    ALL.forEach(function (r) {
+      var g = r.tags[0] || '其他';
+      if (!seen[g]) { seen[g] = []; groups.push(g); }
+      seen[g].push(r);
+    });
+    var order = ['中央脑', '视叶', '腹神经索', '其他'];
+    groups.sort(function (a, b) { return order.indexOf(a) - order.indexOf(b); });
+    var html = '';
+    groups.forEach(function (g) {
+      html += '<div class="grp">' + g + '</div>';
+      seen[g].forEach(function (r) {
+        html += '<button type="button" data-id="' + r.id + '">' +
+          '<span class="sw" style="background:' + r.color + '"></span>' +
+          r.name + '<span class="ab">' + r.abbr + '</span></button>';
+      });
+    });
+    listEl.innerHTML = html;
+    listEl.addEventListener('click', function (e) {
+      var b = e.target;
+      if (b && !b.dataset) b = b.parentNode;
+      if (b && !b.dataset && b.closest) b = b.closest('button');
+      while (b && b.dataset && !b.dataset.id && b.parentNode) b = b.parentNode;
+      if (b && b.dataset && b.dataset.id) select(b.dataset.id);
+    });
+  })();
+
+  /* ---------- 交互 ---------- */
+  var dragging = false, lastX = 0, lastY = 0, moved = 0;
+
+  function localPos(e) {
+    var r = canvas.getBoundingClientRect();
+    var x = (e.clientX - r.left) * (W / r.width);
+    var y = (e.clientY - r.top) * (H / r.height);
+    // 画布内部分辨率可能高于逻辑尺寸，缩放后夹住范围
+    if (x < 0) x = 0; else if (x > W) x = W;
+    if (y < 0) y = 0; else if (y > H) y = H;
+    return [x, y];
+  }
+
+  canvas.addEventListener('pointerdown', function (e) {
+    dragging = true; moved = 0;
+    lastX = e.clientX; lastY = e.clientY;
+    stage.classList.add('dragging');
+    if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId);
+  });
+
+  canvas.addEventListener('pointermove', function (e) {
+    var p = localPos(e);
+    if (dragging) {
+      var dx = e.clientX - lastX, dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      moved += Math.abs(dx) + Math.abs(dy);
+      cam.yaw += dx * 0.0075;
+      cam.pitch += dy * 0.006;
+      var lim = Math.PI / 2 - 0.12;
+      if (cam.pitch > lim) cam.pitch = lim;
+      if (cam.pitch < -lim) cam.pitch = -lim;
+      schedule();
+      return;
+    }
+    // 悬停高亮
+    var hit = M.pick(polys, p[0], p[1], { skipBackground: !innerMode });
+    var id = hit ? hit.id : null;
+    if (id !== hovered) {
+      hovered = id;
+      canvas.style.cursor = id ? 'pointer' : 'grab';
+      schedule();
+    }
+  });
+
+  function endDrag() { dragging = false; stage.classList.remove('dragging'); }
+  canvas.addEventListener('pointerup', function (e) {
+    if (dragging && moved < 5) {
+      var p = localPos(e);
+      var hit = M.pick(polys, p[0], p[1], { skipBackground: !innerMode });
+      if (hit) select(hit.id);
+    }
+    endDrag();
+  });
+  canvas.addEventListener('pointercancel', endDrag);
+  canvas.addEventListener('pointerleave', function () {
+    if (hovered) { hovered = null; schedule(); }
+  });
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    cam.zoom *= (e.deltaY > 0 ? 0.92 : 1.087);
+    if (cam.zoom < 0.45) cam.zoom = 0.45;
+    if (cam.zoom > 3.2) cam.zoom = 3.2;
+    schedule();
+  }, { passive: false });
+
+  canvas.addEventListener('dblclick', function () { reset(); });
+
+  // 键盘可达性
+  canvas.tabIndex = 0;
+  canvas.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowLeft') cam.yaw -= 0.12;
+    else if (k === 'ArrowRight') cam.yaw += 0.12;
+    else if (k === 'ArrowUp') cam.pitch = Math.min(1.4, cam.pitch + 0.1);
+    else if (k === 'ArrowDown') cam.pitch = Math.max(-1.4, cam.pitch - 0.1);
+    else return;
+    e.preventDefault();
+    schedule();
+  });
+
+  /* ---------- 视角按钮 ---------- */
+  function reset() {
+    cam.target = HOME.target.slice();
+    cam.dist = HOME.dist;
+    cam.focal = HOME.focal;
+    cam.yaw = HOME.yaw;
+    cam.pitch = HOME.pitch;
+    cam.zoom = 1;
+    schedule();
+  }
+  document.getElementById('v3dReset').addEventListener('click', reset);
+  document.getElementById('v3dFront').addEventListener('click', function () {
+    cam.yaw = 0; cam.pitch = 0; cam.zoom = 1; schedule();
+  });
+  document.getElementById('v3dSide').addEventListener('click', function () {
+    cam.yaw = -Math.PI / 2; cam.pitch = 0.12; cam.zoom = 1; schedule();
+  });
+  var spinBtn = document.getElementById('v3dSpin');
+  spinBtn.addEventListener('click', function () {
+    spinning = !spinning;
+    spinBtn.textContent = spinning ? '停止旋转' : '自动旋转';
+    if (spinning) tick();
+  });
+  var innerBtn = document.getElementById('v3dInner');
+  if (innerBtn) {
+    innerBtn.addEventListener('click', function () {
+      innerMode = !innerMode;
+      innerBtn.textContent = innerMode ? '只选外层' : '显示内部结构';
+      innerBtn.classList.toggle('on', innerMode);
+      hud.innerHTML = innerMode
+        ? '拖动旋转 · 滚轮缩放<br>拾取模式 <b>含内部结构</b>'
+        : '拖动旋转 · 滚轮缩放<br>拾取模式 <b>只选最外层</b>';
+      schedule();
+    });
+  }
+  function tick() {
+    if (!spinning) return;
+    cam.yaw += 0.0055;
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- 自适应画布尺寸 ---------- */
+  function fit() {
+    // 关键：画布内部分辨率就是几何/投影使用的 W×H，两者必须始终一致，
+    // 否则「拾取用的坐标」和「事件换算出的坐标」会差一个缩放系数。
+    // CSS 负责把画布缩放到容器宽度；不做 DPR 放大（大网格下也省算力）。
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.aspectRatio = W + ' / ' + H;
+    schedule();
+  }
+  window.addEventListener('resize', schedule);
+
+  /* ---------- 启动 ---------- */
+  showInfo(null);
+  fit();
+  // 默认选中一个最有代表性的区域，避免首屏右侧空白
+  select('MB');
+
+  // 暴露给自动化测试（tools/test-3d-boot.js）用的钩子；不影响正常使用
+  window.__mcnsV3d = {
+    cam: cam,
+    select: select,
+    pickAt: function (x, y) { return M.pick(polys, x, y, {}); },
+    polys: function () { return polys; },
+    frame: function () { return M.buildFrame(cam, meshes, canvas.width, canvas.height, selected); },
+    meshes: function () { return meshes; },
+    usingOfficial: usingOfficial,
+    render: render
+  };
+})();
+</script>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a[href^="#"]'));
+  var targets = links.map(function(a){
+    var el = document.querySelector(a.getAttribute('href'));
+    return {a:a, el:el};
+  }).filter(function(o){ return o.el; });
+
+  function spy(){
+    var y = window.scrollY + 120;
+    var best = null;
+    targets.forEach(function(o){
+      if(o.el.offsetTop <= y) best = o;
+    });
+    links.forEach(function(a){ a.classList.remove('on'); });
+    if(best) best.a.classList.add('on');
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  window.addEventListener('resize', spy);
+  spy();
+
+  // ---- checklist ----
+  document.querySelectorAll('#checklist .item').forEach(function(item){
+    item.addEventListener('click', function(){
+      item.classList.toggle('done');
+    });
+  });
+
+  // ---- back to top ----
+  var btn = document.getElementById('toTop');
+  btn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  window.addEventListener('scroll', function(){
+    btn.classList.toggle('show', window.scrollY > 600);
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>

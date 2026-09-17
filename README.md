@@ -1,0 +1,166 @@
+# MaleCNS Learn
+
+学习 **MaleCNS v1.0**（成年雄性果蝇完整中枢神经系统连接组）的阶段性材料。
+
+目前完成 **阶段 0 · 打地基**：一个自包含的 HTML 说明网页，讲清连接组学的基本词汇与数量直觉，
+并带一个用**官方网格数据**驱动的可交互 3D 脑区浏览器。
+
+---
+
+## 快速开始
+
+直接用浏览器打开 `phase0.html` 即可（无需服务器、无需联网）。
+
+```
+phase0.html          ← 主交付物
+```
+
+> 3D 部分读取同目录的 `assets/mcns-meshes.js`（约 1 MB），
+> 所以请**保持 `assets/` 与 `phase0.html` 的相对位置**，或者用本地服务器打开：
+>
+> ```bash
+> python -m http.server 8000
+> # 然后访问 http://localhost:8000/phase0.html
+> ```
+
+---
+
+## 页面内容
+
+| 节 | 内容 |
+|---|---|
+| 00–02 | 阶段 0 过关标准、MaleCNS 数据本体、**它不是 FlyWire**（三点差异 + 相关数据集） |
+| 03 | 连接组定义、EM 重建 6 阶段管线、分辨率、连接组学版图定位 |
+| 04 | **接触点 ≠ 连接** 与阈值口径、权重是建模选择 |
+| 05–09 | body ID / supervoxel 层级、注释字段、神经毡、hemilineage、递质预测与符号假设 |
+| 10 | proofreading 与「完全校对」的代价 |
+| 11–14 | MaleCNS vs FlyWire 全表、七个坑、术语表、10 题过关自测 |
+| 15 | 资源、官方下载清单、**本页相对指南的修正表** |
+| 07 | **交互式 3D 脑区浏览器**（官方网格） |
+
+3D 浏览器支持：拖动旋转、滚轮缩放、点击脑区看介绍、双击复位、
+正面/侧面视角、自动旋转、**显示内部结构**（切换拾取模式）。
+
+---
+
+## 数据来源
+
+### 3D 网格（官方）
+
+```
+gs://flyem-male-cns/rois/fullbrain-roi-v5/mesh/<NAME>.ngmesh          84 个脑神经毡
+gs://flyem-male-cns/rois/malecns-vnc-neuropil-roi-v0/mesh/            24 个 VNC 神经毡
+```
+
+- 格式：`neuroglancer_legacy_mesh`
+  （[规范](https://neuroglancer-docs.web.app/datasource/precomputed/mesh.html)：
+  `uint32 numVertices` → `float32 positions[nv*3]` → `uint32 indices[...]`，无每顶点计数表）
+- 本仓库打包了其中 **26 个结构**（脑 + 视叶 + 腹神经索）
+- 坐标为**原始纳米坐标**
+- 许可 **CC-BY 4.0**，须引用 Berg et al. (2026) 及 FlyEM / HHMI Janelia
+
+### 官方场景（含全部 45 个图层）
+
+用 Neuroglancer 打开可以看到 EM、分割、神经毡 ROI、突触、跨数据集网格：
+
+```
+https://neuroglancer-demo.appspot.com/#!gs://flyem-male-cns/v1.0/male-cns-v1.0.json
+```
+
+---
+
+## ⚠️ 网格已抽稀（必读）
+
+官方 26 个结构的原始网格合计 **8,860,924 个三角形**，浏览器无法实时渲染。
+仓库里的 `assets/mcns-meshes.js` 是经**顶点聚类（grid snapping）抽稀**的版本：
+
+| | 原始 | 本仓库 |
+|---|---|---|
+| 三角形 | 8,860,924 | **31,838**（0.36%） |
+| 每帧可见 | 167,298 | **14,331** |
+| 文件 | 283 MB | **973 KB** |
+
+**形状与相对位置保持不变，但表面细节已损失 —— 不可用于体积、表面积等定量测量。**
+每个结构的抽稀网格边长（cell，单位 nm）都显示在页面的信息面板里。
+
+需要原始精度请用官方 Neuroglancer 场景，或按下节重新生成。
+
+---
+
+## 重新生成网格数据
+
+`_official/` 与 `assets/mcns-meshes.js` 都在 `.gitignore` 里（前者可重新下载，后者是构建产物）。
+重建步骤：
+
+```bash
+# 1. 下载官方网格并转成本地格式（约 159 MB 下载，输出 mcns-meshes.js ≈ 283 MB）
+python tools/fetch_official_meshes.py
+
+# 2. 抽稀到浏览器可渲染的规模（默认 low 预设，输出 ≈ 1 MB）
+python tools/decimate_meshes.py --preset low --scale 0.5
+```
+
+抽稀预设：
+
+| 预设 | 三角形总数 | 适用 |
+|---|---|---|
+| `low` | ≈ 6.5 万 | Canvas 2D（页面默认） |
+| `low --scale 0.5` | ≈ 3.2 万 | 更流畅（仓库内的版本） |
+| `mid` | ≈ 34 万 | WebGL / 桌面 GPU |
+| `high` | 不抽稀 | 仅离线分析 |
+
+---
+
+## 测试
+
+```bash
+python validate_page.py            # 页面结构 / 锚点 / 资源引用
+node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
+node tools/test-3d-official.js     # 官方网格解析·坐标范围·取景·遮挡（204 项）
+node tools/test-3d-boot.js         # 页面接线：启动·事件·坐标系·面板（43 项）
+```
+
+> 后三个需要先有 `assets/mcns-meshes.js`。
+
+---
+
+## 原始资料与核查
+
+| 文件 | 说明 |
+|---|---|
+| `malecns-study-guide.md` | 六阶段学习路线（本页是其阶段 0 的配套材料） |
+| `malecns-factcheck-2026-09-17.md` | 联网事实核查报告 |
+| `MaleCNS_连接组学基础_中文报告.md` | 连接组学基础研究报告（9 大主题，逐条带 URL） |
+| `malecns_scale.py` | 规模 / 密度 / 存储派生量计算 |
+
+### 一处重要修正
+
+指南混用了**预印本**与**正式发表**两套数字。正式 *Cell* 版（2026-09-03，
+DOI `10.1016/j.cell.2026.08.015`）已更新：
+
+| | 预印本 2025-10 | 正式 Cell 2026-09 |
+|---|---|---|
+| 神经元数 | 166,691 | **166,700** |
+| 细胞类型总数 | 11,691 | **11,710** |
+| 同构 / 异形 / 雄特 / 雌特 | 7,205 / 114 / 262 / 69 | **8,069 / 138 / 289 / 71** |
+
+页面内所有数字均已按核查结果修正，并在「本页相对指南的修正」一节逐条列出。
+
+---
+
+## 引用
+
+```
+Berg et al. (2026). Whole-central nervous system connectome of the adult male
+Drosophila. Cell 189(18):5504-5526.e15. DOI 10.1016/j.cell.2026.08.015
+```
+
+数据：FlyEM / HHMI Janelia、University of Cambridge、MRC LMB、Google Research。
+数据许可 **CC-BY 4.0**（Cell 正文本身为订阅制）。
+
+---
+
+## 下一步
+
+**阶段 1 · 在网页里逛**：打开 Codex（MCNS）或 neuPrint，
+走通 `R1–R6 → … → DNg13` 或 `糖 GRN → SEZ → MN9`，并说出中间细胞类型。

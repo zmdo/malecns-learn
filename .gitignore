@@ -1,0 +1,76 @@
+# ============================================================
+#  MaleCNS Learn — .gitignore
+# ============================================================
+
+# ---------- 官方数据缓存（可重新下载，别提交） ----------
+# tools/fetch_official_meshes.py 会往这里写原始 .ngmesh（约 150 MB）
+_official/
+
+# 抽稀工具的临时产物 / 幂等中间文件
+*.ngmesh
+mcns-meshes-raw.js
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+.python-version
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ---------- Node / 前端 ----------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# ---------- 编辑器 / IDE ----------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
+*.code-workspace
+
+# ---------- 操作系统 ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ---------- 临时 / 调试产物 ----------
+# 截图与一次性 harness（页面调试时生成）
+_shot/
+_h3.html
+_harness*.html
+_shotpage.html
+*.tmp
+*.bak
+*.orig
+*.log
+
+# ---------- 大文件保护 ----------
+# 页面只需要抽稀后的网格包（约 1 MB）。
+# 如果想提交未抽稀的完整网格（约 280 MB），请先确认托管方允许。
+mcns-meshes-full.js
+*-full.js

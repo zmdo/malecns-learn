@@ -1,0 +1,211 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 700" width="1120" height="700" font-family="Segoe UI, Noto Sans SC, sans-serif">
+  <defs>
+    <marker id="pArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="pBack" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="700" fill="#0b1020"/>
+  <text x="40" y="44" fill="#e2e8f0" font-size="22" font-weight="700">从一块蝇脑到一张接线图：6 个阶段</text>
+  <text x="40" y="70" fill="#94a3b8" font-size="13.5">连接组不是「拍出来的」，是逐步推断出来的。每一步都会引入误差 —— 这是 Phase 0 最重要的一句话。</text>
+
+  <!-- ===== Step 1 ===== -->
+  <g>
+    <rect x="40" y="96" width="320" height="222" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+    <circle cx="72" cy="126" r="15" fill="#334155"/>
+    <text x="72" y="131" fill="#e2e8f0" font-size="13" font-weight="700" text-anchor="middle">1</text>
+    <text x="98" y="132" fill="#e2e8f0" font-size="15.5" font-weight="700">包埋与切片</text>
+    <text x="72" y="162" fill="#94a3b8" font-size="12.5">树脂包埋蝇脑，切成</text>
+    <text x="72" y="181" fill="#94a3b8" font-size="12.5">成千上万张超薄连续切片</text>
+
+    <!-- slab with slices -->
+    <g>
+      <rect x="90" y="204" width="220" height="52" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1.3"/>
+      <g stroke="#475569" stroke-width="1.2">
+        <line x1="110" y1="204" x2="110" y2="256"/><line x1="130" y1="204" x2="130" y2="256"/>
+        <line x1="150" y1="204" x2="150" y2="256"/><line x1="170" y1="204" x2="170" y2="256"/>
+        <line x1="190" y1="204" x2="190" y2="256"/><line x1="210" y1="204" x2="210" y2="256"/>
+        <line x1="230" y1="204" x2="230" y2="256"/><line x1="250" y1="204" x2="250" y2="256"/>
+        <line x1="270" y1="204" x2="270" y2="256"/><line x1="290" y1="204" x2="290" y2="256"/>
+      </g>
+    </g>
+    <text x="90" y="288" fill="#64748b" font-size="11.5">切片厚度 ~ 几十纳米量级</text>
+  </g>
+
+  <!-- ===== Step 2 ===== -->
+  <g>
+    <rect x="400" y="96" width="320" height="222" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+    <circle cx="432" cy="126" r="15" fill="#334155"/>
+    <text x="432" y="131" fill="#e2e8f0" font-size="13" font-weight="700" text-anchor="middle">2</text>
+    <text x="458" y="132" fill="#e2e8f0" font-size="15.5" font-weight="700">电子显微镜成像</text>
+    <text x="432" y="162" fill="#94a3b8" font-size="12.5">逐层拍成灰度图像（ssTEM / SBEM /</text>
+    <text x="432" y="181" fill="#94a3b8" font-size="12.5">FIB-SEM）。像素尺度 ~ 4×4×40 nm</text>
+
+    <!-- stack of image planes -->
+    <g opacity="0.95">
+      <rect x="452" y="216" width="150" height="34" rx="3" fill="#0f172a" stroke="#334155"/>
+      <rect x="446" y="208" width="150" height="34" rx="3" fill="#0f172a" stroke="#334155"/>
+      <rect x="440" y="200" width="150" height="34" rx="3" fill="#0f172a" stroke="#334155"/>
+      <g fill="#475569">
+        <circle cx="466" cy="212" r="3"/><circle cx="492" cy="206" r="3"/><circle cx="520" cy="215" r="3"/>
+        <circle cx="548" cy="208" r="3"/><circle cx="470" cy="222" r="2.5"/><circle cx="530" cy="226" r="2.5"/>
+      </g>
+    </g>
+    <text x="620" y="230" fill="#94a3b8" font-size="12">≈ 数万张</text>
+    <text x="620" y="248" fill="#94a3b8" font-size="12">图像</text>
+    <text x="432" y="288" fill="#64748b" font-size="11.5">体积可达 TB 量级，是后续一切的原料</text>
+  </g>
+
+  <!-- ===== Step 3 ===== -->
+  <g>
+    <rect x="760" y="96" width="320" height="222" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+    <circle cx="792" cy="126" r="15" fill="#334155"/>
+    <text x="792" y="131" fill="#e2e8f0" font-size="13" font-weight="700" text-anchor="middle">3</text>
+    <text x="818" y="132" fill="#e2e8f0" font-size="15.5" font-weight="700">对齐与拼接</text>
+    <text x="792" y="162" fill="#94a3b8" font-size="12.5">把切片在 z 方向对齐、块间拼接，</text>
+    <text x="792" y="181" fill="#94a3b8" font-size="12.5">得到各向连续的 3D 体数据</text>
+
+    <!-- misaligned vs aligned -->
+    <g>
+      <rect x="806" y="200" width="46" height="34" rx="3" fill="#1e293b" stroke="#f87171" stroke-width="1.3" transform="rotate(-6 829 217)"/>
+      <rect x="806" y="234" width="46" height="34" rx="3" fill="#1e293b" stroke="#f87171" stroke-width="1.3" transform="rotate(5 829 251)"/>
+      <text x="829" y="288" fill="#f87171" font-size="11.5" text-anchor="middle">对不齐</text>
+    </g>
+    <path d="M866,240 L896,240" stroke="#475569" stroke-width="2" marker-end="url(#pArrow)"/>
+    <g>
+      <rect x="910" y="210" width="46" height="34" rx="3" fill="#1e293b" stroke="#4ade80" stroke-width="1.3"/>
+      <rect x="910" y="244" width="46" height="34" rx="3" fill="#1e293b" stroke="#4ade80" stroke-width="1.3"/>
+      <text x="933" y="294" fill="#4ade80" font-size="11.5" text-anchor="middle">连续体</text>
+    </g>
+    <text x="792" y="316" fill="#64748b" font-size="11.5"> </text>
+  </g>
+
+  <!-- vertical arrows between rows -->
+  <path d="M200,318 L200,352" stroke="#475569" stroke-width="2.5" marker-end="url(#pArrow)"/>
+  <path d="M560,318 L560,352" stroke="#475569" stroke-width="2.5" marker-end="url(#pArrow)"/>
+  <path d="M920,318 L920,352" stroke="#475569" stroke-width="2.5" marker-end="url(#pArrow)"/>
+
+  <!-- ===== Step 4 ===== -->
+  <g>
+    <rect x="40" y="358" width="320" height="238" rx="14" fill="#12203a" stroke="#7dd3fc" stroke-width="1.6"/>
+    <circle cx="72" cy="388" r="15" fill="#7dd3fc"/>
+    <text x="72" y="393" fill="#0b1020" font-size="13" font-weight="700" text-anchor="middle">4</text>
+    <text x="98" y="394" fill="#7dd3fc" font-size="15.5" font-weight="700">分割 segmentation</text>
+    <text x="72" y="424" fill="#94a3b8" font-size="12.5">给每个体素判定「属于哪个细胞」。</text>
+    <text x="72" y="443" fill="#94a3b8" font-size="12.5">深度网络先分割，再做聚集（agglomeration）</text>
+
+    <!-- voxel grid colored by segment -->
+    <g>
+      <rect x="80" y="462" width="240" height="96" rx="5" fill="#0f172a" stroke="#334155"/>
+      <g>
+        <rect x="86" y="468" width="22" height="22" fill="#7dd3fc" opacity="0.85"/>
+        <rect x="108" y="468" width="22" height="22" fill="#7dd3fc" opacity="0.55"/>
+        <rect x="130" y="468" width="22" height="22" fill="#4ade80" opacity="0.85"/>
+        <rect x="152" y="468" width="22" height="22" fill="#4ade80" opacity="0.6"/>
+        <rect x="174" y="468" width="22" height="22" fill="#f472b6" opacity="0.8"/>
+        <rect x="196" y="468" width="22" height="22" fill="#f472b6" opacity="0.5"/>
+        <rect x="218" y="468" width="22" height="22" fill="#fbbf24" opacity="0.8"/>
+        <rect x="240" y="468" width="22" height="22" fill="#fbbf24" opacity="0.5"/>
+        <rect x="262" y="468" width="22" height="22" fill="#7dd3fc" opacity="0.7"/>
+        <rect x="284" y="468" width="22" height="22" fill="#4ade80" opacity="0.75"/>
+
+        <rect x="86" y="490" width="22" height="22" fill="#7dd3fc" opacity="0.6"/>
+        <rect x="108" y="490" width="22" height="22" fill="#7dd3fc" opacity="0.9"/>
+        <rect x="130" y="490" width="22" height="22" fill="#4ade80" opacity="0.5"/>
+        <rect x="152" y="490" width="22" height="22" fill="#4ade80" opacity="0.8"/>
+        <rect x="174" y="490" width="22" height="22" fill="#f472b6" opacity="0.55"/>
+        <rect x="196" y="490" width="22" height="22" fill="#f472b6" opacity="0.85"/>
+        <rect x="218" y="490" width="22" height="22" fill="#fbbf24" opacity="0.55"/>
+        <rect x="240" y="490" width="22" height="22" fill="#fbbf24" opacity="0.85"/>
+        <rect x="262" y="490" width="22" height="22" fill="#7dd3fc" opacity="0.5"/>
+        <rect x="284" y="490" width="22" height="22" fill="#4ade80" opacity="0.55"/>
+
+        <rect x="86" y="512" width="22" height="22" fill="#7dd3fc" opacity="0.8"/>
+        <rect x="108" y="512" width="22" height="22" fill="#7dd3fc" opacity="0.5"/>
+        <rect x="130" y="512" width="22" height="22" fill="#4ade80" opacity="0.9"/>
+        <rect x="152" y="512" width="22" height="22" fill="#4ade80" opacity="0.6"/>
+        <rect x="174" y="512" width="22" height="22" fill="#f472b6" opacity="0.75"/>
+        <rect x="196" y="512" width="22" height="22" fill="#f472b6" opacity="0.5"/>
+        <rect x="218" y="512" width="22" height="22" fill="#fbbf24" opacity="0.9"/>
+        <rect x="240" y="512" width="22" height="22" fill="#fbbf24" opacity="0.6"/>
+        <rect x="262" y="512" width="22" height="22" fill="#7dd3fc" opacity="0.85"/>
+        <rect x="284" y="512" width="22" height="22" fill="#4ade80" opacity="0.7"/>
+
+        <rect x="86" y="534" width="22" height="22" fill="#7dd3fc" opacity="0.5"/>
+        <rect x="108" y="534" width="22" height="22" fill="#7dd3fc" opacity="0.75"/>
+        <rect x="130" y="534" width="22" height="22" fill="#4ade80" opacity="0.55"/>
+        <rect x="152" y="534" width="22" height="22" fill="#4ade80" opacity="0.85"/>
+        <rect x="174" y="534" width="22" height="22" fill="#f472b6" opacity="0.5"/>
+        <rect x="196" y="534" width="22" height="22" fill="#f472b6" opacity="0.7"/>
+        <rect x="218" y="534" width="22" height="22" fill="#fbbf24" opacity="0.65"/>
+        <rect x="240" y="534" width="22" height="22" fill="#fbbf24" opacity="0.8"/>
+        <rect x="262" y="534" width="22" height="22" fill="#7dd3fc" opacity="0.6"/>
+        <rect x="284" y="534" width="22" height="22" fill="#4ade80" opacity="0.9"/>
+      </g>
+    </g>
+    <text x="80" y="582" fill="#64748b" font-size="11.5">每个颜色 = 暂定的一个神经元（segment）</text>
+  </g>
+
+  <!-- ===== Step 5 ===== -->
+  <g>
+    <rect x="400" y="358" width="320" height="238" rx="14" fill="#12203a" stroke="#7dd3fc" stroke-width="1.6"/>
+    <circle cx="432" cy="388" r="15" fill="#7dd3fc"/>
+    <text x="432" y="393" fill="#0b1020" font-size="13" font-weight="700" text-anchor="middle">5</text>
+    <text x="458" y="394" fill="#7dd3fc" font-size="15.5" font-weight="700">突触检测</text>
+    <text x="432" y="424" fill="#94a3b8" font-size="12.5">识别突触前 T-bar / 活性带与突触后密度，</text>
+    <text x="432" y="443" fill="#94a3b8" font-size="12.5">并给出每个位点的置信度（confidence）</text>
+
+    <!-- two neurites meeting -->
+    <path d="M430,470 C468,470 480,500 508,506" stroke="#7dd3fc" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M580,470 C548,470 536,500 512,506" stroke="#4ade80" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <!-- T-bar -->
+    <line x1="508" y1="494" x2="508" y2="520" stroke="#f87171" stroke-width="3.5"/>
+    <circle cx="508" cy="522" r="5" fill="#fbbf24"/>
+
+    <text x="588" y="480" fill="#fbbf24" font-size="12.5">← 突触前位点</text>
+    <text x="588" y="500" fill="#94a3b8" font-size="12">每个位点带一个</text>
+    <text x="588" y="518" fill="#94a3b8" font-size="12">confidence 分数</text>
+
+    <rect x="424" y="536" width="272" height="44" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.2"/>
+    <text x="560" y="556" fill="#fbbf24" font-size="12.5" text-anchor="middle">这就是「接触点」的来源</text>
+    <text x="560" y="572" fill="#94a3b8" font-size="11.5" text-anchor="middle">MaleCNS：1.24 亿个</text>
+  </g>
+
+  <!-- ===== Step 6 ===== -->
+  <g>
+    <rect x="760" y="358" width="320" height="238" rx="14" fill="#1b2410" stroke="#4ade80" stroke-width="1.6"/>
+    <circle cx="792" cy="388" r="15" fill="#4ade80"/>
+    <text x="792" y="393" fill="#0b1020" font-size="13" font-weight="700" text-anchor="middle">6</text>
+    <text x="818" y="394" fill="#4ade80" font-size="15.5" font-weight="700">校对 proofreading</text>
+    <text x="792" y="424" fill="#94a3b8" font-size="12.5">人工检查自动分割：合并被切碎的同一细胞、</text>
+    <text x="792" y="443" fill="#94a3b8" font-size="12.5">拆开被错误粘连的两个细胞</text>
+
+    <!-- split / merge ops -->
+    <g>
+      <rect x="790" y="460" width="110" height="30" rx="5" fill="#0f172a" stroke="#f87171" stroke-width="1.3"/>
+      <text x="845" y="480" fill="#f87171" font-size="12" text-anchor="middle">切碎的 1 个</text>
+      <path d="M908,475 L942,475" stroke="#475569" stroke-width="2" marker-end="url(#pArrow)"/>
+      <rect x="950" y="460" width="110" height="30" rx="5" fill="#0f172a" stroke="#4ade80" stroke-width="1.3"/>
+      <text x="1005" y="480" fill="#4ade80" font-size="12" text-anchor="middle">合并为 1 个</text>
+
+      <rect x="790" y="502" width="110" height="30" rx="5" fill="#0f172a" stroke="#f87171" stroke-width="1.3"/>
+      <text x="845" y="522" fill="#f87171" font-size="12" text-anchor="middle">粘连的 2 个</text>
+      <path d="M908,517 L942,517" stroke="#475569" stroke-width="2" marker-end="url(#pArrow)"/>
+      <rect x="950" y="502" width="110" height="30" rx="5" fill="#0f172a" stroke="#4ade80" stroke-width="1.3"/>
+      <text x="1005" y="522" fill="#4ade80" font-size="12" text-anchor="middle">拆开为 2 个</text>
+    </g>
+
+    <text x="792" y="562" fill="#fbbf24" font-size="12.5">这一步决定数据质量，也决定 body ID 会不会变</text>
+    <text x="792" y="582" fill="#64748b" font-size="11.5">只有校对的细胞才有可靠的类型标签</text>
+  </g>
+
+  <!-- ===== loop back arrows ===== -->
+  <path d="M760,600 C700,640 300,640 240,596" stroke="#fbbf24" stroke-width="2" fill="none"
+        stroke-dasharray="7 5" marker-end="url(#pBack)"/>
+  <text x="500" y="658" fill="#fbbf24" font-size="13" text-anchor="middle">校对发现的问题会回灌，改进分割与突触检测 —— 所以「版本号」会一直往前走</text>
+
+  <text x="40" y="690" fill="#64748b" font-size="12">注：像素尺度、切片厚度为 FlyEM FAFB / MaleCNS 系列的公开量级，用于建立数量级直觉，不是精确规格。</text>
+</svg>

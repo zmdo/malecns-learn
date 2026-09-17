@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 600" width="1100" height="600" font-family="Segoe UI, Noto Sans SC, sans-serif">
+  <defs>
+    <marker id="mBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7dd3fc"/>
+    </marker>
+    <marker id="mGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4ade80"/>
+    </marker>
+    <marker id="mSlate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="600" fill="#0b1020"/>
+
+  <text x="40" y="44" fill="#e2e8f0" font-size="22" font-weight="700">接触点 ≠ 连接：阈值如何改变 MaleCNS 的「连接数」</text>
+  <text x="40" y="70" fill="#94a3b8" font-size="13.5">左：显微镜测到的真实结构　　中：全数据集账本　　右：两种发布口径下你会查到的数字</text>
+
+  <!-- ================= LEFT ================= -->
+  <rect x="30" y="94" width="286" height="232" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="173" y="122" fill="#cbd5e1" font-size="14.5" font-weight="700" text-anchor="middle">一对神经元 A → B</text>
+
+  <circle cx="70" cy="176" r="16" fill="#7dd3fc"/>
+  <text x="70" y="181" fill="#0b1020" font-size="12.5" font-weight="700" text-anchor="middle">A</text>
+  <text x="70" y="208" fill="#7dd3fc" font-size="11.5" text-anchor="middle">突触前</text>
+
+  <circle cx="276" cy="176" r="16" fill="#4ade80"/>
+  <text x="276" y="181" fill="#0b1020" font-size="12.5" font-weight="700" text-anchor="middle">B</text>
+  <text x="276" y="208" fill="#4ade80" font-size="11.5" text-anchor="middle">突触后</text>
+
+  <path d="M88,186 C114,242 152,258 186,262" stroke="#7dd3fc" stroke-width="3" fill="none" marker-end="url(#mBlue)"/>
+  <path d="M258,186 C236,240 208,260 186,262" stroke="#4ade80" stroke-width="3" fill="none"/>
+
+  <g fill="#fbbf24">
+    <circle cx="186" cy="262" r="6.5"/><circle cx="167" cy="256" r="6.5"/><circle cx="206" cy="256" r="6.5"/>
+    <circle cx="150" cy="246" r="6.5"/><circle cx="223" cy="246" r="6.5"/><circle cx="135" cy="233" r="6.5"/>
+    <circle cx="238" cy="233" r="6.5"/>
+  </g>
+
+  <text x="173" y="292" fill="#fbbf24" font-size="14.5" font-weight="700" text-anchor="middle">7 个突触接触点</text>
+  <text x="173" y="313" fill="#cbd5e1" font-size="12.5" text-anchor="middle">但 A 与 B 之间只是 <tspan fill="#e2e8f0" font-weight="700">1 条连接</tspan></text>
+
+  <!-- ================= MIDDLE ================= -->
+  <path d="M324,210 L378,210" stroke="#334155" stroke-width="2.5" marker-end="url(#mSlate)"/>
+
+  <rect x="386" y="94" width="246" height="232" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="509" y="122" fill="#cbd5e1" font-size="14.5" font-weight="700" text-anchor="middle">全数据集账本</text>
+
+  <text x="410" y="162" fill="#fbbf24" font-size="25" font-weight="700">124,177,617</text>
+  <text x="410" y="183" fill="#94a3b8" font-size="12.5">个突触接触点（S）</text>
+
+  <line x1="410" y1="200" x2="608" y2="200" stroke="#1e293b" stroke-width="1.5"/>
+
+  <text x="410" y="232" fill="#7dd3fc" font-size="25" font-weight="700">25,582,938</text>
+  <text x="410" y="253" fill="#94a3b8" font-size="12.5">条有向连接（E，已去重）</text>
+
+  <text x="410" y="290" fill="#e2e8f0" font-size="13">平均每条连接 <tspan fill="#fbbf24" font-weight="700">4.85</tspan> 个接触点</text>
+  <text x="410" y="310" fill="#64748b" font-size="11.5">S / E ≈ 4.85 → 「≥5 突触」正卡在均值上</text>
+
+  <!-- ================= RIGHT: shared edge list ================= -->
+  <path d="M640,210 L694,210" stroke="#334155" stroke-width="2.5" marker-end="url(#mSlate)"/>
+
+  <!-- edge list header -->
+  <rect x="702" y="94" width="368" height="232" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="726" y="120" fill="#cbd5e1" font-size="14" font-weight="700">5 条连接，接触点数各不相同</text>
+  <text x="726" y="138" fill="#64748b" font-size="11.5">每个黄点 = 1 个突触接触点</text>
+
+  <!-- rows: label, dots, count -->
+  <g font-size="12.5" fill="#94a3b8">
+    <text x="726" y="168">连接 1</text>
+    <text x="726" y="204">连接 2</text>
+    <text x="726" y="240">连接 3</text>
+    <text x="726" y="276">连接 4</text>
+    <text x="726" y="312">连接 5</text>
+  </g>
+  <g fill="#fbbf24">
+    <circle cx="796" cy="164" r="4.4"/>
+    <circle cx="796" cy="200" r="4.4"/><circle cx="812" cy="200" r="4.4"/>
+    <circle cx="796" cy="236" r="4.4"/><circle cx="812" cy="236" r="4.4"/><circle cx="828" cy="236" r="4.4"/>
+    <circle cx="796" cy="272" r="4.4"/><circle cx="812" cy="272" r="4.4"/><circle cx="828" cy="272" r="4.4"/>
+    <circle cx="796" cy="308" r="4.4"/><circle cx="812" cy="308" r="4.4"/><circle cx="828" cy="308" r="4.4"/><circle cx="844" cy="308" r="4.4"/>
+    <circle cx="860" cy="308" r="4.4"/><circle cx="876" cy="308" r="4.4"/><circle cx="892" cy="308" r="4.4"/><circle cx="908" cy="308" r="4.4"/>
+  </g>
+  <g font-size="12.5" fill="#cbd5e1" font-weight="700" text-anchor="end">
+    <text x="1050" y="168">1 个</text>
+    <text x="1050" y="204">2 个</text>
+    <text x="1050" y="240">3 个</text>
+    <text x="1050" y="276">3 个</text>
+    <text x="1050" y="312" fill="#4ade80">8 个</text>
+  </g>
+
+  <!-- ================= BOTTOM LEFT: why ================= -->
+  <rect x="30" y="348" width="602" height="222" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="56" y="380" fill="#cbd5e1" font-size="14.5" font-weight="700">为什么「连接数」会变，接触点却几乎不变</text>
+
+  <text x="56" y="412" fill="#e2e8f0" font-size="13">被删掉的是 <tspan fill="#fbbf24" font-weight="700">1–4 个接触点</tspan> 的弱边。每条弱边最多带走 4 个接触点，</text>
+  <text x="56" y="432" fill="#e2e8f0" font-size="13">而强边（≥5）一条就能带 8 个、20 个、上百个接触点。</text>
+
+  <text x="56" y="470" fill="#cbd5e1" font-size="13" font-weight="700">连接条数</text>
+  <rect x="146" y="459" width="238" height="17" rx="4" fill="#7dd3fc"/>
+  <rect x="384" y="459" width="52" height="17" rx="4" fill="#7dd3fc" opacity="0.28"/>
+  <text x="448" y="473" fill="#94a3b8" font-size="12">可掉一个数量级</text>
+
+  <text x="56" y="508" fill="#cbd5e1" font-size="13" font-weight="700">接触点总数</text>
+  <rect x="146" y="497" width="284" height="17" rx="4" fill="#fbbf24"/>
+  <rect x="430" y="497" width="266" height="17" rx="4" fill="#fbbf24" opacity="0.28"/>
+  <text x="146" y="534" fill="#94a3b8" font-size="12">留下的（大部分）</text>
+  <text x="430" y="534" fill="#94a3b8" font-size="12">被丢的（少部分）</text>
+
+  <text x="56" y="558" fill="#64748b" font-size="12">所以：先问「这是哪套口径的数字」，再比较。跨口径比大小没有意义。</text>
+
+  <!-- ================= BOTTOM RIGHT: two conventions ================= -->
+  <rect x="702" y="348" width="368" height="222" rx="14" fill="#111a2e" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="726" y="376" fill="#cbd5e1" font-size="14" font-weight="700">同样这 5 条连接，两套口径的结论</text>
+
+  <!-- Convention A -->
+  <line x1="726" y1="400" x2="1046" y2="400" stroke="#1e293b" stroke-width="1.3"/>
+  <text x="726" y="424" fill="#4ade80" font-size="13" font-weight="700">口径 A · flat connectome（min confidence 0.5）</text>
+  <g fill="#4ade80">
+    <circle cx="736" cy="444" r="5"/><circle cx="754" cy="444" r="5"/><circle cx="772" cy="444" r="5"/>
+    <circle cx="790" cy="444" r="5"/><circle cx="808" cy="444" r="5"/>
+  </g>
+  <text x="828" y="449" fill="#e2e8f0" font-size="12.5">5 条全留 → 连接数<tspan fill="#4ade80" font-weight="700">多</tspan></text>
+
+  <!-- Convention B -->
+  <line x1="726" y1="466" x2="1046" y2="466" stroke="#1e293b" stroke-width="1.3"/>
+  <text x="726" y="490" fill="#f87171" font-size="13" font-weight="700">口径 B · neuPrint / Codex（默认 ≥ 5 个突触）</text>
+  <g>
+    <circle cx="736" cy="510" r="5" fill="#f87171" opacity="0.28"/>
+    <circle cx="754" cy="510" r="5" fill="#f87171" opacity="0.28"/>
+    <circle cx="772" cy="510" r="5" fill="#f87171" opacity="0.28"/>
+    <circle cx="790" cy="510" r="5" fill="#f87171" opacity="0.28"/>
+    <circle cx="808" cy="510" r="5" fill="#4ade80"/>
+  </g>
+  <text x="828" y="515" fill="#e2e8f0" font-size="12.5">只留 1 条 → 连接数<tspan fill="#f87171" font-weight="700">大幅下降</tspan></text>
+
+  <text x="726" y="548" fill="#64748b" font-size="11.5">被丢的 4 条一共只带走 9 个接触点 —— 分母 1.24 亿，看不出来。</text>
+</svg>
