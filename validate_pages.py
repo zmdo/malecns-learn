@@ -13,6 +13,9 @@ from html.parser import HTMLParser
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# 顶层可导航页面（校验时一并检查其互链）
+TOP_PAGES = {"index.html", "phase0.html", "phase1.html", "neuprint.html"}
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
         "meta", "param", "source", "track", "wbr"}
 
@@ -161,6 +164,18 @@ def check_css_usage(path, html):
         else:
             problems.append(f"阶段切换器用了 .{c}，但 CSS 里没有定义（会掉样式）")
 
+    # 4) 内联语义标签：用了就应该有样式，否则退化成浏览器默认外观
+    INLINE_TAGS = ["kbd", "mark", "abbr", "samp", "var"]
+    for tag in INLINE_TAGS:
+        used = len(re.findall(rf"<{tag}[\s>]", html))
+        if not used:
+            continue
+        if re.search(rf"(^|[\n,}}])\s*{tag}\s*[,{{]", css):
+            notes.append(f"内联标签 <{tag}> ×{used} 有样式")
+        else:
+            problems.append(f"用了 {used} 处 <{tag}>，但 CSS 没有该标签的样式"
+                            f"（会退化成浏览器默认外观）")
+
     return notes, problems
 
 
@@ -277,14 +292,14 @@ def main():
     else:
         # 顶层页面：index.html + phase*.html
         files = sorted(os.path.join(ROOT, f) for f in os.listdir(ROOT)
-                       if f == "index.html" or re.match(r"^phase\d+\.html$", f))
+                       if f in TOP_PAGES or re.match(r"^phase\d+\.html$", f))
     if not files:
-        print("没有找到 index.html 或 phase*.html")
+        print("没有找到可校验的页面")
         return 1
 
     # 顶层页面集合，用于校验互链
     top = sorted(os.path.join(ROOT, f) for f in os.listdir(ROOT)
-                 if f == "index.html" or re.match(r"^phase\d+\.html$", f))
+                 if f in TOP_PAGES or re.match(r"^phase\d+\.html$", f))
     id_map = {os.path.basename(f): collect_ids(f) for f in top}
 
     results = [check_file(f, id_map) for f in files]

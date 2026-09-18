@@ -9,8 +9,9 @@
 | **`index.html`** | **总览 / 学习路线图** —— 六阶段一览，点按钮进入已完成阶段 |
 | `phase0.html` | **阶段 0 · 打地基** —— 连接组学基本词汇与数量直觉 + **官方网格驱动的交互式 3D 脑区浏览器** |
 | `phase1.html` | **阶段 1 · 在网页里逛** —— 在 neuPrint / Codex 里**亲手走通一条通路**，含逐跳可复现的查询与实测权重 |
+| **`neuprint.html`** | **neuPrint 查询执行台** —— 在浏览器里**直接执行 Cypher 取回真实数据**（22 条预设、表头排序、导出 CSV） |
 
-> 三个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1），
+> 四个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1 / 执行台），
 > 页脚也各有一个，方便来回跳。
 
 ---
@@ -23,6 +24,7 @@
 index.html           ← 建议从这里开始（总览 + 阶段切换）
 phase0.html          ← 阶段 0：打地基
 phase1.html          ← 阶段 1：在网页里逛
+neuprint.html        ← neuPrint 查询执行台（需联网）
 ```
 
 > 阶段 0 的 3D 部分读取同目录的 `assets/mcns-meshes.js`（约 1 MB），
@@ -33,7 +35,40 @@ phase1.html          ← 阶段 1：在网页里逛
 > # 然后访问 http://localhost:8000/index.html
 > ```
 
-阶段 1 需要联网（要访问 neuPrint），但页面本身是离线的。
+**联网要求**：
+- `neuprint.html` **必须联网** —— 它直接请求 `neuprint.janelia.org`
+- 阶段 1 页面里的链接需要联网，但页面本身离线可用
+- 阶段 0 完全离线可用
+
+---
+
+## neuPrint 查询执行台
+
+`neuprint.html` 是一个可以**真的跑出数据**的页面：
+
+- **22 条预设查询**，覆盖阶段 1 讲到的全部通路（基础句式 / 通路 A / 通路 B / 探索统计）
+- 点预设填入编辑器 → <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 执行 → 结果实时返回
+- 结果表**点表头可排序**，支持**导出 CSV**（自动处理逗号与引号转义）
+- 显示 neuPrint **改写后的实际 Cypher**（便于学习它的查询计划）
+- 失败时给出排查建议；**0 行结果会明确提示字段名陷阱**，而不是画一个空表
+
+### 为什么不需要后端
+
+neuPrint 的 API 开放了跨域访问：
+
+```
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Headers: Authorization, Content-Type
+Access-Control-Allow-Methods: GET, POST, OPTIONS
+```
+
+所以页面从浏览器直接调官方端点即可，**没有中间层、没有代理**，
+你看到的就是官方返回的原始结果。端点：
+
+```
+POST https://neuprint.janelia.org/api/custom/custom
+     {"cypher": "...", "dataset": "male-cns:v1.0"}
+```
 
 ---
 
@@ -142,14 +177,19 @@ python tools/decimate_meshes.py --preset low --scale 0.5
 ## 测试
 
 ```bash
-python validate_pages.py           # 两个页面的结构 / 锚点 / 资源 / 内联 SVG 合法性
+python validate_pages.py           # 四个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
+node tools/test-neuprint-console.js  # 执行台：假 DOM + 假 fetch 跑完整链路（83 项）
 node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
 node tools/test-3d-official.js     # 官方网格解析·坐标范围·取景·遮挡（204 项）
-node tools/test-3d-boot.js         # 页面接线：启动·事件·坐标系·面板（43 项）
+node tools/test-3d-boot.js         # 3D 页面接线：启动·事件·坐标系·面板（43 项）
 ```
 
-> 后三个需要先有 `assets/mcns-meshes.js`。
+> 三个 3D 测试需要先有 `assets/mcns-meshes.js`。
 > `validate_page.py`（单数）是旧版，只校验 `phase0.html`；新页面请用 `validate_pages.py`。
+>
+> `test-neuprint-console.js` 用假 DOM + 假 fetch 执行页面里的内联脚本，
+> 验证「执行 → 请求体正确 → 渲染表格 → 排序 → CSV → 错误处理 → 行数上限」
+> 全链路，不需要浏览器、也不真的联网。
 
 ### 阶段 1 的数据可复现性
 

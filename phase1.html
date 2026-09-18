@@ -21,6 +21,9 @@
   a:hover{text-decoration:underline; text-underline-offset:3px}
   code{font-family:var(--mono); font-size:.88em; background:#1a2338; padding:.12em .42em;
     border-radius:5px; color:#a5d8ff; border:1px solid #223052}
+  kbd{font-family:var(--mono); font-size:.82em; background:#1a2338; border:1px solid #223052;
+    border-bottom-width:2px; border-radius:4px; padding:.08em .42em; color:var(--ink2);
+    white-space:nowrap}
   pre{background:#0b1424; border:1px solid #223052; border-radius:12px; padding:16px 18px;
     overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.72;
     color:#c7d7ee; margin:16px 0}
@@ -190,6 +193,7 @@
     <a href="index.html" title="返回总览">总览</a>
     <a href="phase0.html" title="阶段 0：打地基">阶段 0</a>
     <a href="phase1.html" class="on p1" aria-current="page">阶段 1</a>
+    <a href="neuprint.html" title="neuPrint 查询执行台">执行台</a>
   </nav>
   <span class="t">在网页里逛</span>
   <span class="sp"></span>
@@ -355,6 +359,21 @@
     <p style="margin-bottom:0">
       我实测过 <code>neuprint.janelia.org</code>：<strong>不需要 token 就能跑查询</strong>
       （走的是共享的只读账号）。这对学习阶段完全够用。真要批量拉数据时再申请个人 token。
+    </p>
+  </div>
+
+  <div class="box violet">
+    <div class="h">🖥 不想手打查询？用配套的执行台</div>
+    <p>
+      这一节的查询我做成了一个<strong>可以直接跑</strong>的网页：
+      <a href="neuprint.html"><strong>neuPrint 查询执行台 →</strong></a>
+    </p>
+    <p style="margin-bottom:0">
+      里面有 <strong>22 条预设查询</strong>（就是下面 §05 / §06 里那些），
+      点一下填入编辑器、按 <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 就能从 neuPrint 取回真实数据，
+      结果支持点表头排序、并可直接导出 CSV。
+      <strong>它直接从你的浏览器调用官方 API</strong>（该端点开放 CORS），
+      不需要 token，也不需要本地后端 —— 打开就能用（需联网）。
     </p>
   </div>
 
@@ -1244,6 +1263,7 @@ ORDER BY w DESC LIMIT 12</pre>
       <a href="index.html">总览</a>
       <a href="phase0.html">阶段 0</a>
       <a href="phase1.html" class="on p1">阶段 1</a>
+      <a href="neuprint.html">执行台</a>
     </nav>
     <p>
       <strong>MaleCNS 学习指南 · 阶段 1 配套材料</strong><br>

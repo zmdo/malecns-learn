@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>neuPrint 实操 · 查询执行台 | MaleCNS 阶段 1</title>
+<style>
+  :root{
+    --bg:#070b16; --panel:#0f172a; --panel2:#131c33; --line:#1e293b; --line2:#334155;
+    --ink:#e6edf7; --ink2:#b6c2d6; --ink3:#8494ad; --dim:#5b6b85;
+    --blue:#7dd3fc; --cyan:#22d3ee; --green:#4ade80; --amber:#fbbf24;
+    --red:#f87171; --pink:#f472b6; --violet:#a78bfa;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:15.5px; line-height:1.7; -webkit-font-smoothing:antialiased}
+  a{color:var(--blue); text-decoration:none}
+  a:hover{text-decoration:underline; text-underline-offset:3px}
+  code{font-family:var(--mono); font-size:.88em; background:#1a2338; padding:.1em .38em;
+    border-radius:5px; color:#a5d8ff; border:1px solid #223052}
+
+  /* ---------- 顶栏 + 阶段切换 ---------- */
+  header.bar{position:sticky; top:0; z-index:50; height:56px; display:flex; align-items:center;
+    gap:14px; padding:0 22px; background:rgba(7,11,22,.92); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line)}
+  .bar .t{font-size:14.5px; color:var(--ink2); font-weight:600}
+  .bar .sp{flex:1}
+  .bar .meta{font-size:12.5px; color:var(--dim); font-family:var(--mono)}
+  .phaseswitch{display:inline-flex; align-items:center; gap:2px; background:#0b1424;
+    border:1px solid var(--line); border-radius:9px; padding:3px; flex:0 0 auto}
+  .phaseswitch a, .phaseswitch span{display:block; padding:2px 10px; border-radius:6px;
+    font-family:var(--mono); font-size:11.5px; line-height:1.7; text-decoration:none;
+    color:var(--ink3); white-space:nowrap}
+  .phaseswitch a:hover{color:var(--ink); background:#1a2338; text-decoration:none}
+  .phaseswitch .on{background:#0d1a12; color:var(--green); font-weight:700}
+  @media(max-width:1280px){ .bar .t{display:none} }
+
+  /* ---------- 布局 ---------- */
+  .shell{display:grid; grid-template-columns:290px minmax(0,1fr); gap:0;
+    max-width:1680px; margin:0 auto; align-items:start}
+  aside{position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
+    padding:20px 14px 60px 20px; border-right:1px solid var(--line)}
+  main{min-width:0; padding:22px 26px 90px}
+  @media(max-width:1080px){ .shell{grid-template-columns:1fr} aside{position:static; height:auto; border-right:none; border-bottom:1px solid var(--line)} main{padding:18px 16px 70px} }
+
+  h1{font-size:25px; margin:0 0 6px; letter-spacing:-.01em}
+  .sub{color:var(--ink2); font-size:14.6px; margin:0 0 18px; max-width:820px}
+
+  /* ---------- 预设面板 ---------- */
+  aside h4{font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim);
+    margin:0 0 10px}
+  .grp{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim);
+    margin:16px 0 6px; font-weight:700}
+  .grp:first-of-type{margin-top:4px}
+  .preset{display:block; width:100%; text-align:left; background:transparent;
+    border:1px solid transparent; border-radius:8px; color:var(--ink2); font:inherit;
+    font-size:13px; padding:6px 9px; cursor:pointer; line-height:1.5}
+  .preset:hover{background:#16233d; color:var(--ink)}
+  .preset.on{background:#16233d; border-color:var(--line2); color:var(--ink); font-weight:600}
+  .preset .d{display:block; font-size:11.5px; color:var(--dim); font-weight:400; margin-top:2px}
+
+  /* ---------- 编辑器 ---------- */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:13px;
+    padding:14px 16px; margin:0 0 16px}
+  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 10px}
+  textarea#cypher{width:100%; min-height:132px; resize:vertical; background:#0b1424;
+    color:#cfe4ff; border:1px solid #223052; border-radius:10px; padding:12px 13px;
+    font-family:var(--mono); font-size:13px; line-height:1.65; outline:none; tab-size:2}
+  textarea#cypher:focus{border-color:var(--blue)}
+  select,input[type=number]{background:#0b1424; color:var(--ink2); border:1px solid #223052;
+    border-radius:8px; padding:5px 9px; font-family:var(--mono); font-size:12.5px}
+  button.act{background:var(--panel2); border:1px solid var(--line2); color:var(--ink2);
+    font:inherit; font-size:13px; font-weight:600; padding:6px 15px; border-radius:9px; cursor:pointer}
+  button.act:hover{border-color:var(--blue); color:var(--ink)}
+  button.act.go{background:#0d1a12; border-color:#17411f; color:var(--green)}
+  button.act.go:hover{background:#122617; color:#7ff0a8}
+  button.act:disabled{opacity:.5; cursor:progress}
+  .lbl{font-size:12px; color:var(--dim)}
+  kbd{font-family:var(--mono); font-size:11px; background:#1a2338; border:1px solid #223052;
+    border-bottom-width:2px; border-radius:4px; padding:1px 5px; color:var(--ink3)}
+
+  /* ---------- 状态条 ---------- */
+  .status{display:flex; flex-wrap:wrap; gap:14px; align-items:center;
+    font-family:var(--mono); font-size:12.5px; color:var(--ink3); margin:0 0 12px}
+  .status .k{color:var(--dim)}
+  .status .v{color:var(--ink2)}
+  .status .ok{color:var(--green)} .status .bad{color:var(--red)} .status .warn{color:var(--amber)}
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--dim);
+    margin-right:6px; vertical-align:1px}
+  .dot.ok{background:var(--green)} .dot.bad{background:var(--red)} .dot.busy{background:var(--amber)}
+
+  /* ---------- 结果表 ---------- */
+  .reswrap{overflow:auto; max-height:62vh; border:1px solid var(--line); border-radius:11px;
+    background:#0b1424}
+  table{border-collapse:collapse; width:100%; font-size:13px; font-family:var(--mono)}
+  th{position:sticky; top:0; z-index:2; background:#131c33; color:var(--ink); text-align:left;
+    padding:9px 13px; font-weight:700; font-size:12.5px; border-bottom:1px solid var(--line2);
+    white-space:nowrap; cursor:pointer; user-select:none}
+  th:hover{color:var(--blue)}
+  th .arrow{color:var(--dim); font-size:10px; margin-left:4px}
+  td{padding:7px 13px; border-bottom:1px solid #131c33; color:var(--ink2); white-space:nowrap}
+  tbody tr:hover{background:#101a2e}
+  td.num{color:var(--amber); text-align:right}
+  td.nul{color:var(--dim); font-style:italic}
+  .empty{padding:26px 16px; text-align:center; color:var(--dim); font-size:13.5px}
+  .err{background:#1c0f12; border:1px solid #3b1a1a; border-left:3px solid var(--red);
+    border-radius:11px; padding:13px 16px; margin:0 0 14px; color:#ffd9d9;
+    font-family:var(--mono); font-size:12.8px; white-space:pre-wrap; word-break:break-word}
+  details.raw{margin:14px 0 0}
+  details.raw summary{cursor:pointer; color:var(--ink3); font-size:13px}
+  details.raw pre{background:#0b1424; border:1px solid #223052; border-radius:10px;
+    padding:12px 14px; overflow:auto; max-height:280px; font-family:var(--mono);
+    font-size:12px; color:#c7d7ee; margin:10px 0 0}
+
+  .note{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--amber);
+    border-radius:11px; padding:12px 16px; margin:0 0 16px; font-size:13.4px; color:var(--ink2)}
+  .note b{color:var(--amber)}
+  .note.good{border-left-color:var(--green)} .note.good b{color:var(--green)}
+  .note p{margin:0 0 8px} .note p:last-child{margin-bottom:0}
+  .hid{display:none !important}
+  footer{border-top:1px solid var(--line); padding:26px 0 10px; color:var(--dim); font-size:13px}
+  .phaseswitch.foot{margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <nav class="phaseswitch" aria-label="阶段切换">
+    <a href="index.html">总览</a>
+    <a href="phase0.html">阶段 0</a>
+    <a href="phase1.html">阶段 1</a>
+    <span class="on">neuPrint 执行台</span>
+  </nav>
+  <span class="t">查询执行台</span>
+  <span class="sp"></span>
+  <span class="meta" id="dsMeta">dataset male-cns:v1.0</span>
+</header>
+
+<div class="shell">
+
+<!-- ==================== 预设侧栏 ==================== -->
+<aside>
+  <h4>预设查询</h4>
+  <div id="presetList"></div>
+  <div class="grp">提示</div>
+  <p style="font-size:12.3px; color:var(--dim); margin:0">
+    点任一预设会填入编辑器（不会自动执行）。改完按
+    <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 运行。
+  </p>
+</aside>
+
+<!-- ==================== 主体 ==================== -->
+<main>
+  <h1>neuPrint 查询执行台</h1>
+  <p class="sub">
+    在浏览器里直接执行 Cypher 查询，结果实时返回。数据源
+    <code>neuprint.janelia.org</code>，dataset <code>male-cns:v1.0</code>
+    （MaleCNS v1.0）。无需 token、无需安装任何东西。
+  </p>
+
+  <div class="note good" id="corsNote">
+    <p><b>✅ 为什么这个页面能直接取数据</b></p>
+    <p>
+      neuPrint 的 API 开放了跨域访问（<code>Access-Control-Allow-Origin: *</code>），
+      所以这个页面<strong>直接从你的浏览器请求官方服务器</strong> ——
+      没有中间层、没有代理，你看到的就是官方返回的原始结果。
+      但它需要<strong>联网</strong>；断网时会显示连接失败。
+    </p>
+  </div>
+
+  <div class="note">
+    <p><b>⚠️ 两个字段名坑（踩过）</b></p>
+    <p>
+      细胞类型字段是 <code>type</code>，<strong>不是</strong> <code>cellType</code> ——
+      写错不报错，只返回 0 行。<br>
+      连接关系是 <code>ConnectsTo</code>；<code>upstream</code> / <code>downstream</code>
+      只是节点上的计数字段，不能当关系查。
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label class="lbl" for="cypher">Cypher 查询</label>
+      <span class="sp" style="flex:1"></span>
+      <label class="lbl" for="limitSel">显示行数</label>
+      <select id="limitSel">
+        <option>50</option><option selected>200</option>
+        <option>1000</option><option>5000</option>
+      </select>
+    </div>
+    <textarea id="cypher" spellcheck="false"
+      aria-label="Cypher 查询"></textarea>
+    <div class="row" style="margin:10px 0 0">
+      <button class="act go" id="runBtn" type="button">▶ 执行</button>
+      <button class="act" id="csvBtn" type="button" disabled>⬇ 导出 CSV</button>
+      <button class="act" id="copyBtn" type="button">⧉ 复制查询</button>
+      <button class="act" id="clearBtn" type="button">清空结果</button>
+      <span class="sp" style="flex:1"></span>
+      <span class="lbl" id="hintLbl">Ctrl+Enter 执行</span>
+    </div>
+  </div>
+
+  <div class="status">
+    <span><span class="dot" id="connDot"></span><span id="connText">就绪</span></span>
+    <span><span class="k">行数</span> <span class="v" id="rowCount">—</span></span>
+    <span><span class="k">耗时</span> <span class="v" id="elapsed">—</span></span>
+    <span><span class="k">列</span> <span class="v" id="colCount">—</span></span>
+  </div>
+
+  <div class="err hid" id="errBox"></div>
+
+  <div class="reswrap" id="resWrap">
+    <div class="empty" id="emptyMsg">点右侧「▶ 执行」或左侧任一预设开始。<br>
+      第一次请求会连到 neuPrint，通常 1–3 秒。</div>
+    <table id="resTable" class="hid">
+      <thead><tr id="theadRow"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <details class="raw hid" id="rawBox">
+    <summary>查看原始 JSON 响应（含 neuPrint 改写后的实际 Cypher）</summary>
+    <pre id="rawJson"></pre>
+  </details>
+
+  <div id="metaBox" class="hid" style="margin-top:12px; font-size:12.5px; color:var(--dim);
+       font-family:var(--mono)"></div>
+
+  <footer>
+    <nav class="phaseswitch foot" aria-label="阶段切换">
+      <a href="index.html">总览</a>
+      <a href="phase0.html">阶段 0</a>
+      <a href="phase1.html">阶段 1</a>
+      <span class="on">neuPrint 执行台</span>
+    </nav>
+    <p style="margin-bottom:6px">
+      <strong>MaleCNS 学习指南 · 阶段 1 配套工具</strong> ——
+      查询直接发往 <code>https://neuprint.janelia.org/api/custom/custom</code>。
+    </p>
+    <p style="margin-bottom:0">
+      数据许可 CC-BY 4.0；引用须注明 Berg et al. (2026), <em>Cell</em> 189(18):5504–5526.e15
+      及数据来源（FlyEM / HHMI Janelia、剑桥大学、MRC LMB、Google Research）。
+      章节讲解见 <a href="phase1.html#neuprint">阶段 1 · neuPrint 实操</a>。
+    </p>
+  </footer>
+</main>
+</div>
+
+<script>
+/* =====================================================================
+   neuPrint 查询执行台
+   —— 直接从前端调用官方 API（该端点开放 CORS，无需代理）
+
+   对外暴露 window.__npq 便于自动化测试（tools/test-neuprint-console.js）。
+   ===================================================================== */
+(function () {
+  'use strict';
+
+  var ENDPOINT = 'https://neuprint.janelia.org/api/custom/custom';
+  var DEFAULT_DS = 'male-cns:v1.0';
+
+  /* ---------- 预设查询 ---------- */
+  var PRESETS = [
+    { g: '基础句式' },
+    { t: '① 按类型找神经元', d: '拿到 bodyId、实例名、超类、递质',
+      q: "MATCH (n:Neuron) WHERE n.type = 'DNg13'\n" +
+         "RETURN n.bodyId, n.instance, n.superclass, n.consensusNt" },
+    { t: '② 看某个神经元的上游', d: '谁连到它，按权重排序',
+      q: "MATCH (m:Neuron)-[r:ConnectsTo]->(n:Neuron {bodyId: 11074})\n" +
+         "RETURN m.type, m.bodyId, r.weight\n" +
+         "ORDER BY r.weight DESC LIMIT 25" },
+    { t: '③ 看某个类型的下游', d: '它连到谁，按类型聚合',
+      q: "MATCH (a:Neuron {type: 'R1-R6'})-[r:ConnectsTo]->(b:Neuron)\n" +
+         "RETURN b.type, b.superclass, count(*) AS n, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC LIMIT 20" },
+    { t: '④ 按超类汇总输出', d: '一眼看出它主要连去哪一区',
+      q: "MATCH (n:Neuron {bodyId: 11074})-[r:ConnectsTo]->(m:Neuron)\n" +
+         "RETURN m.superclass, count(DISTINCT m) AS targets, sum(r.weight) AS total\n" +
+         "ORDER BY total DESC" },
+
+    { g: '通路 A · 视觉 → 运动' },
+    { t: 'A1 光感受器 R1-R6 投向谁', d: '预期 L2 / L1 / L3',
+      q: "MATCH (a:Neuron {type: 'R1-R6'})-[r:ConnectsTo]->(b:Neuron)\n" +
+         "RETURN b.type, b.superclass, count(*) AS n, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC LIMIT 8" },
+    { t: 'A2 板层细胞 L2 的下一跳', d: '预期 Tm2 / Tm1 / Tm4',
+      q: "MATCH (a:Neuron {type: 'L2'})-[r:ConnectsTo]->(b:Neuron)\n" +
+         "RETURN b.type, b.superclass, count(*) AS n, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC LIMIT 8" },
+    { t: 'A3 找到方向选择细胞 T4/T5', d: '从 Tm* 往下走',
+      q: "MATCH (a:Neuron)-[r:ConnectsTo]->(b:Neuron)\n" +
+         "WHERE a.type IN ['Tm1','Tm2','Tm4'] AND b.type STARTS WITH 'T'\n" +
+         "RETURN a.type AS src, b.type AS dst, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC LIMIT 12" },
+    { t: 'A4 小叶板切向细胞（LPTC）', d: 'T4/T5 的下游',
+      q: "MATCH (a:Neuron)-[r:ConnectsTo]->(b:Neuron)\n" +
+         "WHERE a.type STARTS WITH 'T4' OR a.type STARTS WITH 'T5'\n" +
+         "RETURN a.type AS src, b.type AS dst, b.superclass AS sc, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC LIMIT 12" },
+    { t: 'A5 DNg13 身份卡', d: '两行：L 与 R',
+      q: "MATCH (n:Neuron) WHERE n.type = 'DNg13'\n" +
+         "RETURN n.bodyId, n.instance, n.superclass, n.consensusNt,\n" +
+         "       n.flywireType, n.pre, n.post" },
+    { t: 'A6 DNg13 输出到 VNC 运动神经元', d: '验证它确实是下行神经元',
+      q: "MATCH (n:Neuron {bodyId: 11074})-[r:ConnectsTo]->(m:Neuron)\n" +
+         "WHERE m.superclass = 'vnc_motor'\n" +
+         "RETURN m.type, m.instance, r.weight\n" +
+         "ORDER BY r.weight DESC LIMIT 8" },
+    { t: 'A7 DNg13 的全部输出超类', d: 'vnc_* 应占绝对多数',
+      q: "MATCH (n:Neuron {bodyId: 11074})-[r:ConnectsTo]->(m:Neuron)\n" +
+         "RETURN m.superclass, count(*) AS n, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC" },
+
+    { g: '通路 B · 糖味觉 → 摄食' },
+    { t: 'B1 找到 MN9 喙肌运动神经元', q:
+      "MATCH (n:Neuron) WHERE n.type = 'MN9'\n" +
+      "RETURN n.bodyId, n.instance, n.superclass" },
+    { t: 'B2 谁在驱动 MN9', d: '预期大量 GNG*（食管下区）',
+      q: "MATCH (a:Neuron)-[r:ConnectsTo]->(b:Neuron {type: 'MN9'})\n" +
+         "RETURN a.type, a.superclass, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC LIMIT 12" },
+    { t: 'B3 谁给 GNG015 供输入', d: '预期最强是 BM_Taste',
+      q: "MATCH (a:Neuron)-[r:ConnectsTo]->(b:Neuron {type: 'GNG015'})\n" +
+         "RETURN a.type, a.superclass, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC LIMIT 10" },
+    { t: 'B4 全库唯一的味觉感觉类型', d: '预期只返回 BM_Taste',
+      q: "MATCH (n:Neuron) WHERE n.type CONTAINS 'Taste'\n" +
+         "RETURN DISTINCT n.type, n.superclass, count(*) AS instances" },
+    { t: 'B5 BM_Taste 的下游分布', d: '看它把信息送去哪一区',
+      q: "MATCH (a:Neuron {type: 'BM_Taste'})-[r:ConnectsTo]->(b:Neuron)\n" +
+         "RETURN b.superclass, count(DISTINCT b) AS targets, sum(r.weight) AS w\n" +
+         "ORDER BY w DESC" },
+
+    { g: '探索与统计' },
+    { t: '数据规模总览', d: '神经元总数与有类型的数量',
+      q: "MATCH (n:Neuron)\n" +
+         "RETURN count(n) AS 总神经元,\n" +
+         "       count(n.type) AS 有类型,\n" +
+         "       count(DISTINCT n.type) AS 类型数" },
+    { t: '各超类的数量分布', d: 'descending / vnc_motor 有多少',
+      q: "MATCH (n:Neuron)\n" +
+         "RETURN n.superclass, count(*) AS n\n" +
+         "ORDER BY n DESC" },
+    { t: 'DNg 家族全清单', d: '看下行神经元有哪些编号',
+      q: "MATCH (n:Neuron) WHERE n.type STARTS WITH 'DNg'\n" +
+         "RETURN n.type, count(*) AS instances, collect(n.bodyId)[0..4] AS sampleIds\n" +
+         "ORDER BY n.type" },
+    { t: 'flywireType 覆盖率', d: '跨数据集类型对照有多少',
+      q: "MATCH (n:Neuron) WHERE n.flywireType IS NOT NULL\n" +
+         "RETURN count(n) AS 有对照, count(DISTINCT n.flywireType) AS 不同类型数" },
+    { t: '找权重最高的连接', d: '全库最强边长什么样',
+      q: "MATCH (a:Neuron)-[r:ConnectsTo]->(b:Neuron)\n" +
+         "RETURN a.type AS src, b.type AS dst, r.weight AS w\n" +
+         "ORDER BY w DESC LIMIT 15" },
+    { t: '某个神经毡内的神经元', d: '示例：侧副叶 LAL',
+      q: "MATCH (n:Neuron)\n" +
+         "WHERE n.type STARTS WITH 'LAL'\n" +
+         "RETURN n.type, n.superclass, count(*) AS n\n" +
+         "ORDER BY n DESC LIMIT 15" }
+  ];
+
+  /* ---------- 元素 ---------- */
+  var $ = function (id) { return document.getElementById(id); };
+  var ta = $('cypher'), runBtn = $('runBtn'), csvBtn = $('csvBtn'),
+      copyBtn = $('copyBtn'), clearBtn = $('clearBtn'),
+      theadRow = $('theadRow'), tbody = $('tbody'), resTable = $('resTable'),
+      emptyMsg = $('emptyMsg'), errBox = $('errBox'),
+      connDot = $('connDot'), connText = $('connText'),
+      rowCount = $('rowCount'), elapsed = $('elapsed'), colCount = $('colCount'),
+      limitSel = $('limitSel'), presetList = $('presetList'),
+      rawBox = $('rawBox'), rawJson = $('rawJson'), metaBox = $('metaBox'),
+      dsMeta = $('dsMeta'), hintLbl = $('hintLbl');
+
+  /* ---------- 状态 ---------- */
+  var state = {
+    columns: [],
+    rows: [],
+    displayed: [],
+    raw: null,
+    sortCol: -1,
+    sortAsc: false,
+    running: false,
+    pendingPreset: null,
+    lastError: null,
+    lastMs: 0
+  };
+
+  function setConn(kind, text) {
+    connDot.className = 'dot' + (kind ? ' ' + kind : '');
+    connText.textContent = text;
+  }
+
+  /* ---------- 渲染预设 ---------- */
+  (function buildPresets() {
+    var html = '', n = 0;
+    PRESETS.forEach(function (p) {
+      if (p.g) { html += '<div class="grp">' + p.g + '</div>'; return; }
+      html += '<button class="preset" type="button" data-i="' + n + '">' +
+              p.t + (p.d ? '<span class="d">' + p.d + '</span>' : '') + '</button>';
+      p._i = n; n++;
+    });
+    presetList.innerHTML = html;
+    presetList.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('button.preset') : null;
+      if (!b) return;
+      var p = PRESETS.filter(function (x) { return !x.g; })[+b.dataset.i];
+      if (!p) return;
+      ta.value = p.q;
+      Array.prototype.forEach.call(presetList.querySelectorAll('.preset'),
+        function (x) { x.classList.toggle('on', x === b); });
+      hintLbl.textContent = '已载入「' + p.t + '」· Ctrl+Enter 执行';
+      ta.focus();
+    });
+  })();
+
+  /* ---------- 执行查询 ---------- */
+  function buildBody(cypher) {
+    return JSON.stringify({ cypher: cypher, dataset: DEFAULT_DS });
+  }
+
+  function run() {
+    var q = (ta.value || '').trim();
+    if (!q) { showError('查询是空的。'); return Promise.resolve(null); }
+    if (state.running) { return Promise.resolve(null); }
+
+    state.running = true;
+    state.lastError = null;
+    runBtn.disabled = true;
+    runBtn.textContent = '运行中…';
+    csvBtn.disabled = true;
+    setConn('busy', '请求中');
+    hideError();
+
+    var t0 = (typeof performance !== 'undefined' && performance.now)
+      ? performance.now() : Date.now();
+
+    return fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: buildBody(q)
+    }).then(function (res) {
+      return res.text().then(function (txt) {
+        var json = null;
+        try { json = JSON.parse(txt); } catch (e) { /* 非 JSON */ }
+        if (!res.ok) {
+          var msg = (json && (json.error || json.message)) || txt.slice(0, 600) ||
+                    ('HTTP ' + res.status);
+          throw new Error('neuPrint 返回 HTTP ' + res.status + '\n' + msg);
+        }
+        if (!json) throw new Error('响应不是合法 JSON：\n' + txt.slice(0, 600));
+        return json;
+      });
+    }).then(function (json) {
+      var t1 = (typeof performance !== 'undefined' && performance.now)
+        ? performance.now() : Date.now();
+      state.lastMs = Math.round(t1 - t0);
+      state.raw = json;
+      state.sortCol = -1; state.sortAsc = false;
+      applyResult(json);
+      setConn('ok', '已连接');
+    }).catch(function (e) {
+      state.lastError = String(e && e.message || e);
+      setConn('bad', '请求失败');
+      // 失败时清掉上一次的结果：留着旧数据会让人误以为是本次查询的输出
+      resetResults();
+      showError(state.lastError +
+        '\n\n可能原因：\n' +
+        '  · 没有联网，或公司网络拦截了 neuprint.janelia.org\n' +
+        '  · Cypher 语法/字段名有误（注意类型字段是 type，不是 cellType）\n' +
+        '  · 查询太重被服务器拒绝（加 LIMIT 或更具体的 WHERE）');
+      elapsed.textContent = state.lastMs ? state.lastMs + ' ms' : '—';
+    }).then(function () {
+      state.running = false;
+      runBtn.disabled = false;
+      runBtn.textContent = '▶ 执行';
+      return state.raw;
+    });
+  }
+
+  /** 清空结果区（不改连接状态，供失败与「清空」共用） */
+  function resetResults(emptyText) {
+    state.columns = []; state.rows = []; state.displayed = [];
+    state.sortCol = -1; state.sortAsc = false;
+    tbody.innerHTML = ''; theadRow.innerHTML = '';
+    resTable.classList.add('hid');
+    rawBox.classList.add('hid');
+    metaBox.classList.add('hid');
+    rowCount.textContent = colCount.textContent = '—';
+    csvBtn.disabled = true;
+    emptyMsg.classList.remove('hid');
+    emptyMsg.textContent = emptyText ||
+      '点右侧「▶ 执行」或左侧任一预设开始。第一次请求会连到 neuPrint，通常 1–3 秒。';
+  }
+
+  function applyResult(json) {
+    var cols = json.columns || [];
+    var rows = json.data || [];
+    state.columns = cols;
+    state.rows = rows;
+    state.displayed = rows;
+
+    // 状态条
+    rowCount.textContent = rows.length.toLocaleString() +
+      (rows.length >= +limitSel.value ? '（达到显示上限，可能被截断）' : '');
+    colCount.textContent = cols.length;
+    elapsed.textContent = state.lastMs + ' ms';
+
+    // 原始响应
+    rawJson.textContent = JSON.stringify(json, null, 1);
+    rawBox.classList.remove('hid');
+
+    // neuPrint 会改写 Cypher，把它显示出来便于学习
+    if (json.debug) {
+      metaBox.textContent = 'neuPrint 改写后的实际查询：' + json.debug;
+      metaBox.classList.remove('hid');
+    } else {
+      metaBox.classList.add('hid');
+    }
+
+    // 没有任何列：连表头都画不出来
+    if (!cols.length) {
+      resetResults('查询成功，但没有返回任何列。');
+      return;
+    }
+    // 有列但零行：这是最常见的情况（类型名写错 / 字段名写错），
+    // 要明确提示而不是画一个只有表头的空表
+    if (!rows.length) {
+      state.columns = cols;
+      resTable.classList.add('hid');
+      emptyMsg.classList.remove('hid');
+      emptyMsg.textContent = '查询成功，但没有返回任何行。' +
+        '常见原因：类型名不存在，或字段名写错了' +
+        '（细胞类型字段是 type，不是 cellType）。';
+      csvBtn.disabled = true;
+      return;
+    }
+    renderTable();
+    csvBtn.disabled = false;
+  }
+
+  function renderTable() {
+    var cols = state.columns;
+    var rows = state.rows.slice(0, +limitSel.value);
+    if (state.sortCol >= 0) {
+      var c = state.sortCol, asc = state.sortAsc;
+      rows.sort(function (a, b) {
+        var x = a[c], y = b[c];
+        if (x === null || x === undefined) return 1;
+        if (y === null || y === undefined) return -1;
+        var nx = typeof x === 'number', ny = typeof y === 'number';
+        if (nx && ny) return asc ? x - y : y - x;
+        x = String(x); y = String(y);
+        return asc ? (x < y ? -1 : x > y ? 1 : 0) : (x > y ? -1 : x < y ? 1 : 0);
+      });
+    }
+    state.displayed = rows;
+
+    var h = '';
+    cols.forEach(function (c, i) {
+      var arrow = (i === state.sortCol) ? (state.sortAsc ? '▲' : '▼') : '';
+      h += '<th data-col="' + i + '">' + esc(c) +
+           '<span class="arrow">' + arrow + '</span></th>';
+    });
+    theadRow.innerHTML = h;
+
+    var frag = [];
+    rows.forEach(function (r) {
+      var tr = '<tr>';
+      for (var i = 0; i < cols.length; i++) {
+        var v = r[i];
+        if (v === null || v === undefined) {
+          tr += '<td class="nul">null</td>';
+        } else if (typeof v === 'number') {
+          tr += '<td class="num">' + fmtNum(v) + '</td>';
+        } else if (typeof v === 'object') {
+          tr += '<td>' + esc(JSON.stringify(v)) + '</td>';
+        } else {
+          tr += '<td>' + esc(String(v)) + '</td>';
+        }
+      }
+      frag.push(tr + '</tr>');
+    });
+    tbody.innerHTML = frag.join('');
+    resTable.classList.remove('hid');
+    emptyMsg.classList.add('hid');
+  }
+
+  function fmtNum(n) {
+    if (Number.isInteger(n)) return n.toLocaleString();
+    return String(Math.round(n * 1000) / 1000);
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function showError(msg) {
+    errBox.textContent = msg;
+    errBox.classList.remove('hid');
+  }
+  function hideError() { errBox.classList.add('hid'); }
+
+  /* ---------- CSV 导出 ---------- */
+  function toCSV() {
+    var cols = state.columns;
+    var rows = state.displayed.length ? state.displayed : state.rows;
+    if (!cols.length || !rows.length) return '';
+    var q = function (v) {
+      if (v === null || v === undefined) return '';
+      var s = (typeof v === 'object') ? JSON.stringify(v) : String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    var out = [cols.map(q).join(',')];
+    rows.forEach(function (r) { out.push(r.map(q).join(',')); });
+    return out.join('\n');
+  }
+
+  function download() {
+    var csv = toCSV();
+    if (!csv) return;
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'neuprint-malecns-' + Date.now() + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  /* ---------- 事件 ---------- */
+  runBtn.addEventListener('click', run);
+  csvBtn.addEventListener('click', download);
+  copyBtn.addEventListener('click', function () {
+    var txt = ta.value;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () {
+        hintLbl.textContent = '已复制到剪贴板';
+      }, function () { hintLbl.textContent = '复制失败，请手动选择'; });
+    } else {
+      ta.select(); hintLbl.textContent = '已全选，请按 Ctrl+C';
+    }
+  });
+  clearBtn.addEventListener('click', function () {
+    resetResults('结果已清空。');
+    hideError();
+    elapsed.textContent = '—';
+  });
+
+  limitSel.addEventListener('change', function () {
+    if (state.columns.length) renderTable();
+  });
+
+  theadRow.addEventListener('click', function (e) {
+    var th = e.target.closest ? e.target.closest('th') : null;
+    if (!th || !th.dataset.col) return;
+    var i = +th.dataset.col;
+    if (state.sortCol === i) { state.sortAsc = !state.sortAsc; }
+    else { state.sortCol = i; state.sortAsc = false; }
+    renderTable();
+  });
+
+  ta.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
+  });
+
+  /* ---------- 启动 ---------- */
+  ta.value = PRESETS.filter(function (p) { return !p.g; })[0].q;
+  dsMeta.textContent = 'dataset ' + DEFAULT_DS;
+  setConn('', '就绪（尚未请求）');
+  csvBtn.disabled = true;      // 还没有结果，禁止导出
+
+  /* 测试钩子 */
+  window.__npq = {
+    state: state,
+    run: run,
+    setQuery: function (q) { ta.value = q; },
+    getQuery: function () { return ta.value; },
+    toCSV: toCSV,
+    applyResult: applyResult,
+    presetCount: PRESETS.filter(function (p) { return !p.g; }).length,
+    endpoint: ENDPOINT,
+    dataset: DEFAULT_DS
+  };
+})();
+</script>
+</body>
+</html>
