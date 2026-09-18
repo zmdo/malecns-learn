@@ -1,0 +1,27 @@
+{
+ "note": "原文来自 Europe PMC 开放获取全文（JATS XML），按 CC-BY 4.0 转载。",
+ "papers": {
+  "dorkenwald": {
+   "title": "Neuronal wiring diagram of an adult brain",
+   "cite": "Dorkenwald et al. 2024, Nature 634:124–138",
+   "doi": "10.1038/s41586-024-07558-y",
+   "pmcid": "PMC11446842",
+   "license": "CC-BY 4.0",
+   "blocks": 30,
+   "paras": 164,
+   "figs": 17,
+   "chars": 115366
+  },
+  "shiu": {
+   "title": "A <i>Drosophila</i> computational brain model reveals sensorimotor processing",
+   "cite": "Shiu et al. 2024, Nature 634:210–219",
+   "doi": "10.1038/s41586-024-07763-9",
+   "pmcid": "PMC11446845",
+   "license": "CC-BY 4.0",
+   "blocks": 16,
+   "paras": 98,
+   "figs": 9,
+   "chars": 74255
+  }
+ }
+}

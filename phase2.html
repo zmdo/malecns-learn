@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阶段 2 · 读论文 | MaleCNS 学习指南</title>
+<style>
+  :root{
+    --bg:#070b16; --panel:#0f172a; --panel2:#131c33; --line:#1e293b; --line2:#334155;
+    --ink:#e6edf7; --ink2:#b6c2d6; --ink3:#8494ad; --dim:#5b6b85;
+    --blue:#7dd3fc; --cyan:#22d3ee; --green:#4ade80; --amber:#fbbf24;
+    --red:#f87171; --violet:#a78bfa;
+    /* 论文纸面配色：让译文尽可能贴近原文刊物观感 */
+    --paper:#ffffff; --paper-ink:#14161a; --paper-dim:#5a6270;
+    --paper-line:#dfe3ea; --paper-link:#1552a8;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+    --serif:Georgia,"Times New Roman","Songti SC","Noto Serif SC",serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:15.5px; line-height:1.7; -webkit-font-smoothing:antialiased}
+  a{color:var(--blue); text-decoration:none}
+  a:hover{text-decoration:underline; text-underline-offset:3px}
+  code{font-family:var(--mono); font-size:.88em; background:#1a2338; padding:.1em .38em;
+    border-radius:5px; color:#a5d8ff; border:1px solid #223052}
+  kbd{font-family:var(--mono); font-size:.82em; background:#1a2338; border:1px solid #223052;
+    border-bottom-width:2px; border-radius:4px; padding:.08em .42em; color:var(--ink2)}
+
+  /* ---------- 顶栏 ---------- */
+  header.bar{position:sticky; top:0; z-index:60; height:56px; display:flex; align-items:center;
+    gap:14px; padding:0 20px; background:rgba(7,11,22,.94); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line)}
+  .bar .t{font-size:14.5px; color:var(--ink2); font-weight:600}
+  .bar .sp{flex:1}
+  .bar .meta{font-size:12.5px; color:var(--dim); font-family:var(--mono)}
+  .phaseswitch{display:inline-flex; align-items:center; gap:2px; background:#0b1424;
+    border:1px solid var(--line); border-radius:9px; padding:3px; flex:0 0 auto}
+  .phaseswitch a, .phaseswitch span{display:block; padding:2px 10px; border-radius:6px;
+    font-family:var(--mono); font-size:11.5px; line-height:1.7; text-decoration:none;
+    color:var(--ink3); white-space:nowrap}
+  .phaseswitch a:hover{color:var(--ink); background:#1a2338; text-decoration:none}
+  .phaseswitch .on{background:#1a1608; color:var(--amber); font-weight:700}
+  @media(max-width:1320px){ .bar .t{display:none} }
+
+  /* ---------- 三栏骨架 ---------- */
+  .shell{display:grid; grid-template-columns:300px minmax(0,1fr); align-items:start;
+    max-width:1840px; margin:0 auto}
+  aside{position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
+    padding:18px 12px 60px 18px; border-right:1px solid var(--line)}
+  main{min-width:0}
+
+  /* ---------- 侧栏：论文列表 + 本章目录 ---------- */
+  aside h4{font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim);
+    margin:0 0 10px; font-weight:700}
+  .pitem{display:block; width:100%; text-align:left; background:transparent;
+    border:1px solid transparent; border-radius:10px; color:var(--ink2); font:inherit;
+    padding:9px 11px; cursor:pointer; margin:0 0 6px; line-height:1.5}
+  .pitem:hover{background:#16233d; color:var(--ink)}
+  .pitem.on{background:#16233d; border-color:var(--line2); color:var(--ink)}
+  .pitem .no{font-family:var(--mono); font-size:11px; color:var(--amber); font-weight:700}
+  .pitem .ti{display:block; font-size:13.2px; font-weight:600; margin-top:2px}
+  .pitem .ci{display:block; font-size:11.3px; color:var(--dim); margin-top:3px}
+  .pitem .badge{display:inline-block; font-family:var(--mono); font-size:10px;
+    padding:0 6px; border-radius:4px; margin-left:6px; vertical-align:1px}
+  .badge.oa{background:#0d1a12; color:var(--green); border:1px solid #17411f}
+  .badge.sub{background:#1c0f12; color:var(--red); border:1px solid #3b1a1a}
+  .toclist{margin:14px 0 0; padding:12px 0 0; border-top:1px solid var(--line)}
+  .toclist a{display:block; padding:4px 8px; border-radius:7px; color:var(--ink3);
+    font-size:12.6px; line-height:1.45; border-left:2px solid transparent}
+  .toclist a:hover{background:#131c33; color:var(--ink); text-decoration:none}
+  .toclist a.on{color:var(--amber); border-left-color:var(--amber); background:#1a1608}
+  .toclist a .lvl2{padding-left:11px; font-size:12.1px; color:var(--dim)}
+  .toclist .done::after{content:"✓"; float:right; color:var(--green); font-size:11px}
+
+  /* ---------- 论文头 ---------- */
+  .paperhead{padding:22px 26px 18px; border-bottom:1px solid var(--line)}
+  .paperhead h1{font-size:23px; margin:0 0 6px; letter-spacing:-.01em; line-height:1.35}
+  .paperhead .cite{font-size:13.4px; color:var(--ink2); margin:0 0 4px}
+  .paperhead .meta2{font-size:12.4px; color:var(--dim); font-family:var(--mono)}
+  .paperhead .acts{margin-top:12px; display:flex; flex-wrap:wrap; gap:8px}
+  .btn{display:inline-block; font-size:13px; font-weight:600; padding:6px 14px;
+    border-radius:9px; border:1px solid var(--line2); background:var(--panel2); color:var(--ink2)}
+  .btn:hover{border-color:var(--blue); color:var(--ink); text-decoration:none}
+  .btn.pri{background:#1a1608; border-color:#3b3212; color:var(--amber)}
+
+  .toolbar{position:sticky; top:56px; z-index:40; display:flex; align-items:center; gap:12px;
+    flex-wrap:wrap; padding:9px 26px; background:rgba(7,11,22,.94);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--line); font-size:12.6px; color:var(--ink3)}
+  .toolbar label{display:inline-flex; align-items:center; gap:6px; cursor:pointer}
+  .toolbar input[type=checkbox]{accent-color:var(--green); width:15px; height:15px}
+  .toolbar .sp{flex:1}
+  .toolbar .stat{font-family:var(--mono); font-size:11.6px; color:var(--dim)}
+
+  /* ---------- 双栏正文（原文 / 译文） ---------- */
+  .cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0}
+  @media(max-width:1180px){ .cols{grid-template-columns:1fr} }
+  .col{min-width:0; padding:0 0 90px}
+  .col + .col{border-left:1px solid var(--line)}
+  .colhead{position:sticky; top:106px; z-index:30; padding:8px 26px;
+    background:rgba(7,11,22,.92); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11.5px;
+    color:var(--dim); letter-spacing:.06em; text-transform:uppercase}
+
+  /* 原文纸面 */
+  .orig{padding:22px 26px 30px; font-family:var(--serif);
+    font-size:15.4px; line-height:1.72; color:var(--ink2)}
+  .trans{padding:22px 26px 30px; font-size:15.6px; line-height:1.86; color:var(--ink2)}
+
+  /* 段落配对：左右同一 id，用于滚动联动高亮 */
+  .pair{border-radius:10px; padding:2px 8px; margin:0 -8px 14px; transition:background .18s}
+  .pair.hot{background:#141d31}
+  .pair.hot .orig-p::before, .pair.hot .trans-p::before{opacity:1}
+
+  .orig-p{margin:0 0 0; position:relative}
+  .trans-p{margin:0}
+  /* 译文缺失时的提示 */
+  .missing{font-size:13px; color:var(--dim); font-style:italic; padding:6px 0;
+    border-left:2px solid var(--line2); padding-left:10px}
+
+  .secblock{margin:0 0 26px; scroll-margin-top:170px}
+  .secblock h2{font-family:"Segoe UI","Noto Sans SC",sans-serif; font-size:17.5px;
+    color:var(--ink); margin:26px 0 10px; padding-bottom:6px;
+    border-bottom:1px solid var(--line); letter-spacing:-.005em}
+  .secblock h3{font-family:"Segoe UI","Noto Sans SC",sans-serif; font-size:15.2px;
+    color:var(--blue); margin:18px 0 8px}
+  .secblock .hasnote{color:var(--amber)}
+
+  /* ---------- 标注 ---------- */
+  .anno{margin:10px 0 14px; border-left:3px solid var(--amber);
+    background:#1a1608; border-radius:0 10px 10px 0; padding:10px 14px;
+    font-size:13.6px; line-height:1.72; color:var(--ink2)}
+  .anno .h{color:var(--amber); font-weight:700; margin-bottom:4px; font-size:13.4px}
+  .anno p{margin:0 0 6px} .anno p:last-child{margin-bottom:0}
+  .anno code{font-size:12.4px}
+  .anno.blue{border-left-color:var(--blue); background:#0d1526}
+  .anno.blue .h{color:var(--blue)}
+  .anno.green{border-left-color:var(--green); background:#0d1a12}
+  .anno.green .h{color:var(--green)}
+  .anno.violet{border-left-color:var(--violet); background:#151027}
+  .anno.violet .h{color:var(--violet)}
+  .anno.red{border-left-color:var(--red); background:#1c0f12}
+  .anno.red .h{color:var(--red)}
+  body.hideanno .anno{display:none}
+
+  /* 行内标记 */
+  .anno-mark{background:#3b3212; color:#ffe9a8; border-bottom:1px dashed var(--amber);
+    padding:0 2px; border-radius:3px; cursor:help}
+  .ftag{font-family:var(--mono); font-size:10.5px; color:var(--amber);
+    border:1px solid #3b3212; border-radius:5px; padding:0 5px; margin-left:6px;
+    vertical-align:1px; white-space:nowrap}
+
+  /* ---------- 图 ---------- */
+  figure.fig{margin:18px 0; background:var(--panel); border:1px solid var(--line);
+    border-radius:12px; padding:12px}
+  figure.fig img{width:100%; height:auto; display:block; border-radius:8px; background:#fff}
+  figure.fig figcaption{font-size:12.8px; color:var(--ink3); margin-top:10px;
+    line-height:1.65; font-family:var(--serif)}
+  figure.fig .flabel{font-family:var(--mono); font-size:11.5px; color:var(--amber);
+    font-weight:700; margin-right:6px}
+  figure.fig .ftitle{color:var(--ink2); font-weight:700}
+
+  /* ---------- 译文纸面模式 ---------- */
+  body.paper .trans{background:var(--paper); color:var(--paper-ink);
+    font-family:var(--serif); font-size:16px; line-height:1.8}
+  body.paper .trans .secblock h2{color:#0b0d11; border-bottom-color:var(--paper-line);
+    font-family:var(--serif); font-size:19px}
+  body.paper .trans .secblock h3{color:#2a3140; font-family:var(--serif); font-size:16.4px}
+  body.paper .trans a{color:var(--paper-link)}
+  body.paper .trans .missing{color:var(--paper-dim); border-left-color:var(--paper-line)}
+  body.paper .trans .pair.hot{background:#eef3fb}
+  body.paper .orig{background:#f7f8fa; color:#2b3038}
+
+  footer{padding:26px 26px 40px; border-top:1px solid var(--line); color:var(--dim); font-size:13px}
+  .phaseswitch.foot{margin-bottom:14px}
+
+  .warnbox{background:#1a1608; border:1px solid #3b3212; border-left:3px solid var(--amber);
+    border-radius:11px; padding:13px 17px; margin:16px 26px; font-size:13.6px; color:var(--ink2)}
+  .warnbox b{color:var(--amber)}
+  .warnbox p{margin:0 0 8px} .warnbox p:last-child{margin-bottom:0}
+  .hid{display:none !important}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <nav class="phaseswitch" aria-label="阶段切换">
+    <a href="index.html">总览</a>
+    <a href="phase0.html">阶段 0</a>
+    <a href="phase1.html">阶段 1</a>
+    <span class="on">阶段 2 · 读论文</span>
+    <a href="neuprint.html">执行台</a>
+  </nav>
+  <span class="t">读论文</span>
+  <span class="sp"></span>
+  <span class="meta" id="barMeta">—</span>
+</header>
+
+<div class="shell">
+  <!-- ================= 侧栏 ================= -->
+  <aside>
+    <h4>要读的论文</h4>
+    <div id="paperList"></div>
+    <div class="toclist" id="secList"></div>
+  </aside>
+
+  <!-- ================= 主区 ================= -->
+  <main>
+    <div class="paperhead" id="paperHead"></div>
+    <div class="warnbox" id="licenseNote"></div>
+
+    <div class="toolbar">
+      <label><input type="checkbox" id="cbSync" checked> 滚动联动高亮</label>
+      <label><input type="checkbox" id="cbAnno" checked> 显示标注</label>
+      <label><input type="checkbox" id="cbPaper" checked> 译文用纸面配色</label>
+      <span class="sp"></span>
+      <span class="stat" id="progStat"></span>
+    </div>
+
+    <div class="cols">
+      <div class="col">
+        <div class="colhead">原文 · Original（CC-BY 开放获取）</div>
+        <div class="orig" id="origCol"></div>
+      </div>
+      <div class="col">
+        <div class="colhead">译文 · 中文（本站翻译）</div>
+        <div class="trans" id="transCol"></div>
+      </div>
+    </div>
+
+    <footer>
+      <nav class="phaseswitch foot" aria-label="阶段切换">
+        <a href="index.html">总览</a>
+        <a href="phase0.html">阶段 0</a>
+        <a href="phase1.html">阶段 1</a>
+        <span class="on">阶段 2 · 读论文</span>
+        <a href="neuprint.html">执行台</a>
+      </nav>
+      <p id="footNote" style="margin-bottom:0"></p>
+    </footer>
+  </main>
+</div>
+
+<!-- 论文结构化正文（由 tools/extract_papers.py 生成） -->
+<script src="assets/papers/dorkenwald.js"></script>
+<script src="assets/papers/shiu.js"></script>
+<!-- 译文与标注（人工撰写） -->
+<script src="assets/papers/notes.js"></script>
+
+<script>
+/* =====================================================================
+   阶段 2 阅读器
+   —— 侧栏切换论文；每篇论文左原文右译文；标注随滚动出现。
+   暴露 window.__rd 便于自动化测试（tools/test-reader.js）。
+   ===================================================================== */
+(function () {
+  'use strict';
+
+  var PAPERS = [
+    { id:'dorkenwald', tag:'主论文 · FAFB', no:'01', oa:true,
+      title:'Neuronal wiring diagram of an adult brain',
+      titleZh:'成年果蝇全脑神经元接线图',
+      cite:'Dorkenwald et al. 2024, Nature 634:124–138',
+      doi:'10.1038/s41586-024-07558-y', pmcid:'PMC11446842',
+      why:'建立「连接组长什么样」的直觉；也是 ≥5 突触阈值与 proofreading 工作量的原始出处。',
+      pdf:'https://europepmc.org/articles/PMC11446842?pdf=render' },
+    { id:'shiu', tag:'仿真基础', no:'02', oa:true,
+      title:'A Drosophila computational brain model reveals sensorimotor processing',
+      titleZh:'果蝇计算脑模型揭示感觉运动处理',
+      cite:'Shiu et al. 2024, Nature 634:210–219',
+      doi:'10.1038/s41586-024-07763-9', pmcid:'PMC11446845',
+      why:'阶段 4 做仿真必读；「糖 GRN → SEZ → MN9」标准验证实验的出处。',
+      pdf:'https://europepmc.org/articles/PMC11446845?pdf=render' }
+  ];
+
+  var RD = window.MCNS_PAPERS || {};
+  var NOTES = window.MCNS_NOTES || {};
+  var state = { id:null, pairSeq:0, pairs:{}, sections:[] };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var paperList = $('paperList'), secList = $('secList'), paperHead = $('paperHead'),
+      origCol = $('origCol'), transCol = $('transCol'), progStat = $('progStat'),
+      licenseNote = $('licenseNote'), footNote = $('footNote'), barMeta = $('barMeta');
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/[&<>"]/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c];
+      });
+  }
+  /* 正文与标注里允许极少量内联标签，其余一律转义（防注入） */
+  var ALLOWED = /^(\/?)(b|i|em|strong|sub|sup|code|span)$/i;
+  function inline(s) {
+    // 先把尖括号全部转义，再把白名单标签还原
+    return esc(s).replace(/&lt;(\/?[A-Za-z]+)&gt;/g, function (m, tag) {
+      return ALLOWED.test(tag) ? '<' + tag + '>' : m;
+    });
+  }
+
+  /* ---------------- 侧栏 ---------------- */
+  function renderPaperList() {
+    var h = '';
+    PAPERS.forEach(function (p) {
+      var ok = !!RD[p.id];
+      h += '<button class="pitem' + (p.id === state.id ? ' on' : '') +
+           '" type="button" data-id="' + p.id + '">' +
+           '<span class="no">' + p.no + '</span>' +
+           '<span class="badge ' + (p.oa ? 'oa' : 'sub') + '">' +
+             (p.oa ? 'CC-BY 开放获取' : '订阅制') + '</span>' +
+           '<span class="ti">' + esc(p.titleZh || p.title) + '</span>' +
+           '<span class="ci">' + esc(p.cite) + (ok ? '' : ' · 正文待接入') + '</span>' +
+           '</button>';
+    });
+    paperList.innerHTML = h;
+  }
+
+  /* ---------------- 工具：block 展平成「可渲染单元」列表 ---------------- */
+  function flatten(blocks) {
+    var out = [];
+    (blocks || []).forEach(function (b, i) {
+      out.push({ key: 'b' + i, level: b.level || 1, title: b.title,
+                 kind: b.kind, paras: b.paras || [], figs: b.figs || [],
+                 subs: b.subs || [] });
+    });
+    return out;
+  }
+
+  /* ---------------- 渲染正文 ---------------- */
+  function render(paper) {
+    var data = RD[state.id];
+    state.pairs = {}; state.sections = []; state.pairSeq = 0;
+
+    if (!data) {
+      origCol.innerHTML = '<p class="missing">这篇论文的正文尚未接入。</p>';
+      transCol.innerHTML = '<p class="missing">—</p>';
+      secList.innerHTML = '';
+      progStat.textContent = '';
+      return;
+    }
+
+    var note = NOTES[state.id] || {};
+    var secNotes = note.sections || {};        // 按「章节标题」索引的标注
+    var paraNotes = note.paras || {};          // 按「段序号」索引的标注（p1, p2…）
+
+    var oHtml = [], tHtml = [], toc = [], done = 0, total = 0;
+
+    data.blocks.forEach(function (b, bi) {
+      var anchor = 'sec-' + state.id + '-' + bi;
+      toc.push({ anchor: anchor, title: b.title || '(未命名)', level: b.level || 1 });
+      state.sections.push({ anchor: anchor, title: b.title });
+
+      var blocksHtml = [];
+      blocksHtml.push(renderBlock(b, anchor, note, bi, { o:oHtml, t:tHtml }));
+      // 子章节
+      (b.subs || []).forEach(function (s, si) {
+        var sanchor = anchor + '-' + si;
+        toc.push({ anchor: sanchor, title: s.title, level: 2 });
+        state.sections.push({ anchor: sanchor, title: s.title });
+        blocksHtml.push(renderBlock(s, sanchor, note, bi + '.' + si, { o:oHtml, t:tHtml }));
+      });
+
+      // 统计已完成翻译的段落比例
+      var allP = (b.paras || []).concat((b.subs || []).reduce(function (a, s) {
+        return a.concat(s.paras || []);
+      }, []));
+      total += allP.length;
+      done += allP.filter(function (_, k) { return hasTrans(note, b, k); }).length;
+    });
+
+    origCol.innerHTML = oHtml.join('');
+    transCol.innerHTML = tHtml.join('');
+
+    // 目录
+    secList.innerHTML = toc.map(function (t) {
+      return '<a href="#' + t.anchor + '"' + (t.level === 2 ? ' class="lvl2"' : '') +
+             '>' + esc(t.title) + '</a>';
+    }).join('');
+
+    progStat.textContent = total
+      ? '译文覆盖 ' + done + '/' + total + ' 段'
+      : '';
+  }
+
+  // 译文是否存在：先看段级 notes，再看章级 translation 数组
+  function hasTrans(note, block, k) {
+    var st = note.trans || {};
+    var arr = st[block.title];
+    return !!(arr && arr[k]);
+  }
+
+  function renderBlock(b, anchor, note, key, sink) {
+    var st = (note.trans || {})[b.title] || [];
+    var secAnno = (note.sections || {})[b.title];
+    var h2 = b.level === 2 ? 'h3' : 'h2';
+    var title = esc(b.title || '(未命名)');
+    var mark = secAnno ? '<span class="ftag">有标注</span>' : '';
+
+    // 原文侧：只有标题（标注在译文侧，但原文标题也提示一下）
+    var o = '<div class="secblock" id="' + anchor + '">';
+    o += '<' + h2 + (secAnno ? ' class="hasnote"' : '') + '>' + title + mark + '</' + h2 + '>';
+
+    // 译文侧：标题同样带标记 —— 标注就渲染在这一侧
+    var t = '<div class="secblock" id="' + anchor + '-t">';
+    t += '<' + h2 + (secAnno ? ' class="hasnote"' : '') + '>' + title + mark + '</' + h2 + '>';
+
+    // 章级标注（放在章节标题下、正文前）
+    if (secAnno && Array.isArray(secAnno)) {
+      secAnno.forEach(function (a) { t += annoHtml(a); });
+    }
+
+    // 段落配对
+    var n = Math.max(b.paras.length, st.length);
+    for (var i = 0; i < n; i++) {
+      var pid = 'p-' + state.pairSeq++;
+      var op = b.paras[i] || '';
+      var tp = st[i] || '';
+      var pnote = (note.paras || {})[(b.title || '') + '#' + i];
+      state.pairs[pid] = true;
+
+      o += '<div class="pair" id="' + pid + '"><p class="orig-p">' + inline(op) + '</p></div>';
+      t += '<div class="pair" id="' + pid + '-t">';
+      if (tp) t += '<p class="trans-p">' + inline(tp) + '</p>';
+      else t += '<p class="missing">本节译文待补（原文见左侧第 ' + (i + 1) + ' 段）</p>';
+      if (pnote) t += annoHtml(pnote);
+      t += '</div>';
+    }
+
+    // 插图（原文侧显示真图；译文侧只显示图注翻译）
+    b.figs.forEach(function (f, fi) {
+      var fl = f.label || ('图 ' + (fi + 1));
+      o += '<figure class="fig">' + (f.url ? '<img loading="lazy" src="' + esc(f.url) +
+           '" alt="' + esc(fl) + '">' : '<p class="missing">（图片未接入）</p>') +
+           '<figcaption><span class="flabel">' + esc(fl) + '</span>' +
+           (f.title ? '<span class="ftitle">' + inline(f.title) + '</span> ' : '') +
+           inline(f.caption) + '</figcaption></figure>';
+      var figT = (note.figs || {})[fl];
+      t += '<figure class="fig"><figcaption><span class="flabel">' + esc(fl) + '</span>' +
+           (figT ? inline(figT) : '<span class="missing">图注译文待补</span>') +
+           '</figcaption></figure>';
+    });
+
+    o += '</div>'; t += '</div>';
+    sink.o.push(o); sink.t.push(t);
+    return o;
+  }
+
+  function annoHtml(a) {
+    var cls = 'anno' + (a.tone ? ' ' + a.tone : '');
+    var h = '<div class="' + cls + '">';
+    if (a.h) h += '<div class="h">' + esc(a.h) + '</div>';
+    (Array.isArray(a.body) ? a.body : [a.body]).forEach(function (p) {
+      h += '<p>' + inline(p) + '</p>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  /* ---------------- 切换论文 ---------------- */
+  function select(id) {
+    var p = PAPERS.filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    state.id = id;
+    renderPaperList();
+    var oa = p.oa;
+    paperHead.innerHTML =
+      '<h1>' + esc(p.title) + '</h1>' +
+      '<p class="cite">' + esc(p.cite) + '　·　DOI ' + esc(p.doi) +
+        '　·　' + esc(p.pmcid) + '</p>' +
+      '<p class="meta2">' + esc(p.why) + '</p>' +
+      '<div class="acts">' +
+        '<a class="btn pri" target="_blank" rel="noopener" href="' + esc(p.pdf) +
+          '">↗ 打开原文 PDF</a>' +
+        (p.oa ? '<a class="btn" target="_blank" rel="noopener" href="https://europepmc.org/articles/' +
+          esc(p.pmcid) + '">↗ 出版方在线原文</a>' : '') +
+        '<a class="btn" target="_blank" rel="noopener" href="https://doi.org/' + esc(p.doi) +
+          '">↗ DOI</a>' +
+      '</div>';
+    licenseNote.innerHTML = oa
+      ? '<p><b>许可：CC-BY 4.0</b> —— 这篇是开放获取论文，原文可合法转载与翻译。' +
+        '左侧正文来自 Europe PMC 的 JATS 结构化全文，段落顺序与原文一致。</p>'
+      : '<p><b>注意：订阅制论文</b> —— 本站不转载受版权保护的正文，' +
+        '只提供官方链接与你自己的阅读笔记。</p>';
+    footNote.textContent = '原文 © 作者／期刊，' + (oa ? '按 CC-BY 4.0 许可转载' : '受版权保护') +
+      '；中文译文与标注为本站学习材料。引用请以原文为准。';
+    barMeta.textContent = p.cite;
+    render(p);
+    window.scrollTo({ top: 0 });
+  }
+
+  /* ---------------- 滚动联动 ---------------- */
+  var syncOn = true, hotId = null;
+  function onScroll() {
+    if (!syncOn) return;
+    // 找原文侧最靠上的可见 pair，同步高亮译文侧同名 id
+    var pairs = origCol.querySelectorAll('.pair');
+    if (!pairs.length) return;
+    var probe = 150;   // 视口上方 150px 处作为判定线
+    var cur = null;
+    for (var i = 0; i < pairs.length; i++) {
+      var r = pairs[i].getBoundingClientRect();
+      if (r.top <= probe) cur = pairs[i]; else break;
+    }
+    var id = cur ? cur.id : null;
+    if (id === hotId) return;
+    hotId = id;
+    Array.prototype.forEach.call(document.querySelectorAll('.pair.hot'),
+      function (el) { el.classList.remove('hot'); });
+    if (id) {
+      var a = document.getElementById(id), b = document.getElementById(id + '-t');
+      if (a) a.classList.add('hot');
+      if (b) b.classList.add('hot');
+    }
+    // 目录高亮
+    var secs = state.sections.slice();
+    var active = null;
+    secs.forEach(function (s) {
+      var el = document.getElementById(s.anchor);
+      if (el && el.getBoundingClientRect().top <= 220) active = s;
+    });
+    Array.prototype.forEach.call(secList.querySelectorAll('a'),
+      function (a) { a.classList.toggle('on', active && a.getAttribute('href') === '#' + active.anchor); });
+  }
+  var raf = null;
+  window.addEventListener('scroll', function () {
+    if (raf) return;
+    raf = requestAnimationFrame(function () { raf = null; onScroll(); });
+  }, { passive: true });
+
+  /* ---------------- 控件 ---------------- */
+  paperList.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('button.pitem') : null;
+    if (b) select(b.dataset.id);
+  });
+  $('cbSync').addEventListener('change', function () {
+    syncOn = this.checked;
+    if (!syncOn) {
+      Array.prototype.forEach.call(document.querySelectorAll('.pair.hot'),
+        function (el) { el.classList.remove('hot'); });
+    } else { onScroll(); }
+  });
+  $('cbAnno').addEventListener('change', function () {
+    document.body.classList.toggle('hideanno', !this.checked);
+  });
+  $('cbPaper').addEventListener('change', function () {
+    document.body.classList.toggle('paper', this.checked);
+  });
+
+  /* ---------------- 启动 ---------------- */
+  document.body.classList.add('paper');
+  renderPaperList();
+  var first = PAPERS.filter(function (p) { return RD[p.id]; })[0] || PAPERS[0];
+  select(first.id);
+
+  window.__rd = {
+    papers: PAPERS, state: state,
+    select: select, render: render,
+    getAnnoCount: function () { return document.querySelectorAll('.anno').length; },
+    getPairCount: function () { return document.querySelectorAll('.pair').length; },
+    hasData: function (id) { return !!RD[id]; }
+  };
+})();
+</script>
+</body>
+</html>

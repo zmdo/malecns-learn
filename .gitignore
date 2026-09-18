@@ -76,6 +76,10 @@ research/
 _ref/
 _rc_test/
 
+# 阶段 2：EuropePMC 的 JATS 全文与抽取结果（约 500 KB，可重新下载）
+# 交付物是 assets/papers/*.js（由 tools/build_paper_assets.py 生成）
+_papers/
+
 # 一次性分析脚本（属于探索过程，不是交付物）
 analyze*.py
 build_graph.py

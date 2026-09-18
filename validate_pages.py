@@ -15,7 +15,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # 顶层可导航页面（校验时一并检查其互链）
-TOP_PAGES = {"index.html", "phase0.html", "phase1.html", "neuprint.html"}
+TOP_PAGES = {"index.html", "phase0.html", "phase1.html", "phase2.html", "neuprint.html"}
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
         "meta", "param", "source", "track", "wbr"}
 

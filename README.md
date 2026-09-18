@@ -9,9 +9,10 @@
 | **`index.html`** | **总览 / 学习路线图** —— 六阶段一览，点按钮进入已完成阶段 |
 | `phase0.html` | **阶段 0 · 打地基** —— 连接组学基本词汇与数量直觉 + **官方网格驱动的交互式 3D 脑区浏览器** |
 | `phase1.html` | **阶段 1 · 在网页里逛** —— 在 neuPrint / Codex 里**亲手走通一条通路**，含逐跳可复现的查询与实测权重 |
+| **`phase2.html`** | **阶段 2 · 读论文** —— 论文阅读器：侧栏切换论文、**左原文右译文**、重点处**标注随滚动高亮** |
 | **`neuprint.html`** | **neuPrint 查询执行台** —— 在浏览器里**直接执行 Cypher 取回真实数据**（22 条预设、表头排序、导出 CSV） |
 
-> 四个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1 / 执行台），
+> 五个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1 / 阶段 2 / 执行台），
 > 页脚也各有一个，方便来回跳。
 
 ---
@@ -24,6 +25,7 @@
 index.html           ← 建议从这里开始（总览 + 阶段切换）
 phase0.html          ← 阶段 0：打地基
 phase1.html          ← 阶段 1：在网页里逛
+phase2.html          ← 阶段 2：读论文（原文/译文对照 + 标注）
 neuprint.html        ← neuPrint 查询执行台（需联网）
 ```
 
@@ -37,8 +39,51 @@ neuprint.html        ← neuPrint 查询执行台（需联网）
 
 **联网要求**：
 - `neuprint.html` **必须联网** —— 它直接请求 `neuprint.janelia.org`
+- `phase2.html` 的**原文与插图**来自 Europe PMC CDN，**需要联网**才能显示
 - 阶段 1 页面里的链接需要联网，但页面本身离线可用
 - 阶段 0 完全离线可用
+
+---
+
+## 阶段 2 阅读器
+
+`phase2.html` 是一个论文阅读器，**不使用「所有章节堆在一个主内容区」的结构**：
+
+- **侧栏**列出要读的论文，点一下切换主内容区（同时刷新该论文的章节目录）
+- **主内容区左右对照**：左侧是原文（来自 Europe PMC 的 JATS 结构化全文），
+  右侧是中文译文；两侧**按段落一一配对**，滚动时联动高亮同一段
+- **标注**随滚动出现：章级与段级两种，直接解释该处要点
+- 译文可切换「纸面配色」（白底衬线），尽量贴近期刊排版观感
+- 顶部工具条可分别开关 **滚动联动 / 标注 / 纸面配色**
+- 页面明确显示**译文覆盖率**（如 `译文覆盖 9/164 段`），未翻译的段落会标注待补
+
+### 已接入的论文
+
+| # | 论文 | 开放获取 | 说明 |
+|---|---|---|---|
+| 01 | Dorkenwald et al. 2024, *Nature* 634:124–138 | ✅ CC-BY | FAFB 全脑接线图；`≥5 突触阈值`与 proofreading 工作量的原始出处 |
+| 02 | Shiu et al. 2024, *Nature* 634:210–219 | ✅ CC-BY | 全脑计算模型；「糖 GRN → SEZ → MN9」标准验证实验的出处 |
+
+> **只接入 CC-BY 开放获取的论文。**
+> Berg et al. 2026 *Cell* 是订阅制，本站不转载其正文，只提供官方链接。
+> Schlegel et al. 2024 尚未接入。
+
+### 内容生成流程
+
+原文不手写，从 Europe PMC 的 JATS 全文自动抽取：
+
+```bash
+# 1. 下载 JATS 全文（开放获取，无需 API key）
+python tools/extract_papers.py        # -> _papers/<name>.sections.json
+
+# 2. 转成页面直接引用的 JS
+python tools/build_paper_assets.py    # -> assets/papers/<name>.js
+
+# 3. 译文与标注是人工撰写的，在 assets/papers/notes.js（不被脚本覆盖）
+```
+
+`_papers/` 是可重新下载的中间产物，已在 `.gitignore` 中排除；
+仓库里保留的是 `assets/papers/*.js`。
 
 ---
 
@@ -177,8 +222,9 @@ python tools/decimate_meshes.py --preset low --scale 0.5
 ## 测试
 
 ```bash
-python validate_pages.py           # 四个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
-node tools/test-neuprint-console.js  # 执行台：假 DOM + 假 fetch 跑完整链路（83 项）
+python validate_pages.py           # 五个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
+node tools/test-reader.js          # 阶段 2 阅读器：假 DOM 跑完整渲染链路（45 项）
+node tools/test-neuprint-console.js  # 执行台：假 DOM + 假 fetch（83 项）
 node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
 node tools/test-3d-official.js     # 官方网格解析·坐标范围·取景·遮挡（204 项）
 node tools/test-3d-boot.js         # 3D 页面接线：启动·事件·坐标系·面板（43 项）
@@ -187,9 +233,9 @@ node tools/test-3d-boot.js         # 3D 页面接线：启动·事件·坐标系
 > 三个 3D 测试需要先有 `assets/mcns-meshes.js`。
 > `validate_page.py`（单数）是旧版，只校验 `phase0.html`；新页面请用 `validate_pages.py`。
 >
-> `test-neuprint-console.js` 用假 DOM + 假 fetch 执行页面里的内联脚本，
-> 验证「执行 → 请求体正确 → 渲染表格 → 排序 → CSV → 错误处理 → 行数上限」
-> 全链路，不需要浏览器、也不真的联网。
+> `test-reader.js` 与 `test-neuprint-console.js` 都用假 DOM 执行页面里的内联脚本，
+> 不需要浏览器。阅读器测试覆盖：论文切换、左右段落配对、插图 CDN 地址、
+> 标注注入与开关、目录、译文覆盖率、以及**原文里的恶意标签是否被转义**（XSS）。
 
 ### 阶段 1 的数据可复现性
 
