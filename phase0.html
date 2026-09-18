@@ -624,12 +624,17 @@
 
   <div class="box good">
     <div class="h">✅ 但有「类型级」的官方对照表 —— 这点要分清</div>
-    <p style="margin-bottom:0">
+    <p>
       <strong>没有 ID 映射</strong>，可是<strong>有类型级的 crosswalk</strong>：
       官方补充数据里的 <code>mcns_fw_edge_comp_mappings.json</code> 给出 MaleCNS ↔ FlyWire 的类型标签对应；
       R 包 <code>natverse/malecns</code> 的元数据带 <code>flywireType</code> / <code>mancType</code> 列；
       AOTU012 的官方页面也会列出「FlyWire Type(s): AOTU012」。
       所以正确的说法是：<strong>先把类型对上，再讨论「同一个细胞」</strong>。
+    </p>
+    <p style="margin-bottom:0">
+      在 neuPrint 里可以直接验证这件事：<code>flywireType</code> 字段覆盖了
+      <strong>143,156 个 MaleCNS 神经元</strong>，对应 <strong>8,199 个 FlyWire 类型</strong>
+      （实测于 2026-09-17）。查法见<a href="phase1.html">阶段 1</a>。
     </p>
   </div>
 
@@ -1854,8 +1859,9 @@ s = <span class="bl">+1</span>  乙酰胆碱 ACh
       及数据来源（FlyEM / HHMI Janelia、剑桥大学动物学系、MRC LMB、Google Research）。
     </p>
     <p style="margin-bottom:0">
-      下一步 → <strong>阶段 1：在网页里逛</strong>。打开 Codex(MCNS) 或 neuPrint，
+      下一步 → <a href="phase1.html"><strong>阶段 1：在网页里逛</strong></a>。打开 neuPrint 或 Codex，
       走通 <span class="kw">R1–R6 → … → DNg13</span> 或 <span class="kw">糖 GRN → SEZ → MN9</span>，并说出中间细胞类型。
+      阶段 1 的配套材料已经写好，含逐跳可复现的查询与实测权重。
     </p>
   </footer>
 </section>

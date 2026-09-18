@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 880" width="1180" height="880" font-family="Segoe UI, Noto Sans SC, sans-serif">
+  <defs>
+    <marker id="pwArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7dd3fc"/>
+    </marker>
+    <marker id="pwArrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <rect width="1180" height="880" fill="#0b1020"/>
+  <text x="36" y="40" fill="#e2e8f0" font-size="20" font-weight="700">阶段 1 的两条通路：全部用 neuPrint 实测连接数</text>
+  <text x="36" y="64" fill="#94a3b8" font-size="13">每个箭头上的数字是该步的连接权重（synapses），数据源 dataset = male-cns:v1.0</text>
+
+  <!-- ================================================================
+       通路 A · 视觉 → 运动
+       ================================================================ -->
+  <rect x="30" y="84" width="700" height="600" rx="14" fill="#0d1526" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="52" y="112" fill="#7dd3fc" font-size="15" font-weight="700">通路 A · 视觉 → 运动（R1–R6 → … → DNg13）</text>
+  <text x="52" y="131" fill="#64748b" font-size="11.5">官方示例通路；下表每一跳都可在 neuPrint 复现</text>
+
+  <!-- 步骤条：左列是神经元 + 神经毡 -->
+  <g font-size="13">
+    <!-- S1 -->
+    <rect x="52" y="146" width="300" height="52" rx="8" fill="#122036" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="68" y="168" fill="#e2e8f0" font-size="13.5" font-weight="700">R1–R6 光感受器</text>
+    <text x="68" y="187" fill="#94a3b8" font-size="11.5">板层 LA · superclass = ol_sensory</text>
+    <!-- S2 -->
+    <rect x="52" y="216" width="300" height="52" rx="8" fill="#122036" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="68" y="238" fill="#e2e8f0" font-size="13.5" font-weight="700">L1 / L2 板层单极细胞</text>
+    <text x="68" y="257" fill="#94a3b8" font-size="11.5">髓质 ME · ol_intrinsic</text>
+    <!-- S3 -->
+    <rect x="52" y="286" width="300" height="52" rx="8" fill="#122036" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="68" y="308" fill="#e2e8f0" font-size="13.5" font-weight="700">Tm1 / Tm2 / Tm4</text>
+    <text x="68" y="327" fill="#94a3b8" font-size="11.5">髓质 ME · ol_intrinsic</text>
+    <!-- S4 -->
+    <rect x="52" y="356" width="300" height="52" rx="8" fill="#122036" stroke="#22d3ee" stroke-width="1.5"/>
+    <text x="68" y="378" fill="#e2e8f0" font-size="13.5" font-weight="700">T4 / T5 方向选择细胞</text>
+    <text x="68" y="397" fill="#94a3b8" font-size="11.5">小叶板 LOP · ol_intrinsic</text>
+    <!-- S5 -->
+    <rect x="52" y="426" width="300" height="52" rx="8" fill="#122036" stroke="#22d3ee" stroke-width="1.5"/>
+    <text x="68" y="448" fill="#e2e8f0" font-size="13.5" font-weight="700">LPi34 / LPi21 / VS</text>
+    <text x="68" y="467" fill="#94a3b8" font-size="11.5">小叶板切向细胞（LPTC）</text>
+    <!-- S6 -->
+    <rect x="52" y="496" width="300" height="52" rx="8" fill="#1a1230" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="68" y="518" fill="#e2e8f0" font-size="13.5" font-weight="700">LoVP90b / LC19 / LT51</text>
+    <text x="68" y="537" fill="#94a3b8" font-size="11.5">视觉投射神经元 · visual_projection</text>
+    <!-- S7 -->
+    <rect x="52" y="566" width="300" height="52" rx="8" fill="#2a1518" stroke="#f87171" stroke-width="1.6"/>
+    <text x="68" y="588" fill="#e2e8f0" font-size="13.5" font-weight="700">DNg13 下行神经元</text>
+    <text x="68" y="607" fill="#94a3b8" font-size="11.5">侧副叶 LAL · descending_neuron</text>
+    <!-- S8 -->
+    <rect x="52" y="636" width="300" height="34" rx="8" fill="#1b2410" stroke="#4ade80" stroke-width="1.5"/>
+    <text x="68" y="658" fill="#e2e8f0" font-size="13" font-weight="700">VNC 运动神经元（胸／足）</text>
+  </g>
+
+  <!-- 箭头 + 权重 -->
+  <g stroke="#7dd3fc" stroke-width="2" fill="none" marker-end="url(#pwArrow)">
+    <path d="M202,198 L202,214"/>
+    <path d="M202,268 L202,284"/>
+    <path d="M202,338 L202,354"/>
+    <path d="M202,408 L202,424"/>
+  </g>
+  <g stroke="#7dd3fc" stroke-width="2" fill="none" stroke-dasharray="6 5" marker-end="url(#pwArrow)">
+    <path d="M202,478 L202,494"/>
+  </g>
+  <g stroke="#7dd3fc" stroke-width="2" fill="none" marker-end="url(#pwArrow)">
+    <path d="M202,548 L202,564"/>
+    <path d="M202,618 L202,634"/>
+  </g>
+
+  <!-- 权重标注（实测） -->
+  <g font-size="11.5" font-family="ui-monospace, Consolas, monospace">
+    <text x="216" y="211" fill="#7dd3fc">L2 w=107,646 · L1 w=103,405</text>
+    <text x="216" y="281" fill="#7dd3fc">Tm2 w=221,186 · Tm1 w=205,428</text>
+    <text x="216" y="351" fill="#7dd3fc">Tm2 → T5a–d 各约 5–6 万</text>
+    <text x="216" y="421" fill="#7dd3fc">T5c → LPi34 w=92,944</text>
+    <text x="216" y="491" fill="#fbbf24">← 这一跳是推断，非实测直连</text>
+    <text x="216" y="561" fill="#7dd3fc">LoVP90b w=27（单细胞）</text>
+    <text x="216" y="631" fill="#7dd3fc">DNg13 → Tergopleural MN w=60</text>
+  </g>
+
+  <!-- 侧栏：DNg13 身份卡 -->
+  <g>
+    <rect x="420" y="146" width="290" height="222" rx="10" fill="#111a2e" stroke="#334155" stroke-width="1.4"/>
+    <text x="438" y="170" fill="#f87171" font-size="13.5" font-weight="700">DNg13 身份卡（实测）</text>
+    <g font-size="12" font-family="ui-monospace, Consolas, monospace">
+      <text x="438" y="194" fill="#b6c2d6">type      DNg13</text>
+      <text x="438" y="214" fill="#b6c2d6">bodyId    11074 (L) / 512006 (R)</text>
+      <text x="438" y="234" fill="#b6c2d6">instance  DNg13_L · DNg13_R</text>
+      <text x="438" y="254" fill="#b6c2d6">superclass descending_neuron</text>
+      <text x="438" y="274" fill="#b6c2d6">consensusNt acetylcholine</text>
+      <text x="438" y="294" fill="#b6c2d6">flywireType DNg13</text>
+      <text x="438" y="314" fill="#b6c2d6">pre 2,127 · post 6,500</text>
+      <text x="438" y="334" fill="#b6c2d6">upstream 6,500</text>
+      <text x="438" y="354" fill="#b6c2d6">downstream 15,479</text>
+    </g>
+  </g>
+
+  <!-- 侧栏：LAL 输入 -->
+  <g>
+    <rect x="420" y="386" width="290" height="150" rx="10" fill="#111a2e" stroke="#334155" stroke-width="1.4"/>
+    <text x="438" y="410" fill="#a78bfa" font-size="13" font-weight="700">DNg13 最强的输入（实测 TOP5）</text>
+    <g font-size="11.5" font-family="ui-monospace, Consolas, monospace">
+      <text x="438" y="434" fill="#b6c2d6">CB0244     w=167</text>
+      <text x="438" y="453" fill="#b6c2d6">LAL073     w=161</text>
+      <text x="438" y="472" fill="#b6c2d6">GNG532     w=156</text>
+      <text x="438" y="491" fill="#b6c2d6">DNg97      w=140</text>
+      <text x="438" y="510" fill="#b6c2d6">DNpe027    w=127</text>
+      <text x="438" y="528" fill="#64748b" font-size="10.5">→ 输入来自侧副叶/食管下区的局部网络</text>
+    </g>
+  </g>
+
+  <!-- 侧栏：输出 -->
+  <g>
+    <rect x="420" y="552" width="290" height="118" rx="10" fill="#111a2e" stroke="#334155" stroke-width="1.4"/>
+    <text x="438" y="576" fill="#4ade80" font-size="13" font-weight="700">DNg13 的输出（实测 TOP3）</text>
+    <g font-size="11.5" font-family="ui-monospace, Consolas, monospace">
+      <text x="438" y="600" fill="#b6c2d6">IN08B004   w=159</text>
+      <text x="438" y="619" fill="#b6c2d6">AN10B009   w=135</text>
+      <text x="438" y="638" fill="#b6c2d6">Tergopleural/Pleural</text>
+      <text x="438" y="654" fill="#b6c2d6">  promotor MN  w=60</text>
+    </g>
+  </g>
+
+  <!-- ================================================================
+       通路 B · 糖味觉 → 摄食
+       ================================================================ -->
+  <rect x="750" y="84" width="400" height="600" rx="14" fill="#1a1408" stroke="#3b3212" stroke-width="1.5"/>
+  <text x="770" y="112" fill="#fbbf24" font-size="15" font-weight="700">通路 B · 糖味觉 → 摄食</text>
+  <text x="770" y="131" fill="#64748b" font-size="11.5">糖 GRN → SEZ(GNG) → MN9</text>
+
+  <g font-size="13">
+    <!-- B1 -->
+    <rect x="770" y="150" width="360" height="56" rx="8" fill="#2a1f08" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="788" y="173" fill="#e2e8f0" font-size="13.5" font-weight="700">BM_Taste 糖味觉感觉神经元</text>
+    <text x="788" y="193" fill="#94a3b8" font-size="11.5">superclass = cb_sensory（投射到颚神经毡）</text>
+    <!-- B2 -->
+    <rect x="770" y="234" width="360" height="56" rx="8" fill="#2a1f08" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="788" y="257" fill="#e2e8f0" font-size="13.5" font-weight="700">GNG015 / GNG178 局部中间神经元</text>
+    <text x="788" y="277" fill="#94a3b8" font-size="11.5">食管下区 / 颚神经毡 GNG · cb_intrinsic</text>
+    <!-- B3 -->
+    <rect x="770" y="318" width="360" height="56" rx="8" fill="#0d1a12" stroke="#4ade80" stroke-width="1.5"/>
+    <text x="788" y="341" fill="#e2e8f0" font-size="13.5" font-weight="700">GNG654 感觉中继（可直接到 MN9）</text>
+    <text x="788" y="361" fill="#94a3b8" font-size="11.5">cb_sensory · 是一条「短路径」证据</text>
+    <!-- B4 -->
+    <rect x="770" y="402" width="360" height="56" rx="8" fill="#1b2410" stroke="#4ade80" stroke-width="1.6"/>
+    <text x="788" y="425" fill="#e2e8f0" font-size="13.5" font-weight="700">MN9 喙肌运动神经元</text>
+    <text x="788" y="445" fill="#94a3b8" font-size="11.5">MN9_L / MN9_R · cb_motor（喙伸出反射）</text>
+  </g>
+
+  <g stroke="#fbbf24" stroke-width="2" fill="none" marker-end="url(#pwArrow2)">
+    <path d="M950,206 L950,232"/>
+    <path d="M950,290 L950,316"/>
+    <path d="M950,374 L950,400"/>
+  </g>
+  <g font-size="11.5" font-family="ui-monospace, Consolas, monospace">
+    <text x="612" y="224" fill="#fbbf24" text-anchor="end">w=1,376</text>
+    <text x="612" y="308" fill="#fbbf24" text-anchor="end">w=443–478</text>
+    <text x="612" y="392" fill="#fbbf24" text-anchor="end">GNG654 → MN9 w=153</text>
+  </g>
+
+  <!-- B 侧说明 -->
+  <g>
+    <rect x="770" y="486" width="360" height="176" rx="10" fill="#111a2e" stroke="#334155" stroke-width="1.4"/>
+    <text x="788" y="510" fill="#fbbf24" font-size="13" font-weight="700">MN9 的实测输入（TOP5）</text>
+    <g font-size="11.5" font-family="ui-monospace, Consolas, monospace">
+      <text x="788" y="534" fill="#b6c2d6">DNge062     w=556</text>
+      <text x="788" y="553" fill="#b6c2d6">GNG015      w=478</text>
+      <text x="788" y="572" fill="#b6c2d6">GNG120      w=443</text>
+      <text x="788" y="591" fill="#b6c2d6">GNG095      w=436</text>
+      <text x="788" y="610" fill="#b6c2d6">GNG117      w=413</text>
+    </g>
+    <text x="788" y="634" fill="#64748b" font-size="10.5">GNG* 是食管下区的局部与感觉神经元 ——</text>
+    <text x="788" y="651" fill="#64748b" font-size="10.5">这条链与 Shiu 2024 的「SEZ」完全对应</text>
+  </g>
+
+  <!-- ================================================================
+       底部：口径与出处
+       ================================================================ -->
+  <rect x="30" y="700" width="1120" height="150" rx="12" fill="#111a2e" stroke="#1e293b" stroke-width="1.4"/>
+  <text x="52" y="726" fill="#e2e8f0" font-size="13.5" font-weight="700">📌 读这张图必须先知道的三件事</text>
+  <text x="52" y="750" fill="#b6c2d6" font-size="12.5">① 权重是<tspan fill="#7dd3fc">连接权重（synapses）</tspan>，不是次数也不是概率。同一类型对之间会有多个实例，图里给的是聚合值。</text>
+  <text x="52" y="772" fill="#b6c2d6" font-size="12.5">② 所有查询走的是 neuPrint 默认口径 <tspan fill="#fbbf24">≥5 突触</tspan>；换成 min confidence 0.5 的 flat connectome，数字会不同。</text>
+  <text x="52" y="794" fill="#b6c2d6" font-size="12.5">③ 通路 A 的 S5→S6 一跳（LPTC → LoVP90b）是<tspan fill="#fbbf24">基于强连接的推断</tspan>，不是实测直连 —— 其余各跳都是实测。</text>
+  <text x="52" y="820" fill="#64748b" font-size="11.5">数据源：neuPrint dataset male-cns:v1.0（匿名只读 API），查询日期 2026-09-17。引用时请注明 Berg et al. (2026) Cell 189(18):5504-5526.e15 与 FlyEM/HHMI Janelia。</text>
+</svg>

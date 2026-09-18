@@ -2,30 +2,37 @@
 
 学习 **MaleCNS v1.0**（成年雄性果蝇完整中枢神经系统连接组）的阶段性材料。
 
-目前完成 **阶段 0 · 打地基**：一个自包含的 HTML 说明网页，讲清连接组学的基本词汇与数量直觉，
-并带一个用**官方网格数据**驱动的可交互 3D 脑区浏览器。
+已完成两个阶段，各一份自包含 HTML：
+
+| 阶段 | 页面 | 内容 |
+|---|---|---|
+| **0 · 打地基** | `phase0.html` | 连接组学基本词汇与数量直觉 + **官方网格驱动的交互式 3D 脑区浏览器** |
+| **1 · 在网页里逛** | `phase1.html` | 在 neuPrint / Codex 里**亲手走通一条通路**，含逐跳可复现的查询与实测权重 |
 
 ---
 
 ## 快速开始
 
-直接用浏览器打开 `phase0.html` 即可（无需服务器、无需联网）。
+直接用浏览器打开即可（无需服务器、无需联网）：
 
 ```
-phase0.html          ← 主交付物
+phase0.html          ← 阶段 0：打地基
+phase1.html          ← 阶段 1：在网页里逛
 ```
 
-> 3D 部分读取同目录的 `assets/mcns-meshes.js`（约 1 MB），
-> 所以请**保持 `assets/` 与 `phase0.html` 的相对位置**，或者用本地服务器打开：
+> 阶段 0 的 3D 部分读取同目录的 `assets/mcns-meshes.js`（约 1 MB），
+> 所以请**保持 `assets/` 与 HTML 的相对位置**，或者用本地服务器打开：
 >
 > ```bash
 > python -m http.server 8000
 > # 然后访问 http://localhost:8000/phase0.html
 > ```
 
+阶段 1 需要联网（要访问 neuPrint），但页面本身是离线的。
+
 ---
 
-## 页面内容
+## 阶段 0 页面内容
 
 | 节 | 内容 |
 |---|---|
@@ -37,6 +44,22 @@ phase0.html          ← 主交付物
 | 11–14 | MaleCNS vs FlyWire 全表、七个坑、术语表、10 题过关自测 |
 | 15 | 资源、官方下载清单、**本页相对指南的修正表** |
 | 07 | **交互式 3D 脑区浏览器**（官方网格） |
+
+## 阶段 1 页面内容
+
+| 节 | 内容 |
+|---|---|
+| 00–01 | 过关标准拆解、三个工具（neuPrint / Codex / Cell Type Explorer）的分工 |
+| 02 | **neuPrint 实操**：Cypher 三句式、字段名陷阱、边方向判定、匿名 API |
+| 03–04 | Codex 跨数据集复核、Cell Type Explorer 查类型是否存在 |
+| 05 | **通路 A · 视觉 → 运动**：R1–R6 → L1/L2 → Tm1/Tm2/Tm4 → T4/T5 → LPTC → LoVP90b → DNg13 → VNC 运动神经元 |
+| 06 | **通路 B · 糖味觉 → 摄食**：BM_Taste → GNG015/GNG178 → GNG654 → MN9 |
+| 07–09 | 8 条动手练习、6 个工具级坑、8 题过关自测 |
+| 10 | 资源与下一步 |
+
+> 阶段 1 里所有连接权重都是 2026-09-17 通过 neuPrint **匿名只读 API 实测**的
+> （dataset `male-cns:v1.0`），页面内每条查询都标了可复现的语句。
+> 其中「LPTC → LoVP90b」一跳是基于强连接的**推断**（页面上用虚线标出），不是实测直连。
 
 3D 浏览器支持：拖动旋转、滚轮缩放、点击脑区看介绍、双击复位、
 正面/侧面视角、自动旋转、**显示内部结构**（切换拾取模式）。
@@ -114,13 +137,27 @@ python tools/decimate_meshes.py --preset low --scale 0.5
 ## 测试
 
 ```bash
-python validate_page.py            # 页面结构 / 锚点 / 资源引用
+python validate_pages.py           # 两个页面的结构 / 锚点 / 资源 / 内联 SVG 合法性
 node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
 node tools/test-3d-official.js     # 官方网格解析·坐标范围·取景·遮挡（204 项）
 node tools/test-3d-boot.js         # 页面接线：启动·事件·坐标系·面板（43 项）
 ```
 
 > 后三个需要先有 `assets/mcns-meshes.js`。
+> `validate_page.py`（单数）是旧版，只校验 `phase0.html`；新页面请用 `validate_pages.py`。
+
+### 阶段 1 的数据可复现性
+
+阶段 1 页面里的每一个连接权重都可以自己复现。查询走 neuPrint 的**匿名只读 API**
+（不需要 token）：
+
+```bash
+curl -s -X POST 'https://neuprint.janelia.org/api/custom/custom' \
+  -H 'Content-Type: application/json' \
+  -d '{"cypher":"MATCH (n:Neuron) WHERE n.type = '\''DNg13'\'' RETURN n.bodyId, n.instance","dataset":"male-cns:v1.0"}'
+```
+
+页面第 05/06 节给出两条通路的**逐跳完整查询**，共 10 条，全部实测通过。
 
 ---
 
