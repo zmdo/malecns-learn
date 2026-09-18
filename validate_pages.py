@@ -147,10 +147,30 @@ def check_css_usage(path, html):
                 worst = max(worst, _display_width(vis))
             if worst > LIMIT:
                 problems.append(f"{kind} 块 #{i} 最宽 {worst} 列，超过 {LIMIT}（等宽排版会横向溢出）")
+
+    # 3) 导航类组件：用到就必须有定义（同样属于「静默失效」那一类问题）
+    NAV_CLASSES = ["phaseswitch", "on", "p0", "p1", "foot", "now"]
+    nav_used = set()
+    for b in re.findall(r'class="([^"]*phaseswitch[^"]*)"', html):
+        nav_used.update(b.split())
+    for c in sorted(nav_used):
+        if c not in NAV_CLASSES:
+            continue
+        if re.search(rf"\.{re.escape(c)}\b", css):
+            notes.append(f"导航类 .{c} 有定义")
+        else:
+            problems.append(f"阶段切换器用了 .{c}，但 CSS 里没有定义（会掉样式）")
+
     return notes, problems
 
 
-def check_file(path):
+def collect_ids(path):
+    """收集某个页面里的所有 id。"""
+    html = open(path, encoding="utf-8").read()
+    return set(re.findall(r'\bid="([^"]+)"', html))
+
+
+def check_file(path, id_map=None):
     name = os.path.basename(path)
     html = open(path, encoding="utf-8").read()
     p = P()
@@ -208,6 +228,25 @@ def check_file(path):
             else:
                 print(f"  OK   行 {ln:>5}  → {h}")
 
+    # 跨页锚点：phase0.html#xxx 里的 xxx 必须在目标页真实存在
+    if id_map:
+        checked = 0
+        for h, ln in p.hrefs:
+            if "#" not in h or re.match(r"^https?://", h):
+                continue
+            page, _, frag = h.partition("#")
+            if not page or not frag:
+                continue
+            target = id_map.get(page)
+            if target is None:
+                continue
+            checked += 1
+            if frag not in target:
+                ok = False
+                print(f"  !! 行 {ln} 跨页锚点失效: {h}（{page} 里没有 id=\"{frag}\"）")
+        if checked and ok:
+            print(f"  OK: {checked} 个跨页锚点都能解析")
+
     # 内联 SVG
     svgs, problems = check_svg(path, html)
     if svgs:
@@ -226,7 +265,7 @@ def check_file(path):
         for e in cssprobs:
             print("     " + e)
     else:
-        print(f"  OK: 代码块着色类都有定义，等宽块未超宽（{len(notes)} 项检查）")
+        print(f"  OK: CSS 类名与等宽宽度检查通过（{len(notes)} 项）")
 
     print(f"  → {'PASS' if ok else 'FAIL'}\n")
     return ok
@@ -236,12 +275,19 @@ def main():
     if len(sys.argv) > 1:
         files = [os.path.join(ROOT, a) for a in sys.argv[1:]]
     else:
+        # 顶层页面：index.html + phase*.html
         files = sorted(os.path.join(ROOT, f) for f in os.listdir(ROOT)
-                       if re.match(r"^phase\d+\.html$", f))
+                       if f == "index.html" or re.match(r"^phase\d+\.html$", f))
     if not files:
-        print("没有找到 phase*.html")
+        print("没有找到 index.html 或 phase*.html")
         return 1
-    results = [check_file(f) for f in files]
+
+    # 顶层页面集合，用于校验互链
+    top = sorted(os.path.join(ROOT, f) for f in os.listdir(ROOT)
+                 if f == "index.html" or re.match(r"^phase\d+\.html$", f))
+    id_map = {os.path.basename(f): collect_ids(f) for f in top}
+
+    results = [check_file(f, id_map) for f in files]
     print("=" * 72)
     print(f"总计 {len(results)} 个页面，{sum(results)} 个通过，{len(results)-sum(results)} 个失败")
     return 0 if all(results) else 1

@@ -44,11 +44,23 @@
   header.bar{position:sticky; top:0; z-index:50; height:56px; display:flex; align-items:center;
     gap:14px; padding:0 24px; background:rgba(7,11,22,.9); backdrop-filter:blur(12px);
     border-bottom:1px solid var(--line)}
-  .bar .tag{font-family:var(--mono); font-size:12.5px; color:var(--green);
-    border:1px solid #17411f; background:#0d1a12; padding:2px 9px; border-radius:20px}
   .bar .t{font-size:14.5px; color:var(--ink2); font-weight:600}
   .bar .sp{flex:1}
   .bar .meta{font-size:12.5px; color:var(--dim); font-family:var(--mono)}
+
+  /* ---------- 阶段切换器（顶栏与页脚共用） ---------- */
+  .phaseswitch{display:inline-flex; align-items:center; gap:2px; background:#0b1424;
+    border:1px solid var(--line); border-radius:9px; padding:3px; flex:0 0 auto}
+  .phaseswitch a, .phaseswitch span{display:block; padding:2px 11px; border-radius:6px;
+    font-family:var(--mono); font-size:11.5px; line-height:1.7; text-decoration:none;
+    color:var(--ink3); white-space:nowrap}
+  .phaseswitch a:hover{color:var(--ink); background:#1a2338; text-decoration:none}
+  .phaseswitch .now{margin-right:4px; color:var(--dim)}
+  .phaseswitch .on{background:var(--line2); color:var(--ink)}
+  .phaseswitch .on.p0{background:#16233d; color:var(--blue); font-weight:700}
+  .phaseswitch .on.p1{background:#0d1a12; color:var(--green); font-weight:700}
+  .phaseswitch.foot{margin-bottom:16px}
+  @media(max-width:1180px){ .bar .t{display:none} }
 
   .toc h4{font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim);
     margin:0 0 12px 10px; font-weight:700}
@@ -174,8 +186,12 @@
 <body>
 
 <header class="bar">
-  <span class="tag">PHASE 1</span>
-  <span class="t">MaleCNS 学习指南 · 在网页里逛</span>
+  <nav class="phaseswitch" aria-label="阶段切换">
+    <a href="index.html" title="返回总览">总览</a>
+    <a href="phase0.html" title="阶段 0：打地基">阶段 0</a>
+    <a href="phase1.html" class="on p1" aria-current="page">阶段 1</a>
+  </nav>
+  <span class="t">在网页里逛</span>
   <span class="sp"></span>
   <span class="meta">v1.0 · 查询日期 2026-09-17</span>
 </header>
@@ -1224,6 +1240,11 @@ ORDER BY w DESC LIMIT 12</pre>
   </div>
 
   <footer>
+    <nav class="phaseswitch foot" aria-label="阶段切换">
+      <a href="index.html">总览</a>
+      <a href="phase0.html">阶段 0</a>
+      <a href="phase1.html" class="on p1">阶段 1</a>
+    </nav>
     <p>
       <strong>MaleCNS 学习指南 · 阶段 1 配套材料</strong><br>
       通路数据于 2026-09-17 通过 neuPrint 匿名只读 API 实测（dataset <code>male-cns:v1.0</code>）·
