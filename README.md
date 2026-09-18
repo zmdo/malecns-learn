@@ -57,16 +57,48 @@ neuprint.html        ← neuPrint 查询执行台（需联网）
 - 顶部工具条可分别开关 **滚动联动 / 标注 / 纸面配色**
 - 页面明确显示**译文覆盖率**（如 `译文覆盖 9/164 段`），未翻译的段落会标注待补
 
-### 已接入的论文
+### 已接入的论文（全文翻译已完成）
 
-| # | 论文 | 开放获取 | 说明 |
-|---|---|---|---|
-| 01 | Dorkenwald et al. 2024, *Nature* 634:124–138 | ✅ CC-BY | FAFB 全脑接线图；`≥5 突触阈值`与 proofreading 工作量的原始出处 |
-| 02 | Shiu et al. 2024, *Nature* 634:210–219 | ✅ CC-BY | 全脑计算模型；「糖 GRN → SEZ → MN9」标准验证实验的出处 |
+| # | 论文 | 开放获取 | 段落 | 译文 |
+|---|---|---|---|---|
+| 01 | Dorkenwald et al. 2024, *Nature* 634:124–138 | ✅ CC-BY | 134 | ✅ 100% |
+| 02 | Shiu et al. 2024, *Nature* 634:210–219 | ✅ CC-BY | 82 | ✅ 100% |
+
+**翻译范围**：两篇论文的**摘要、正文全部章节、全部方法小节**都已逐段翻译，
+含 17 张图的图注。**唯一没译的是投稿元数据**（作者贡献、同行评审信息、
+竞争利益、补充材料清单等）—— 这类内容对学习连接组学没有价值，
+但仍保留在原文栏供查阅。
+
+**标注规模**：章级 65 节 · 段级 30 处 · 图注 27 条。
+重点标注都指向阶段 2 的过关标准，例如：
+
+- ⭐ **`Connection threshold`（Dorkenwald 方法）** —— 阈值是 `>4`（即至少 5 个突触）、
+  为什么选 5、以及"选择合理但任意"的原文依据；配 `Synapses and connections`
+  一节的实测数字（134,181 个神经元之间 2,700,513 条连接）
+- ⭐ **`min confidence` vs `≥5 阈值`** —— 前者作用在**突触层**，后者作用在**边层**
+- 🔴 **FAFB 图像左右镜像**、**5 × 10⁷ 的引用陷阱**、**谷氨酸符号是最脆弱的假设**
+- 🟣 **Shiu 用的是 FAFB（雌性、仅脑）而非 MaleCNS**
 
 > **只接入 CC-BY 开放获取的论文。**
 > Berg et al. 2026 *Cell* 是订阅制，本站不转载其正文，只提供官方链接。
 > Schlegel et al. 2024 尚未接入。
+
+### 译文文件组织
+
+译文与标注按论文、按批次分文件存放，便于维护与增补：
+
+```
+assets/papers/
+  dorkenwald.js  shiu.js              ← 原文结构化全文（自动生成）
+  notes-dorkenwald.js                 ← 摘要 / 正文开头 / 标注主体 / 图注
+  notes-dorkenwald-b…j.js             ← 正文各章节、方法、讨论
+  notes-dorkenwald-methods.js         ← 预留
+  notes-shiu.js  notes-shiu-a…e.js    ← Shiu 的译文与标注
+```
+
+每个文件都往 `MCNS_NOTES_PARTS` 里推自己的分片，
+页面加载时自动深合并（**后加载只补空位，不覆盖已有内容**），
+所以顺序无关，也可以安全地分批增补。
 
 ### 内容生成流程
 
@@ -79,7 +111,10 @@ python tools/extract_papers.py        # -> _papers/<name>.sections.json
 # 2. 转成页面直接引用的 JS
 python tools/build_paper_assets.py    # -> assets/papers/<name>.js
 
-# 3. 译文与标注是人工撰写的，在 assets/papers/notes.js（不被脚本覆盖）
+# 3. 译文与标注是人工撰写的，在 assets/papers/notes-*.js（不被脚本覆盖）
+
+# 4. 查看译文覆盖率（按页面真实的合并逻辑核对）
+node tools/verify-coverage.js
 ```
 
 `_papers/` 是可重新下载的中间产物，已在 `.gitignore` 中排除；
@@ -224,6 +259,7 @@ python tools/decimate_meshes.py --preset low --scale 0.5
 ```bash
 python validate_pages.py           # 五个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
 node tools/test-reader.js          # 阶段 2 阅读器：假 DOM 跑完整渲染链路（45 项）
+node tools/verify-coverage.js      # 阶段 2 译文覆盖率核对（应为 216/216）
 node tools/test-neuprint-console.js  # 执行台：假 DOM + 假 fetch（83 项）
 node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
 node tools/test-3d-official.js     # 官方网格解析·坐标范围·取景·遮挡（204 项）

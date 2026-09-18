@@ -155,7 +155,8 @@ info('装载完成，未抛异常');
 const RD = sandbox.__rd;
 ok(!!RD, '未暴露 __rd 测试钩子');
 ok(!!sandbox.MCNS_PAPERS, '未加载 MCNS_PAPERS');
-ok(!!sandbox.MCNS_NOTES, '未加载 MCNS_NOTES');
+ok(Array.isArray(sandbox.MCNS_NOTES_PARTS) && sandbox.MCNS_NOTES_PARTS.length > 0,
+  '未加载任何译文分片 MCNS_NOTES_PARTS');
 
 /* ---------------- 论文列表 ---------------- */
 section('1. 侧栏论文列表');

@@ -245,8 +245,24 @@
 <!-- 论文结构化正文（由 tools/extract_papers.py 生成） -->
 <script src="assets/papers/dorkenwald.js"></script>
 <script src="assets/papers/shiu.js"></script>
-<!-- 译文与标注（人工撰写） -->
-<script src="assets/papers/notes.js"></script>
+<!-- 译文与标注（人工撰写，按论文/章节分文件；加载顺序无所谓，会自动合并） -->
+<script src="assets/papers/notes-dorkenwald.js"></script>
+<script src="assets/papers/notes-dorkenwald-b.js"></script>
+<script src="assets/papers/notes-dorkenwald-c.js"></script>
+<script src="assets/papers/notes-dorkenwald-d.js"></script>
+<script src="assets/papers/notes-dorkenwald-e.js"></script>
+<script src="assets/papers/notes-dorkenwald-f.js"></script>
+<script src="assets/papers/notes-dorkenwald-g.js"></script>
+<script src="assets/papers/notes-dorkenwald-h.js"></script>
+<script src="assets/papers/notes-dorkenwald-i.js"></script>
+<script src="assets/papers/notes-dorkenwald-j.js"></script>
+<script src="assets/papers/notes-dorkenwald-methods.js"></script>
+<script src="assets/papers/notes-shiu.js"></script>
+<script src="assets/papers/notes-shiu-a.js"></script>
+<script src="assets/papers/notes-shiu-b.js"></script>
+<script src="assets/papers/notes-shiu-c.js"></script>
+<script src="assets/papers/notes-shiu-d.js"></script>
+<script src="assets/papers/notes-shiu-e.js"></script>
 
 <script>
 /* =====================================================================
@@ -275,8 +291,43 @@
   ];
 
   var RD = window.MCNS_PAPERS || {};
-  var NOTES = window.MCNS_NOTES || {};
   var state = { id:null, pairSeq:0, pairs:{}, sections:[] };
+
+  /* 译文/标注按论文分文件加载：每个文件往 MCNS_NOTES_PARTS 里推自己的分片，
+     这里按顺序深合并（后加载只补缺，不覆盖）。 */
+  var NOTES = {};
+  function isFilled(v) { return v !== undefined && v !== null && String(v).trim() !== ''; }
+  function mergeNotes(paperId, add) {
+    if (!add) return;
+    var cur = NOTES[paperId] || (NOTES[paperId] = {});
+    ['sections', 'paras', 'figs', 'trans'].forEach(function (k) {
+      var src = add[k];
+      if (!src) return;
+      cur[k] = cur[k] || {};
+      Object.keys(src).forEach(function (key) {
+        if (k === 'trans') {
+          // 译文按段合并：后加载的文件只补空位（null / undefined / 空串）
+          var dst = cur[k][key];
+          var incoming = src[key] || [];
+          if (!dst) { cur[k][key] = incoming.slice(); return; }
+          incoming.forEach(function (v, i) {
+            if (isFilled(v) && !isFilled(dst[i])) dst[i] = v;
+          });
+        } else if (cur[k][key] === undefined) {
+          cur[k][key] = src[key];
+        }
+      });
+    });
+  }
+  (function absorbNotes() {
+    var parts = window.MCNS_NOTES_PARTS || [];
+    parts.forEach(function (entry) {
+      Object.keys(entry).forEach(function (pid) { mergeNotes(pid, entry[pid]); });
+    });
+    // 兼容：直接覆盖 MCNS_NOTES（旧写法）
+    var direct = window.MCNS_NOTES || {};
+    Object.keys(direct).forEach(function (pid) { mergeNotes(pid, direct[pid]); });
+  })();
 
   var $ = function (id) { return document.getElementById(id); };
   var paperList = $('paperList'), secList = $('secList'), paperHead = $('paperHead'),
@@ -418,10 +469,19 @@
       var pnote = (note.paras || {})[(b.title || '') + '#' + i];
       state.pairs[pid] = true;
 
+      // 有些原文段落是空的或只有一个标点（结构化全文里的排版残留），
+      // 这类段落无须翻译，也不该显示「译文待补」
+      var trivial = op.replace(/<[^>]+>/g, '').trim().length <= 3;
+
       o += '<div class="pair" id="' + pid + '"><p class="orig-p">' + inline(op) + '</p></div>';
       t += '<div class="pair" id="' + pid + '-t">';
-      if (tp) t += '<p class="trans-p">' + inline(tp) + '</p>';
-      else t += '<p class="missing">本节译文待补（原文见左侧第 ' + (i + 1) + ' 段）</p>';
+      if (tp) {
+        t += '<p class="trans-p">' + inline(tp) + '</p>';
+      } else if (trivial) {
+        t += '<p class="missing">（原文此处为空段，无需翻译）</p>';
+      } else {
+        t += '<p class="missing">本节译文待补（原文见左侧第 ' + (i + 1) + ' 段）</p>';
+      }
       if (pnote) t += annoHtml(pnote);
       t += '</div>';
     }
