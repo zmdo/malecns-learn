@@ -24,7 +24,16 @@
   pre{background:#0b1424; border:1px solid #223052; border-radius:12px; padding:16px 18px;
     overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.72;
     color:#c7d7ee; margin:16px 0}
-  pre .c{color:var(--dim)} pre .s{color:var(--green)} pre .k{color:var(--pink)} pre .n{color:var(--amber)}
+  /* 代码块与「公式 / 图谱」块共用同一套着色词汇。
+     ⚠️ 这些类必须限定在 pre / .formula 之内 —— 否则 .n / .s 会污染
+        目录编号 <span class="n">00</span> 和表格单元格 <td class="n">。
+     注意不要把 .c 写成 .formula .c：那会前缀匹配到 .cmt，把注释也一起改色。 */
+  pre .c,   .formula .cmt {color:var(--dim)}
+  pre .s,   .formula .s   {color:var(--green)}
+  pre .k,   .formula .k   {color:var(--pink)}
+  pre .n,   .formula .n   {color:var(--amber)}
+  pre .bl,  .formula .bl  {color:var(--blue)}
+  pre .hl,  .formula .hl  {color:var(--amber); font-weight:600}
 
   .wrap{display:flex; max-width:1500px; margin:0 auto; align-items:flex-start}
   nav.toc{position:sticky; top:56px; flex:0 0 268px; height:calc(100vh - 56px); overflow-y:auto;
@@ -120,7 +129,8 @@
   .stat.r .v{color:var(--red)} .stat.v2 .v{color:var(--violet)}
 
   .formula{background:#0b1424; border:1px solid #223052; border-radius:12px; padding:18px 20px;
-    font-family:var(--mono); font-size:14px; color:#cfe4ff; margin:18px 0; overflow-x:auto; line-height:2}
+    font-family:var(--mono); font-size:13px; color:#cfe4ff; margin:18px 0; overflow-x:auto;
+    line-height:1.95; white-space:pre}
   .formula .cmt{color:var(--dim)}
 
   .check{background:var(--panel); border:1px solid var(--line); border-radius:14px;
@@ -354,8 +364,8 @@ ORDER BY w DESC LIMIT 20
 
 <span class="cmt">// 句式四：按超类汇总输出（判断它主要连去哪一区）</span>
 MATCH (n:Neuron {bodyId: <span class="n">11074</span>})-[r:ConnectsTo]-&gt;(m:Neuron)
-RETURN m.superclass, count(DISTINCT m) AS 目标数, sum(r.weight) AS 总权重
-ORDER BY 总权重 DESC
+RETURN m.superclass, count(DISTINCT m) AS targets, sum(r.weight) AS total
+ORDER BY total DESC
   </div>
   <p>
     句式四是本页用得最多的一招：<strong>当你想知道"这个神经元把信息送到哪个脑区"时，
@@ -403,9 +413,11 @@ RETURN m.type, r.weight ORDER BY r.weight DESC LIMIT 5
   </p>
 
   <pre><span class="c"># 任意 shell 都能跑；不需要 token</span>
+Q=<span class="s">"MATCH (n:Neuron) WHERE n.type = 'DNg13' RETURN n.bodyId, n.consensusNt"</span>
+
 curl -s -X POST <span class="s">'https://neuprint.janelia.org/api/custom/custom'</span> \
   -H <span class="s">'Content-Type: application/json'</span> \
-  -d <span class="s">'{"cypher":"MATCH (n:Neuron) WHERE n.type = '\''DNg13'\'' RETURN n.bodyId, n.instance, n.consensusNt","dataset":"male-cns:v1.0"}'</span></pre>
+  -d <span class="s">"{\"cypher\": \"$Q\", \"dataset\": \"male-cns:v1.0\"}"</span></pre>
 
   <p>用 Python 更顺手（标准库就够，不用装 <code>neuprint-python</code>）：</p>
 
@@ -572,19 +584,24 @@ d = cypher(<span class="s">"""MATCH (a:Neuron {type:'R1-R6'})-[r:ConnectsTo]->(b
 
   <div class="box danger">
     <div class="h">🎯 先说结论：中间那串"…"是什么</div>
-    <div class="formula">
-<span class="cmt"># 视觉 → 运动，实测链条</span>
-R1–R6 光感受器
-  → <span class="bl">L1 / L2</span>            板层单极细胞        <span class="cmt"># w≈10 万</span>
-  → <span class="bl">Tm1 / Tm2 / Tm4</span>     髓质内在神经元      <span class="cmt"># w≈20 万</span>
-  → <span class="bl">T4 / T5</span>             方向选择细胞        <span class="cmt"># 编码四个方向的运动</span>
-  → <span class="bl">LPi34 / LPi21 / VS</span>   小叶板切向细胞      <span class="cmt"># w≈9 万</span>
-  → <span class="hl">LoVP90b / LC19 / LT51</span> 视觉投射神经元      <span class="cmt"># 进入中央脑</span>
-  → <span class="hl">DNg13</span>              下行神经元          <span class="cmt"># bodyId 11074(L) / 512006(R)</span>
-  → VNC 运动神经元（Tergopleural/Pleural promotor MN）
+    <p>视觉 → 运动，实测链条（每一跳都可在 neuPrint 复现）：</p>
+    <div class="tw" style="margin:14px 0 0">
+      <table>
+        <thead><tr><th>#</th><th>细胞类型</th><th>所在层级</th><th>这一步的权重</th></tr></thead>
+        <tbody>
+          <tr><td>起点</td><td class="n">R1–R6</td><td>光感受器 · 板层 LA</td><td>—</td></tr>
+          <tr><td>1</td><td class="n">L1 / L2</td><td>板层单极细胞 · 髓质 ME</td><td class="y">103,405 / 107,646</td></tr>
+          <tr><td>2</td><td class="n">Tm1 / Tm2 / Tm4</td><td>髓质内在神经元</td><td class="y">205,428 / 221,186 / 162,989</td></tr>
+          <tr><td>3</td><td class="n">T4 / T5</td><td>方向选择细胞 · 小叶板 LOP</td><td class="y">Tm2→T5a–d 各 5.2–6.2 万</td></tr>
+          <tr><td>4</td><td class="n">LPi34 / LPi21 / VS</td><td>小叶板切向细胞（LPTC）</td><td class="y">T5c→LPi34 92,944</td></tr>
+          <tr><td>5</td><td class="n">LoVP90b / LC19 / LT51</td><td>视觉投射神经元 · 进入中央脑</td><td class="y">LoVP90b→DNg13 27</td></tr>
+          <tr><td>6</td><td class="n">DNg13</td><td>下行神经元 · 侧副叶 LAL</td><td class="y">bodyId 11074(L) / 512006(R)</td></tr>
+          <tr><td>终点</td><td class="n">VNC 运动神经元</td><td>Tergopleural/Pleural promotor MN</td><td class="y">60</td></tr>
+        </tbody>
+      </table>
     </div>
-    <p style="margin-bottom:0">
-      前四跳是<strong>实测直连</strong>；标记为黄色的「LPTC → LoVP90b」一跳是
+    <p style="margin:14px 0 0">
+      前四跳是<strong>实测直连</strong>；第 5 跳（LPTC → LoVP90b）是
       <strong>基于强连接的推断</strong>（两者都强连到 DNg13 的输入区 LAL，但我没有实测到
       LPi34→LoVP90b 的直接边）。这一点在阶段 3 可以自己用代码验证。
     </p>
@@ -904,14 +921,19 @@ RETURN m.type, m.instance, r.weight ORDER BY r.weight DESC LIMIT 6</pre>
 
   <div class="box danger">
     <div class="h">🎯 结论：这条链在 MaleCNS 里找得到</div>
-    <div class="formula">
-<span class="cmt"># 糖味觉 → 摄食，实测链条</span>
-<span class="hl">BM_Taste</span> 糖味觉感觉神经元      <span class="cmt"># cb_sensory，投射到颚神经毡</span>
-  → <span class="bl">GNG015 / GNG178</span>       颚神经毡局部中间神经元  <span class="cmt"># w=1,376</span>
-  → <span class="bl">GNG654</span>               感觉中继（可直达 MN9）  <span class="cmt"># w=153</span>
-  → <span class="hl">MN9</span>                  喙肌运动神经元          <span class="cmt"># MN9_L / MN9_R</span>
+    <p>糖味觉 → 摄食，实测链条：</p>
+    <div class="tw" style="margin:14px 0 0">
+      <table>
+        <thead><tr><th>#</th><th>细胞类型</th><th>层级 / 说明</th><th>权重</th></tr></thead>
+        <tbody>
+          <tr><td>起点</td><td class="n">BM_Taste</td><td>糖味觉感觉神经元 · cb_sensory，投射到颚神经毡</td><td>—</td></tr>
+          <tr><td>1</td><td class="n">GNG015 / GNG178</td><td>颚神经毡局部中间神经元 · cb_intrinsic</td><td class="y">1,376</td></tr>
+          <tr><td>2</td><td class="n">GNG654</td><td>感觉中继（可直达 MN9）· cb_sensory</td><td class="y">153</td></tr>
+          <tr><td>终点</td><td class="n">MN9</td><td>喙肌运动神经元 · cb_motor（MN9_L / MN9_R）</td><td class="y">—</td></tr>
+        </tbody>
+      </table>
     </div>
-    <p style="margin-bottom:0">
+    <p style="margin:14px 0 0">
       关键在于<strong>缩写对应关系</strong>：Shiu 2024 说的「SEZ」（食管下区），
       在 MaleCNS 的 <code>type</code> 字段里写成 <strong><code>GNG</code>（颚神经毡）</strong>。
       不知道这个对应，你会在 neuPrint 里搜 SEZ 搜不到东西。

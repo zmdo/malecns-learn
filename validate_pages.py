@@ -96,6 +96,60 @@ def check_svg(path, html):
     return blocks, problems
 
 
+# 只在「代码块/公式块」里使用的语义着色类，必须真正有 CSS 定义。
+# 这类错误很隐蔽：类名写错不会报错，只是那个 span 悄悄变成纯文本。
+COLOR_CLASSES = ["c", "cmt", "s", "k", "n", "bl", "hl", "hl2"]
+
+
+def _display_width(s):
+    """等宽排版下的显示宽度：CJK 全角算 2 列，其余算 1 列。"""
+    import unicodedata
+    return sum(2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1 for ch in s)
+
+
+def check_css_usage(path, html):
+    """校验 CSS 类名的引用与定义，以及等宽块的宽度。"""
+    problems = []
+    notes = []
+    m = re.search(r"<style>([\s\S]*?)</style>", html)
+    if not m:
+        return notes, ["找不到 <style> 块"]
+    css = m.group(1)
+
+    # 1) 语义着色类：在 pre / .formula 里用到就必须有对应定义
+    for blk_name, pat in [("pre", r"<pre[^>]*>([\s\S]*?)</pre>"),
+                          (".formula", r'<div class="formula">([\s\S]*?)</div>')]:
+        used = set()
+        for b in re.findall(pat, html):
+            for cm in re.finditer(r'class="([^"]+)"', b):
+                used.update(cm.group(1).split())
+        for c in sorted(used):
+            if c not in COLOR_CLASSES:
+                continue
+            # 必须是精确的「pre .c」或「.formula .c」规则，不能靠前缀匹配
+            hit = re.search(rf"(^|[\n,])\s*(pre|\.formula)\s+\.{re.escape(c)}\s*[,{{]", css)
+            if hit:
+                notes.append(f"{blk_name} 里的 .{c} 有定义")
+            else:
+                problems.append(f"{blk_name} 里用了 .{c}，但 CSS 没有 pre/.formula 作用域下的定义"
+                                f"（会渲染成无色纯文本）")
+
+    # 2) 等宽块不能过宽（否则要横向滚动，读者会漏掉右半边）
+    LIMIT = 92
+    for kind, pat in [(".formula", r'<div class="formula">([\s\S]*?)</div>'),
+                      ("pre", r"<pre[^>]*>([\s\S]*?)</pre>")]:
+        for i, b in enumerate(re.findall(pat, html), 1):
+            worst = 0
+            for ln in b.split("\n"):
+                vis = re.sub(r"<[^>]+>", "", ln)
+                vis = (vis.replace("&gt;", ">").replace("&lt;", "<")
+                          .replace("&amp;", "&").replace("&nbsp;", " "))
+                worst = max(worst, _display_width(vis))
+            if worst > LIMIT:
+                problems.append(f"{kind} 块 #{i} 最宽 {worst} 列，超过 {LIMIT}（等宽排版会横向溢出）")
+    return notes, problems
+
+
 def check_file(path):
     name = os.path.basename(path)
     html = open(path, encoding="utf-8").read()
@@ -163,6 +217,16 @@ def check_file(path):
             print("  !! " + pr)
         if not problems:
             print("  OK: 每个内联 SVG 都是合法 XML")
+
+    # CSS 类名引用 vs 定义、等宽块宽度
+    notes, cssprobs = check_css_usage(path, html)
+    if cssprobs:
+        ok = False
+        print(f"  !! {len(cssprobs)} 处 CSS 使用问题:")
+        for e in cssprobs:
+            print("     " + e)
+    else:
+        print(f"  OK: 代码块着色类都有定义，等宽块未超宽（{len(notes)} 项检查）")
 
     print(f"  → {'PASS' if ok else 'FAIL'}\n")
     return ok
