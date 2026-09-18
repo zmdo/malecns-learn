@@ -49,7 +49,9 @@
     max-width:1840px; margin:0 auto}
   aside{position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto;
     padding:18px 12px 60px 18px; border-right:1px solid var(--line)}
-  main{min-width:0}
+  /* main 固定为一屏高：正文改为在左右两个 .colbody 内部各自滚动 */
+  main{min-width:0; height:calc(100vh - 56px); display:flex; flex-direction:column;
+    min-height:0; overflow:hidden}
 
   /* ---------- 侧栏：论文列表 + 本章目录 ---------- */
   aside h4{font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim);
@@ -92,21 +94,40 @@
   .toolbar input[type=checkbox]{accent-color:var(--green); width:15px; height:15px}
   .toolbar .sp{flex:1}
   .toolbar .stat{font-family:var(--mono); font-size:11.6px; color:var(--dim)}
+  .tbtn{font:inherit; font-size:12.4px; background:#131c33; border:1px solid var(--line2);
+    color:var(--ink3); border-radius:7px; padding:3px 10px; cursor:pointer}
+  .tbtn:hover{color:var(--ink); border-color:var(--blue)}
 
-  /* ---------- 双栏正文（原文 / 译文） ---------- */
-  .cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0}
-  @media(max-width:1180px){ .cols{grid-template-columns:1fr} }
-  .col{min-width:0; padding:0 0 90px}
+  /* ---------- 双栏正文（原文 / 译文）—— 各自独立滚动 ---------- */
+  /* 中英文同一段的长度差异很大，如果共用整页滚动，越到后面错位越严重。
+     所以左右各给一个滚动区，按「段落配对」做双向同步。 */
+  .cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0;
+    flex:1 1 auto; min-height:0}
+  @media(max-width:1180px){
+    .cols{grid-template-columns:1fr; grid-template-rows:1fr 1fr}
+  }
+  .col{min-width:0; display:flex; flex-direction:column; min-height:0}
   .col + .col{border-left:1px solid var(--line)}
-  .colhead{position:sticky; top:106px; z-index:30; padding:8px 26px;
-    background:rgba(7,11,22,.92); backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11.5px;
-    color:var(--dim); letter-spacing:.06em; text-transform:uppercase}
+  @media(max-width:1180px){ .col + .col{border-left:none; border-top:1px solid var(--line)} }
+  .colhead{flex:0 0 auto; padding:7px 26px;
+    background:#0b1220; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11.5px; color:var(--dim);
+    letter-spacing:.06em; text-transform:uppercase;
+    display:flex; align-items:center; gap:8px}
+  .colhead .sc{font-size:10.5px; color:var(--dim); text-transform:none; letter-spacing:0}
+  /* 真正的滚动容器 */
+  .colbody{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+    scrollbar-width:thin; scrollbar-color:#334155 transparent}
+  .colbody::-webkit-scrollbar{width:11px}
+  .colbody::-webkit-scrollbar-track{background:transparent}
+  .colbody::-webkit-scrollbar-thumb{background:#2a3a55; border-radius:6px;
+    border:2px solid transparent; background-clip:content-box}
+  .colbody::-webkit-scrollbar-thumb:hover{background:#3d5273; background-clip:content-box}
 
   /* 原文纸面 */
-  .orig{padding:22px 26px 30px; font-family:var(--serif);
+  .orig{padding:18px 26px 40px; font-family:var(--serif);
     font-size:15.4px; line-height:1.72; color:var(--ink2)}
-  .trans{padding:22px 26px 30px; font-size:15.6px; line-height:1.86; color:var(--ink2)}
+  .trans{padding:18px 26px 40px; font-size:15.6px; line-height:1.86; color:var(--ink2)}
 
   /* 段落配对：左右同一 id，用于滚动联动高亮 */
   .pair{border-radius:10px; padding:2px 8px; margin:0 -8px 14px; transition:background .18s}
@@ -208,37 +229,41 @@
   <!-- ================= 主区 ================= -->
   <main>
     <div class="paperhead" id="paperHead"></div>
-    <div class="warnbox" id="licenseNote"></div>
-
     <div class="toolbar">
-      <label><input type="checkbox" id="cbSync" checked> 滚动联动高亮</label>
+      <label><input type="checkbox" id="cbSync" checked> 滚动同步</label>
       <label><input type="checkbox" id="cbAnno" checked> 显示标注</label>
       <label><input type="checkbox" id="cbPaper" checked> 译文用纸面配色</label>
       <span class="sp"></span>
+      <button type="button" id="backToHead" class="tbtn">↑ 回到开头</button>
       <span class="stat" id="progStat"></span>
     </div>
 
     <div class="cols">
-      <div class="col">
-        <div class="colhead">原文 · Original（CC-BY 开放获取）</div>
-        <div class="orig" id="origCol"></div>
+      <div class="col" id="colOrig">
+        <div class="colhead">
+          <span>原文 · Original（CC-BY 开放获取）</span>
+          <span class="sp" style="flex:1"></span>
+          <span class="sc" id="scrOrig">0%</span>
+        </div>
+        <div class="colbody" id="origScroll">
+          <div class="orig" id="origCol"></div>
+          <div class="warnbox" id="licenseNote" style="margin:0 26px 30px"></div>
+        </div>
       </div>
-      <div class="col">
-        <div class="colhead">译文 · 中文（本站翻译）</div>
-        <div class="trans" id="transCol"></div>
+      <div class="col" id="colTrans">
+        <div class="colhead">
+          <span>译文 · 中文（本站翻译）</span>
+          <span class="sp" style="flex:1"></span>
+          <span class="sc" id="scrTrans">0%</span>
+        </div>
+        <div class="colbody" id="transScroll">
+          <div class="trans" id="transCol"></div>
+          <div style="padding:0 26px 30px; font-size:12.8px; color:var(--dim)">
+            <p id="footNote" style="margin:0"></p>
+          </div>
+        </div>
       </div>
     </div>
-
-    <footer>
-      <nav class="phaseswitch foot" aria-label="阶段切换">
-        <a href="index.html">总览</a>
-        <a href="phase0.html">阶段 0</a>
-        <a href="phase1.html">阶段 1</a>
-        <span class="on">阶段 2 · 读论文</span>
-        <a href="neuprint.html">执行台</a>
-      </nav>
-      <p id="footNote" style="margin-bottom:0"></p>
-    </footer>
   </main>
 </div>
 
@@ -332,7 +357,10 @@
   var $ = function (id) { return document.getElementById(id); };
   var paperList = $('paperList'), secList = $('secList'), paperHead = $('paperHead'),
       origCol = $('origCol'), transCol = $('transCol'), progStat = $('progStat'),
-      licenseNote = $('licenseNote'), footNote = $('footNote'), barMeta = $('barMeta');
+      licenseNote = $('licenseNote'), footNote = $('footNote'), barMeta = $('barMeta'),
+      /* 左右两个独立滚动容器 */
+      origScroll = $('origScroll'), transScroll = $('transScroll'),
+      scrOrig = $('scrOrig'), scrTrans = $('scrTrans');
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -545,47 +573,150 @@
       '；中文译文与标注为本站学习材料。引用请以原文为准。';
     barMeta.textContent = p.cite;
     render(p);
-    window.scrollTo({ top: 0 });
+    if (origScroll) origScroll.scrollTop = 0;
+    if (transScroll) transScroll.scrollTop = 0;
   }
 
-  /* ---------------- 滚动联动 ---------------- */
-  var syncOn = true, hotId = null;
-  function onScroll() {
-    if (!syncOn) return;
-    // 找原文侧最靠上的可见 pair，同步高亮译文侧同名 id
-    var pairs = origCol.querySelectorAll('.pair');
-    if (!pairs.length) return;
-    var probe = 150;   // 视口上方 150px 处作为判定线
-    var cur = null;
-    for (var i = 0; i < pairs.length; i++) {
-      var r = pairs[i].getBoundingClientRect();
-      if (r.top <= probe) cur = pairs[i]; else break;
+  /* ==================================================================
+     滚动同步
+     —— 左右两栏各自独立滚动。中英文同一段的高度差很大，若按「滚动比例」
+        同步，误差会随文章长度累积，所以这里按「段落配对」对齐：
+        以正在滚动的一侧（leader）为基准，找出它的判定线落在哪一段，
+        再把另一侧对应的那一段对到同一条线上。
+     ================================================================== */
+  var syncOn = true, hotId = null, lockTick = 0;
+
+  /* 段落对：以原文侧元素为基准，两侧同处一个 .colbody 坐标系 */
+  var mapEl = {}, pairIds = [], pairIdx = {};
+  function buildMap() {
+    mapEl = {}; pairIds = []; pairIdx = {};
+    var list = origCol.querySelectorAll('.pair');
+    for (var i = 0; i < list.length; i++) {
+      var id = list[i].id;
+      var a = document.getElementById(id);          // 原文侧
+      var b = document.getElementById(id + '-t');   // 译文侧
+      if (!a || !b) continue;
+      mapEl[id] = { a: a, b: b };
+      pairIdx[id] = pairIds.length;
+      pairIds.push(id);
     }
-    var id = cur ? cur.id : null;
-    if (id === hotId) return;
+  }
+
+  /** 段落/章节相对于滚动容器的 top */
+  function relTop(el, pane) {
+    return el.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop;
+  }
+
+  /** 容器内最靠上、且已越过参考线 r 的配对元素 */
+  function pairAtOrBefore(pane, r) {
+    var lo = 0, hi = pairIds.length - 1, ans = -1;
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1;
+      var m = mapEl[pairIds[mid]][pane === origScroll ? 'a' : 'b'];
+      if (relTop(m, pane) <= r) { ans = mid; lo = mid + 1; } else { hi = mid - 1; }
+    }
+    return ans;
+  }
+
+  /** 章节标题里最靠上、且已越过参考线 r 的那个 */
+  function sectionAtOrBefore(pane, r) {
+    var out = null;
+    for (var i = 0; i < state.sections.length; i++) {
+      var el = document.getElementById(state.sections[i].anchor);
+      if (!el) continue;
+      if (relTop(el, pane) <= r) out = state.sections[i]; else break;
+    }
+    return out;
+  }
+
+  function syncScroll(leader, follower, r) {
+    if (!follower) return;
+    if (!pairIds.length) { follower.scrollTop = 0; return; }
+    var i = pairAtOrBefore(leader, r);
+    var target;
+    if (i < 0) {
+      target = 0;                     // 还停在文章最开头
+    } else {
+      var id = pairIds[i];
+      var inLeader = mapEl[id][leader === origScroll ? 'a' : 'b'];
+      var off = relTop(inLeader, leader) - r;   // 该段在 leader 里的偏移量
+      var inFollower = mapEl[id][follower === origScroll ? 'a' : 'b'];
+      target = relTop(inFollower, follower) - off;
+    }
+    // 夹到合法范围
+    var max = follower.scrollHeight - follower.clientHeight;
+    target = Math.max(0, Math.min(target, max < 0 ? 0 : max));
+
+    if (Math.abs(follower.scrollTop - target) < 1) return;
+    lockTick++;                        // 让随后的 scroll 事件不再反向驱动
+    follower.scrollTop = target;
+  }
+
+  function updateHot(pane) {
+    var probe = 90;
+    var i = pairAtOrBefore(pane, pane.scrollTop + probe);
+    var id = i >= 0 ? pairIds[i] : null;
+    if (id === hotId) { updateToc(pane); return; }
     hotId = id;
     Array.prototype.forEach.call(document.querySelectorAll('.pair.hot'),
       function (el) { el.classList.remove('hot'); });
     if (id) {
-      var a = document.getElementById(id), b = document.getElementById(id + '-t');
-      if (a) a.classList.add('hot');
-      if (b) b.classList.add('hot');
+      if (mapEl[id].a) mapEl[id].a.classList.add('hot');
+      if (mapEl[id].b) mapEl[id].b.classList.add('hot');
     }
-    // 目录高亮
-    var secs = state.sections.slice();
-    var active = null;
-    secs.forEach(function (s) {
-      var el = document.getElementById(s.anchor);
-      if (el && el.getBoundingClientRect().top <= 220) active = s;
-    });
-    Array.prototype.forEach.call(secList.querySelectorAll('a'),
-      function (a) { a.classList.toggle('on', active && a.getAttribute('href') === '#' + active.anchor); });
+    updateToc(pane);
   }
-  var raf = null;
-  window.addEventListener('scroll', function () {
-    if (raf) return;
-    raf = requestAnimationFrame(function () { raf = null; onScroll(); });
-  }, { passive: true });
+
+  function updateToc(pane) {
+    var active = sectionAtOrBefore(pane, pane.scrollTop + 90);
+    Array.prototype.forEach.call(secList.querySelectorAll('a'), function (a) {
+      a.classList.toggle('on', !!active && a.getAttribute('href') === '#' + active.anchor);
+    });
+  }
+
+  function pct(pane) {
+    var max = pane.scrollHeight - pane.clientHeight;
+    return max > 0 ? Math.round(pane.scrollTop / max * 100) : 0;
+  }
+  function updatePct(which) {
+    if (which !== 'trans' && scrOrig) scrOrig.textContent = pct(origScroll) + '%';
+    if (which !== 'orig' && scrTrans) scrTrans.textContent = pct(transScroll) + '%';
+  }
+
+  /** 把某一栏滚到指定锚点（目录点击用） */
+  function scrollToAnchor(anchor, which) {
+    var el = document.getElementById(anchor);
+    if (!el) return;
+    var pane = which === 'trans' ? transScroll : origScroll;
+    var other = pane === origScroll ? transScroll : origScroll;
+    var top = Math.max(0, relTop(el, pane));
+    pane.scrollTop = top;
+    syncScroll(pane, other, top);
+    lockTick++;
+    updateHot(pane);
+    updatePct();
+  }
+
+  function makeScrollHandler(self, other) {
+    return function () {
+      if (lockTick > 0) { lockTick--; return; }
+      if (syncOn) syncScroll(self, other, self.scrollTop);
+      updateHot(self);
+      updatePct();          // 由发起方统一刷新两侧，避免被同步的那侧因锁跳过更新
+    };
+  }
+
+  if (origScroll) origScroll.addEventListener('scroll',
+    makeScrollHandler(origScroll, transScroll), { passive: true });
+  if (transScroll) transScroll.addEventListener('scroll',
+    makeScrollHandler(transScroll, origScroll), { passive: true });
+
+  // 窗口尺寸变化后段落位置全变，需要重建映射
+  var rzT = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(rzT);
+    rzT = setTimeout(function () { buildMap(); }, 180);
+  });
 
   /* ---------------- 控件 ---------------- */
   paperList.addEventListener('click', function (e) {
@@ -597,13 +728,37 @@
     if (!syncOn) {
       Array.prototype.forEach.call(document.querySelectorAll('.pair.hot'),
         function (el) { el.classList.remove('hot'); });
-    } else { onScroll(); }
+    } else if (origScroll) {
+      syncScroll(origScroll, transScroll, origScroll.scrollTop);
+    }
   });
   $('cbAnno').addEventListener('change', function () {
     document.body.classList.toggle('hideanno', !this.checked);
+    // 标注显隐会改变译文栏长度，映射需要重建
+    buildMap();
   });
   $('cbPaper').addEventListener('change', function () {
     document.body.classList.toggle('paper', this.checked);
+  });
+  // 目录点击：滚到对应章节（两栏一起）
+  secList.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a') : null;
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (href.charAt(0) !== '#') return;
+    e.preventDefault();
+    scrollToAnchor(href.slice(1), 'orig');
+  });
+  var backBtn = $('backToHead');
+  if (backBtn) backBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (origScroll) origScroll.scrollTop = 0;
+    if (transScroll) transScroll.scrollTop = 0;
+    lockTick++;
+    hotId = null;
+    Array.prototype.forEach.call(document.querySelectorAll('.pair.hot'),
+      function (el) { el.classList.remove('hot'); });
+    updatePct();
   });
 
   /* ---------------- 启动 ---------------- */
@@ -611,13 +766,27 @@
   renderPaperList();
   var first = PAPERS.filter(function (p) { return RD[p.id]; })[0] || PAPERS[0];
   select(first.id);
+  buildMap();
+  updatePct();
 
   window.__rd = {
     papers: PAPERS, state: state,
     select: select, render: render,
     getAnnoCount: function () { return document.querySelectorAll('.anno').length; },
     getPairCount: function () { return document.querySelectorAll('.pair').length; },
-    hasData: function (id) { return !!RD[id]; }
+    hasData: function (id) { return !!RD[id]; },
+    /* 供测试使用 */
+    buildMap: buildMap,
+    pairCount: function () { return pairIds.length; },
+    scrollToAnchor: scrollToAnchor,
+    syncFrom: function (which) {
+      var self = which === 'trans' ? transScroll : origScroll;
+      var other = which === 'trans' ? origScroll : transScroll;
+      syncScroll(self, other, self.scrollTop);
+      updateHot(self);
+      updatePct(which);
+    },
+    hot: function () { return hotId; }
   };
 })();
 </script>

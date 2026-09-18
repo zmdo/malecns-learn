@@ -259,6 +259,7 @@ python tools/decimate_meshes.py --preset low --scale 0.5
 ```bash
 python validate_pages.py           # 五个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
 node tools/test-reader.js          # 阶段 2 阅读器：假 DOM 跑完整渲染链路（45 项）
+node tools/test-reader-scroll.js   # 阶段 2 左右滚动同步：虚拟布局 + 段落配对（29 项）
 node tools/verify-coverage.js      # 阶段 2 译文覆盖率核对（应为 216/216）
 node tools/test-neuprint-console.js  # 执行台：假 DOM + 假 fetch（83 项）
 node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
