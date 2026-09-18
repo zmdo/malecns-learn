@@ -22,6 +22,17 @@
    "paras": 98,
    "figs": 9,
    "chars": 74255
+  },
+  "berg": {
+   "title": "Sexual dimorphism in the complete connectome of the Drosophila male central nervous system",
+   "cite": "Berg et al. — bioRxiv 预印本 v2 (2025-10-30)；正式版 Cell 189(18):5504–5526.e15 (2026)",
+   "doi": "10.1101/2025.10.09.680999",
+   "pmcid": "biorxiv:2025.10.09.680999",
+   "license": "CC-BY 4.0（预印本）",
+   "blocks": 5,
+   "paras": 201,
+   "figs": 9,
+   "chars": 163440
   }
  }
 }

@@ -66,7 +66,9 @@ for (const pid of Object.keys(PAPERS)) {
     let f = 0;
     const miss = [];
     for (let i = 0; i < paras.length; i++) {
-      if (isFilled(arr[i])) f++;
+      // 与页面一致：原文是空段/仅标点的排版残留，不要求翻译
+      const trivial = String(paras[i]).replace(/<[^>]+>/g, '').trim().length <= 3;
+      if (isFilled(arr[i]) || trivial) { f++; }
       else { miss.push(`p${i}`); gaps++; }
     }
     d += f; t += paras.length - f;

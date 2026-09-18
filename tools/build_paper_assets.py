@@ -18,7 +18,7 @@ DST = os.path.join(ROOT, "assets", "papers")
 
 def main():
     os.makedirs(DST, exist_ok=True)
-    names = sys.argv[1:] or ["dorkenwald", "shiu"]
+    names = sys.argv[1:] or ["dorkenwald", "shiu", "berg"]
     for name in names:
         p = os.path.join(SRC, name + ".sections.json")
         if not os.path.isfile(p):

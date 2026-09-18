@@ -171,7 +171,11 @@ for (const p of RD.papers) {
 
 /* ---------------- 渲染 ---------------- */
 section('2. 当前论文的正文渲染');
+// 默认论文可能变（例如新接入一篇尚未翻译的），这里显式选一篇已有完整译文的，
+// 否则「译文栏有标注」「插图用 CDN」这类断言会因选到别的论文而误报。
+RD.select('dorkenwald');
 const st = RD.state;
+ok(st.id === 'dorkenwald', `无法切到 dorkenwald，当前是 ${st.id}`);
 ok(!!st.id, '未选中任何论文');
 info(`当前论文: ${st.id}`);
 const oP = pairsIn(els.origCol.innerHTML), tP = pairsIn(els.transCol.innerHTML);
@@ -180,8 +184,9 @@ ok(oP === tP, `原文 ${oP} 段 / 译文 ${tP} 段，两侧应一一对应`);
 info(`段落配对 ${oP} 对`);
 ok(figsIn(els.origCol.innerHTML) > 0, '原文栏没有渲染插图');
 info(`插图 ${figsIn(els.origCol.innerHTML)} 张`);
-ok(/<img[^>]+src="https:\/\/cdn\.ncbi\.nlm\.nih\.gov/.test(els.origCol.innerHTML),
-  '插图未使用可用的 CDN 地址');
+// 插图地址允许两种：Europe PMC 的 CDN，或本地化的 assets/papers/berg/
+const IMG_OK = /src="(https:\/\/cdn\.ncbi\.nlm\.nih\.gov|assets\/papers\/berg\/)/;
+ok(IMG_OK.test(els.origCol.innerHTML), '插图未使用可用的地址（CDN 或本地）');
 ok(/<figure/.test(els.origCol.innerHTML), '插图未用 figure 包裹');
 ok(/figcaption/.test(els.origCol.innerHTML), '插图缺少图注');
 
@@ -226,8 +231,7 @@ ok(new RegExp(other.cite.split(',')[0]).test(els.paperHead.innerHTML),
 ok((els.paperList.innerHTML.match(/class="pitem on"/g) || []).length === 1,
   '侧栏应恰好有一个选中项');
 ok(pairsIn(els.origCol.innerHTML) > 0, '切换后原文栏为空');
-ok(/src="https:\/\/cdn\.ncbi\.nlm\.nih\.gov/.test(els.origCol.innerHTML),
-  '切换后插图地址不对');
+ok(IMG_OK.test(els.origCol.innerHTML), '切换后插图地址不对');
 
 section('8. 未知论文不应崩溃');
 const before = els.origCol.innerHTML;

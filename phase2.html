@@ -267,10 +267,12 @@
   </main>
 </div>
 
-<!-- 论文结构化正文（由 tools/extract_papers.py 生成） -->
+<!-- 论文结构化正文（由 tools/extract_papers.py / extract_berg.py 生成） -->
+<script src="assets/papers/berg.js"></script>
 <script src="assets/papers/dorkenwald.js"></script>
 <script src="assets/papers/shiu.js"></script>
 <!-- 译文与标注（人工撰写，按论文/章节分文件；加载顺序无所谓，会自动合并） -->
+<script src="assets/papers/notes-berg.js"></script>
 <script src="assets/papers/notes-dorkenwald.js"></script>
 <script src="assets/papers/notes-dorkenwald-b.js"></script>
 <script src="assets/papers/notes-dorkenwald-c.js"></script>
@@ -299,14 +301,22 @@
   'use strict';
 
   var PAPERS = [
-    { id:'dorkenwald', tag:'主论文 · FAFB', no:'01', oa:true,
+    { id:'berg', tag:'主论文 · MaleCNS', no:'01', oa:true, preprint:true,
+      title:'Sexual dimorphism in the complete connectome of the Drosophila male central nervous system',
+      titleZh:'雄性果蝇完整中枢神经系统连接组的性别二态性',
+      cite:'Berg et al. — bioRxiv 预印本 v2（2025-10-30）',
+      citePublished:'正式版：Berg et al. 2026, Cell 189(18):5504–5526.e15',
+      doi:'10.1101/2025.10.09.680999', pmcid:'bioRxiv 2025.10.09.680999',
+      why:'MaleCNS 的主论文。整套学习材料讲的就是这个数据集，所以这是最该先读的一篇。',
+      pdf:'https://www.biorxiv.org/content/biorxiv/early/2025/10/30/2025.10.09.680999.full.pdf' },
+    { id:'dorkenwald', tag:'背景 · FAFB', no:'02', oa:true,
       title:'Neuronal wiring diagram of an adult brain',
       titleZh:'成年果蝇全脑神经元接线图',
       cite:'Dorkenwald et al. 2024, Nature 634:124–138',
       doi:'10.1038/s41586-024-07558-y', pmcid:'PMC11446842',
       why:'建立「连接组长什么样」的直觉；也是 ≥5 突触阈值与 proofreading 工作量的原始出处。',
       pdf:'https://europepmc.org/articles/PMC11446842?pdf=render' },
-    { id:'shiu', tag:'仿真基础', no:'02', oa:true,
+    { id:'shiu', tag:'背景 · 仿真', no:'03', oa:true,
       title:'A Drosophila computational brain model reveals sensorimotor processing',
       titleZh:'果蝇计算脑模型揭示感觉运动处理',
       cite:'Shiu et al. 2024, Nature 634:210–219',
@@ -553,22 +563,36 @@
     var oa = p.oa;
     paperHead.innerHTML =
       '<h1>' + esc(p.title) + '</h1>' +
-      '<p class="cite">' + esc(p.cite) + '　·　DOI ' + esc(p.doi) +
-        '　·　' + esc(p.pmcid) + '</p>' +
+      '<p class="cite">' + esc(p.cite) +
+        (p.citePublished ? '<br><span style="color:var(--amber)">' + esc(p.citePublished) + '</span>' : '') +
+        '　·　DOI ' + esc(p.doi) + '　·　' + esc(p.pmcid) + '</p>' +
       '<p class="meta2">' + esc(p.why) + '</p>' +
       '<div class="acts">' +
         '<a class="btn pri" target="_blank" rel="noopener" href="' + esc(p.pdf) +
           '">↗ 打开原文 PDF</a>' +
-        (p.oa ? '<a class="btn" target="_blank" rel="noopener" href="https://europepmc.org/articles/' +
+        (p.oa && !p.preprint ? '<a class="btn" target="_blank" rel="noopener" href="https://europepmc.org/articles/' +
           esc(p.pmcid) + '">↗ 出版方在线原文</a>' : '') +
         '<a class="btn" target="_blank" rel="noopener" href="https://doi.org/' + esc(p.doi) +
           '">↗ DOI</a>' +
       '</div>';
-    licenseNote.innerHTML = oa
-      ? '<p><b>许可：CC-BY 4.0</b> —— 这篇是开放获取论文，原文可合法转载与翻译。' +
-        '左侧正文来自 Europe PMC 的 JATS 结构化全文，段落顺序与原文一致。</p>'
-      : '<p><b>注意：订阅制论文</b> —— 本站不转载受版权保护的正文，' +
-        '只提供官方链接与你自己的阅读笔记。</p>';
+    // 预印本要明确提示：正文来自预印本，数字与正式版不同
+    licenseNote.innerHTML = p.preprint
+      ? '<p><b>⚠️ 本文正文来自 bioRxiv 预印本，不是 Cell 正式版</b></p>' +
+        '<p>选择它的原因：Cell 正式版（2026-09）是<b>订阅制</b>，不能转载；' +
+        '而 bioRxiv 预印本 <code>' + esc(p.doi) + '</code> 明确为 <b>CC-BY 4.0</b>，可以合法转载与翻译。</p>' +
+        '<p><b>两版的数字有差异，引用请以正式版为准：</b><br>' +
+        '· 神经元总数：预印本 <b>166,691</b> · 正式版 <b>166,700</b><br>' +
+        '· 细胞类型数：预印本 <b>11,691</b> · 正式版 <b>11,710</b><br>' +
+        '· 同型 / 二态 / 雄性特异 / 雌性特异：预印本 <b>7,205 / 114 / 262 / 69</b> · ' +
+        '正式版 <b>8,069 / 138 / 289 / 71</b></p>' +
+        '<p style="margin-bottom:0">本页译文会<b>照译原文出现的数字</b>（即预印本的），' +
+        '并在关键处标注正式版的对应值。阶段 0 的<a href="phase0.html#sources">「本页相对指南的修正」</a>' +
+        '一节记录了这套差异的完整清单。</p>'
+      : (oa
+        ? '<p><b>许可：CC-BY 4.0</b> —— 这篇是开放获取论文，原文可合法转载与翻译。' +
+          '左侧正文来自 Europe PMC 的 JATS 结构化全文，段落顺序与原文一致。</p>'
+        : '<p><b>注意：订阅制论文</b> —— 本站不转载受版权保护的正文，' +
+          '只提供官方链接与你自己的阅读笔记。</p>');
     footNote.textContent = '原文 © 作者／期刊，' + (oa ? '按 CC-BY 4.0 许可转载' : '受版权保护') +
       '；中文译文与标注为本站学习材料。引用请以原文为准。';
     barMeta.textContent = p.cite;
