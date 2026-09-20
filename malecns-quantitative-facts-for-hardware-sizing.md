@@ -23,22 +23,25 @@
 |---|---|---|
 | 神经元数（预印本） | **166,691** | 【预印本】`berg.js` 摘要："This contains 166,691 neurons spanning the brain and nerve cord… and 11,691 types" |
 | 神经元数（正式发表 + Codex） | **166,700** | `malecns-factcheck-2026-09-17.md:35`；URL <https://pubmed.ncbi.nlm.nih.gov/42691995/>、<https://male-cns.janelia.org/media/> |
-| **图定义（关键引句）** | 「The neuron segmentation and synaptic connections jointly define a connectome graph containing **25.6M edges between 166,391 neurons**.」 | 【预印本】`berg.js` Results（第 20 段）。注意：**166,391 是有 superclass 的神经元**，比 166,691 少 300 |
+| **图定义（关键引句）** | 「The neuron segmentation and synaptic connections jointly define a connectome graph containing **25.6M edges between 166,391 neurons**.」 | 【预印本】`berg.js` Results（第 20 段）。注意：**166,391 是有 superclass 的神经元**，比 166,691 少 300。**v1.0 同一过滤是 166,700**（2026-09-20 实测坐实），所以 166,391 属预印本/v0.9 快照 |
 | 边数（未阈值，官方作者计数 notebook v0.9） | **25,563,426** | `malecns-factcheck-2026-09-17.md:37`；`phase0.html:873`；URL <https://raw.githubusercontent.com/flyconnectome/2025malecns/main/supplemental_data/quantify-neuron-connections.ipynb> |
 | 边数（≥5 突触阈值，同 notebook） | **6,237,402** | 同上（`phase0.html:874`） |
 | 连接数（Codex MCNS v1.0 界面，默认 5+） | **6,242,118** | `malecns-factcheck-2026-09-17.md:37,48`；URL <https://codex.flywire.ai/api/download?dataset=fafb> |
-| 「25,582,938」这个整数 | **无法坐实（待核实）** | `phase0.html:929-930`：「25,582,938 这个整数无法坐实，引用时请改用官方 notebook 的 25,563,426（未阈值）或 6,237,402（≥5 突触）」 |
+| 「25,582,938」这个整数 | **已坐实（2026-09-20）** | 官方 v1.0 flat-connectome（MD5 与官方 bucket 清单一致）按「两端都是有 `superclass` 的神经元」过滤，实测正好 **25,582,938 条边 / 124,177,617 个突触 / 166,700 个神经元**。同一子图 ≥5 突触阈值 = **6,242,118** 条边。复核脚本 `tools/verify_feather.py`。notebook 的 25,563,426 属 **v0.9** 口径 |
 | 社区 Traced 子图 | 165,122 神经元 / 25,563,197 边 | `malecns-factcheck-2026-09-17.md:36,49`；URL <https://github.com/Ibtisam-Mohammad/Fly.exe> |
 | 突触前位点（presynapse）总数 | **46 million** presynapses | 【预印本】`berg.js` Results："46 million presynapses connected to 312 million PSDs were automatically detected with an average precision/recall of 0.82/0.81" |
 | 突触后密度（PSD）总数 | **312 million** PSDs | 同上 |
-| 「突触接触点」口径 | 124,177,617（整数待核实）；官方新闻 **124.2 million synapses** | `phase0.html:531-534`；URL <https://www.science.org/content/article/new-connectome-shows-all-124-million-contact-points-fruit-fly-s-nervous-system> |
+| 「突触接触点」口径 | **124,177,617（已坐实）**；官方新闻 **124.2 million synapses** | 2026-09-20 用官方 v1.0 flat-connectome 神经元子图实测正好 124,177,617，与新闻口径一致 |
 | 细胞类型数 | 11,691（预印本）/ **11,710**（正式版） | `malecns-factcheck-2026-09-17.md:146-147` |
 | 成像体积 | **160 teravoxels**，8×8×8 nm 各向同性，**0.082 mm³** | 【预印本】`berg.js` Results："an image volume of 160 teravoxels at 8×8×8 nm isotropic resolution (0.082 mm3 total volume)" |
 | 类型级图 | **8,258 节点**（细胞类型），**3.74M 边**（类型间突触连接数加权） | 【预印本】`berg.js` Results："8,258 nodes represent cell types … while 3.74M edges are defined by the number of synaptic connections between types" |
 
 ### 1.2 派生量（`malecns_scale.py` 实跑输出，输入 N=166,700 / E=25,582,938 / S=124,177,617）
 
-> 脚本本身 `malecns_scale.py:4-8` 把这组输入标为「official measurements (as given in fragment)」。**其中 E 与 S 已被核查标为待核实**，故下列派生值属「量级可用、精度不可引用」。
+> 脚本本身 `malecns_scale.py:4-8` 把这组输入标为「official measurements (as given in fragment)」。
+> **E 与 S 已于 2026-09-20 用官方 v1.0 flat-connectome 坐实**（25,582,938 / 124,177,617），
+> 所以下列派生值现在是**可引用**的，不再是「仅量级示意」。
+> 唯一的例外是第 1.1 节里来自预印本引句的 46M presynapse / 312M PSD —— 那是另一个口径，未经本次复核。
 
 | 派生量 | 值 | 脚本行 |
 |---|---|---|
@@ -57,8 +60,9 @@
 | MaleCNS / FlyWire 接触点比 | 2.27849 | `malecns_scale.py:75` |
 | 每神经元接触点比（MaleCNS / FlyWire） | 1.903365 | `malecns_scale.py:78` |
 
-`phase0.html:555` 另给：「平均每条连接 4.85 个接触点」= 124,177,617 / 25,582,938 —— 页面自己标注「两个输入里有一个待核实，所以 4.85 请当作量级示意」。
-`phase0.html:878` 用未阈值口径给 s̄ ≈ **4.86**，并强调「**s̄ 刚好卡在 5 这个阈值上**」。
+`phase0.html` 另给：「平均每条连接 4.85 个接触点」= 124,177,617 / 25,582,938 = **4.854** ——
+两个输入已于 2026-09-20 坐实，故这个数现在是精确值（不再是量级示意）。
+`s̄ ≈ 4.85` 并强调「**s̄ 刚好卡在 5 这个阈值上**」。
 
 ### 1.3 **未找到（明确标注）**
 
@@ -116,7 +120,7 @@
 | 各数据集默认最小突触数表 | FAFB **5+**、BANC **3+**、MANC **1+**、MAOL **1+**、MCNS **5+** —— `MaleCNS_连接组学基础_中文报告.md:158-165` |
 | **min confidence 作用在突触层，≥5 阈值作用在边层** | `README.md:78` |
 | `minconf-0.5` 里 0.5 的**精确定义官方未逐字给出**（cleft score？pre/post 取 min？）→ 待核实 | `MaleCNS_连接组学基础_中文报告.md:155`（原文标注「待核实」，附录 A 第 5 条 `:564`） |
-| **阈值效果（核心数字）**：25,563,426 → **6,237,402**，即**只剩 24.4 %**；而接触点 ≈1.242 亿 → 仍约 1.2 亿量级，**基本不动** | `phase0.html:914-915`；`phase0.html:558`「未阈值 2,556 万条边降到 624 万条（约剩 1/4），而接触点仍是 1.24 亿量级」 |
+| **阈值效果（核心数字）**：25,582,938 → **6,242,118**，即**只剩 24.4 %**；而接触点 124,177,617 → 仍约 1.24 亿量级，**基本不动**（两个口径均已坐实） | `phase0.html`「官方数字正好印证了这一点」小节；v0.9 notebook 口径为 25,563,426 → 6,237,402，同样是 24.4 % |
 | 为什么选 5：**突触数分布没有任何双峰性可以定阈值**，因此「每条连接 5 个突触」是 **reasonable but arbitrary**（原文引句） | `assets/papers/notes-dorkenwald-h.js:146-148`；Dorkenwald 原文（`assets/papers/dorkenwald.js`）："display any bimodality that could be used to set the threshold. Therefore, the choice of 5 synapses per connection is a reasonable but arbitrary one." |
 | 弱边为何砍：VFB 原文 "**Weak edges (one or two synapses) are the least reliable and are commonly thresholded out.**" | `MaleCNS_连接组学基础_中文报告.md:167`；URL <https://www.virtualflybrain.org/docs/concepts/em-reconstruction/> |
 | VFB 层面的跨数据集连接查询默认阈值也是 **5 synapses** | `MaleCNS_连接组学基础_中文报告.md:168`；URL <https://www.virtualflybrain.org/docs/concepts/em-reconstruction/> |

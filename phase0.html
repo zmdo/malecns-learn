@@ -530,34 +530,56 @@
         </tr>
         <tr>
           <td class="n">124,177,617</td>
-          <td>突触接触点精确整数。官方新闻口径为 <strong>124.2 million synapses</strong> /
+          <td>突触接触点精确整数（<strong>只算两端都是神经元的边</strong>）。
+            官方新闻口径为 <strong>124.2 million synapses</strong> /
             「124 million synaptic connections」</td>
-          <td><span class="verdict v-un">量级确认，整数待核实</span></td>
+          <td><span class="verdict v-ok">已坐实</span></td>
         </tr>
         <tr>
           <td class="n">25,582,938</td>
-          <td>指南所用的「有向连接（去重后）」数。<strong>本次核查未能坐实这个整数。</strong>
-            官方作者计数 notebook（v0.9 口径）：未阈值 <strong>25,563,426</strong> 条边；
-            加 ≥5 突触阈值后 <strong>6,237,402</strong> 条边。<strong>Codex MCNS v1.0 界面显示 6,242,118 connections</strong></td>
-          <td><span class="verdict v-un">待核实</span></td>
+          <td>「有向连接（去重后）」数，与上面同一个口径：<strong>两端都是神经元</strong>
+            （166,700 个有 <code>superclass</code> 的 body）。<br>
+            <span style="color:var(--dim)">2026-09-20 已用官方 v1.0 flat-connectome 文件坐实 —— 见下方说明。</span>
+            官方作者计数 notebook 的 v0.9 口径是未阈值 <strong>25,563,426</strong> 条边；
+            加 ≥5 突触阈值后 <strong>6,242,118</strong> 条边（Codex 界面同值）</td>
+          <td><span class="verdict v-ok">已坐实</span></td>
         </tr>
         <tr>
-          <td class="n">6,237,402 / 6,242,118</td>
-          <td><strong>≥5 突触阈值下</strong>的连接数 —— 这才是你在 neuPrint / Codex 里会看到的量级</td>
-          <td><span class="verdict v-ok">已核实</span></td>
+          <td class="n">6,242,118</td>
+          <td><strong>≥5 突触阈值下</strong>的连接数 —— 这才是你在 neuPrint / Codex 里会看到的量级。
+            v0.9 notebook 口径为 6,237,402，差 4,716（0.08%）</td>
+          <td><span class="verdict v-ok">已坐实</span></td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="box warn">
+  <div class="box good">
+    <div class="h">✅「25,582,938 无法坐实」这条已经解决（2026-09-20）</div>
+    <p>
+      2026-09-17 核查时，这个整数与官方 notebook（v0.9）的 25,563,426 对不上，
+      所以被标成了待核实。现在下载官方 v1.0 的 flat-connectome 文件直接数了一遍
+      （MD5 与官方 bucket 清单一致）：
+    </p>
+    <div class="formula"><span class="cmt"># 官方 v1.0 · connectome-weights-male-cns-v1.0-minconf-0.5.feather</span>
+原始文件（含胶质/气管等非神经元 body）  151,856,684 条边 / 311,833,243 个突触
+只保留两端都是神经元（<span class="hl">166,700</span> 个）         <span class="hl">25,582,938</span> 条边 / <span class="hl">124,177,617</span> 个突触
+同一子图再加 ≥5 突触阈值                        <span class="hl">6,242,118</span> 条边</div>
+    <p style="margin-bottom:0">
+      所以 <strong>两个整数都坐实了</strong>，而且它们的确切含义就是「神经元子图」——
+      notebook 的 25,563,426 是 <strong>v0.9</strong> 版本，不是同一个快照。
+      复现脚本：<code>python tools/verify_feather.py</code>。
+    </p>
+  </div>
+
+  <div class="box">
     <div class="h">📏 这对第 04 节的「4.85」意味着什么</div>
     <p style="margin-bottom:0">
-      第 04 节推出的「平均每条连接 4.85 个接触点」= 124,177,617 / 25,582,938，
-      <strong>两个输入里有一个待核实</strong>，所以 4.85 这个具体数值请当作<strong>量级示意</strong>。
-      但它支撑的<strong>定性结论不受影响</strong>：阈值卡在均值附近 → 砍掉大量弱边，接触点总量几乎不动。
-      这一点已被官方口径独立佐证 —— 未阈值 2,556 万条边降到 <strong>624 万条</strong>（约剩 1/4），
-      而接触点仍是 1.24 亿量级。
+      第 04 节推出的「平均每条连接 4.85 个接触点」= 124,177,617 / 25,582,938 = <strong>4.854</strong>，
+      现在<strong>两个输入都已坐实</strong>，所以这个数不再是量级示意。
+      它支撑的定性结论也不变：阈值卡在均值附近 → 砍掉大量弱边，接触点总量几乎不动
+      （未阈值 2,558 万条边降到 <strong>624 万条</strong>，约剩 <strong>24.4%</strong>，
+      而接触点仍是 1.24 亿量级）。
     </p>
   </div>
 
@@ -864,22 +886,22 @@
     <div class="h">📐 用公式说清楚</div>
     <p>设 <em>c</em><sub>ji</sub> = 从突触前神经元 <em>i</em> 到突触后神经元 <em>j</em> 的接触点数，则：</p>
     <div class="formula">
-<span class="cmt"># 接触点总数（测量值，官方新闻口径 124.2 million synapses）</span>
-S = Σ<sub>i,j</sub> c<sub>ji</sub> ≈ <span class="hl">1.242 × 10⁸</span>
+<span class="cmt"># 接触点总数（2026-09-20 已坐实：官方 v1.0 flat-connectome 神经元子图）</span>
+S = Σ<sub>i,j</sub> c<sub>ji</sub> = <span class="hl">124,177,617</span> ≈ 1.242 × 10⁸
 
-<span class="cmt"># 连接数：c ≥ 1 的神经元对才计一条边</span>
+<span class="cmt"># 连接数：c ≥ 1 的神经元对才计一条边（两端都必须是有 superclass 的神经元）</span>
 E = |{ (i,j) : c<sub>ji</sub> ≥ 1 }|
 
-<span class="cmt"># 官方作者 notebook 给出的两个口径</span>
-E<sub>未阈值</sub>    = <span class="hl">25,563,426</span>
-E<sub>≥5 突触</sub>  = <span class="hl">6,237,402</span>
-              <span class="cmt"># Codex MCNS v1.0 界面显示 6,242,118</span>
+<span class="cmt"># 两个口径（左为 v1.0 文件实测值，注释里是官方作者 notebook 的 v0.9 口径）</span>
+E<sub>未阈值</sub>    = <span class="hl">25,582,938</span>   <span class="cmt"># v0.9 notebook: 25,563,426</span>
+E<sub>≥5 突触</sub>  = <span class="hl">6,242,118</span>   <span class="cmt"># v0.9 notebook: 6,237,402</span>
+              <span class="cmt"># Codex MCNS v1.0 界面显示 6,242,118（同值）</span>
 
 <span class="cmt"># 平均权重（用未阈值口径）</span>
-s̄ = S / E ≈ <span class="bl">4.86</span>   <span class="cmt"># 个接触点 / 条连接</span>
+s̄ = S / E ≈ <span class="bl">4.85</span>   <span class="cmt"># 个接触点 / 条连接</span>
     </div>
     <p style="margin-bottom:0">
-      注意 <strong>s̄ ≈ 4.86 刚好卡在 5 这个阈值上</strong>。
+      注意 <strong>s̄ ≈ 4.85 刚好卡在 5 这个阈值上</strong>。
       这意味着口径 B（≥5 突触）几乎就是一条<strong>均值线</strong>：
       它专门切掉那些 1–4 个接触点的弱边，而弱边对接触点总量的贡献很小。
     </p>
@@ -909,11 +931,11 @@ S − S<sub>≥5</sub> = E·Σ<sub>k=1..4</sub> k·p<sub>k</sub> ≤ 4E
   <div class="box good">
     <div class="h">✅ 官方数字正好印证了这一点</div>
     <p>
-      用官方作者 notebook 的两个口径对比（这是<strong>已核实</strong>的真实数字，不是示意）：
+      用官方 v1.0 文件的两个口径对比（2026-09-20 已坐实的真实数字，不是示意）：
     </p>
     <div class="formula">
-连接数：25,563,426  →  6,237,402       <span class="hl">只剩 24.4%</span>     <span class="cmt"># 大幅下降</span>
-接触点：≈ 1.242 亿   →  仍约 1.2 亿量级   <span class="hl">基本不动</span>      <span class="cmt"># 几乎不变</span>
+连接数：25,582,938  →  6,242,118       <span class="hl">只剩 24.4%</span>     <span class="cmt"># 大幅下降</span>
+接触点：124,177,617 →  仍约 1.24 亿量级  <span class="hl">基本不动</span>      <span class="cmt"># 几乎不变</span>
     </div>
     <p style="margin-bottom:0">
       <strong>约四分之三的连接被阈值砍掉了，但接触点总量几乎没变。</strong>
@@ -927,8 +949,9 @@ S − S<sub>≥5</sub> = E·Σ<sub>k=1..4</sub> k·p<sub>k</sub> ≤ 4E
     <p style="margin-bottom:0">
       看到「MaleCNS 有 2,558 万条连接」时，<strong>永远先问一句：这是哪套口径？</strong>
       密度、平均度、存储量这些派生指标，全部<strong>依赖于阈值口径</strong>。
-      本次核查也确认：<strong>25,582,938 这个整数无法坐实</strong>，
-      引用时请改用官方 notebook 的 25,563,426（未阈值）或 6,237,402（≥5 突触）。
+      2026-09-17 核查时这个整数还与官方 notebook 的 25,563,426 对不上；
+      <strong>2026-09-20 已用官方 v1.0 flat-connectome 文件坐实为 25,582,938</strong> ——
+      差值是 notebook 的 <strong>v0.9</strong> 快照，不是同一个版本。
     </p>
   </div>
 
@@ -1685,7 +1708,7 @@ s = <span class="bl">+1</span>  乙酰胆碱 ACh
       <div class="q">如果只记一个数字纪律，应该是什么？</div>
       <div class="a"><strong>引用任何数字前先问「这是哪个口径」。</strong>
         典型陷阱：166,700（正式发表）vs 166,691（预印本）vs 165,122（社区 Traced 过滤）；
-        连接数 25,563,426（未阈值）vs 6,237,402（≥5 突触）。
+        连接数 25,582,938（未阈值）vs 6,242,118（≥5 突触）。
         另外：<strong>指南里那套 262 / 114 / 4.8% 是预印本口径，正式版是 289 / 138 / 71。</strong></div>
     </div></div>
     <div class="hint">提示：能<strong>不看答案</strong>说出全部 10 条，阶段 0 就算过关。</div>
@@ -1803,13 +1826,16 @@ s = <span class="bl">+1</span>  乙酰胆碱 ACh
         </tr>
         <tr>
           <td>「25,582,938 条有向连接」</td>
-          <td>未能坐实。官方口径：未阈值 <strong>25,563,426</strong>；≥5 突触 <strong>6,237,402</strong></td>
-          <td><span class="verdict v-un">待核实</span></td>
+          <td><strong>已坐实</strong>（2026-09-20）：官方 v1.0 flat-connectome 的神经元子图
+            （166,700 个有 <code>superclass</code> 的 body）实测正好 25,582,938 条边。
+            官方作者 notebook 的 <strong>v0.9</strong> 口径是 25,563,426；≥5 突触为 6,242,118</td>
+          <td><span class="verdict v-ok">已坐实</span></td>
         </tr>
         <tr>
           <td>「124,177,617 个突触接触点」</td>
-          <td>整数待核实；官方新闻为 <strong>124.2 million synapses</strong>（量级确认）</td>
-          <td><span class="verdict v-un">待核实</span></td>
+          <td><strong>已坐实</strong>（2026-09-20）：同一子图实测正好 124,177,617，
+            与官方新闻「124.2 million synapses」一致</td>
+          <td><span class="verdict v-ok">已坐实</span></td>
         </tr>
         <tr>
           <td>FlyWire「~5,450 万突触」</td>
@@ -1818,7 +1844,10 @@ s = <span class="bl">+1</span>  乙酰胆碱 ACh
         </tr>
         <tr>
           <td>「三个 feather 文件，约 1.1 GB」</td>
-          <td><strong>7 个</strong>文件、合计约 <strong>24 GB</strong>；1.1 GB 是 connectome-weights 单文件</td>
+          <td><strong>11 个</strong>文件、合计约 <strong>29 GB</strong>（2026-09-20 按官方 bucket 清单核对）；
+            1.1 GB 是 connectome-weights 单文件。<br>
+            <span style="color:var(--dim)">阶段 3 只需要其中 2 个（约 1.1 GB），
+            用 <code>tools/fetch_flat_connectome.py</code> 下载。</span></td>
           <td><span class="verdict v-fix">修正</span></td>
         </tr>
         <tr>
