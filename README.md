@@ -10,9 +10,10 @@
 | `phase0.html` | **阶段 0 · 打地基** —— 连接组学基本词汇与数量直觉 + **官方网格驱动的交互式 3D 脑区浏览器** |
 | `phase1.html` | **阶段 1 · 在网页里逛** —— 在 neuPrint / Codex 里**亲手走通一条通路**，含逐跳可复现的查询与实测权重 |
 | **`phase2.html`** | **阶段 2 · 读论文** —— 论文阅读器：侧栏切换论文、**左原文右译文**、重点处**标注随滚动高亮** |
+| **`phase3.html`** | **阶段 3 · 拿数据与第一段代码** —— 六段可执行代码（从实测源码切出）+ **离线参考对照表** + 自己填数字的比对工具 |
 | **`neuprint.html`** | **neuPrint 查询执行台** —— 在浏览器里**直接执行 Cypher 取回真实数据**（22 条预设、表头排序、导出 CSV） |
 
-> 五个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1 / 阶段 2 / 执行台），
+> 六个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1 / 阶段 2 / 阶段 3 / 执行台），
 > 页脚也各有一个，方便来回跳。
 
 ---
@@ -26,6 +27,7 @@ index.html           ← 建议从这里开始（总览 + 阶段切换）
 phase0.html          ← 阶段 0：打地基
 phase1.html          ← 阶段 1：在网页里逛
 phase2.html          ← 阶段 2：读论文（原文/译文对照 + 标注）
+phase3.html          ← 阶段 3：拿数据与第一段代码（需 Python）
 neuprint.html        ← neuPrint 查询执行台（需联网）
 ```
 
@@ -106,6 +108,40 @@ assets/papers/
 每个文件都往 `MCNS_NOTES_PARTS` 里推自己的分片，
 页面加载时自动深合并（**后加载只补空位，不覆盖已有内容**），
 所以顺序无关，也可以安全地分批增补。
+
+---
+
+## 阶段 3 · 拿数据与第一段代码
+
+`phase3.html` 教你把阶段 1 用网页查到的数字**用代码重新算一遍**。
+过关标准就是「代码结果与网页查询一致」。
+
+- **六段可执行代码** —— 从 `tools/p3_lib.py` 与 `tools/test_p3.py` 里
+  **切片段嵌入**，不是手抄的（手抄会走样，走样了就没人能复现）
+- **只用 `requests`** 直调匿名只读 API：不需要 token，也不需要 `neuprint-python`
+- **离线参考对照表** —— 15 项实测值固化在页面里，neuPrint 服务器挂了也能读
+- **自己的比对工具** —— 把代码算出来的数填进去，页面自动判对错（按量级设容差）
+- **五个坑** 各配排查方法（字段名 / 口径 / bodyId 稳定性 / 弱边 / 服务器 502）
+
+### 相关文件
+
+| 文件 | 作用 |
+|---|---|
+| `tools/p3_lib.py` | 可执行库：API 客户端、建稀疏矩阵、算度数、通路查询 |
+| `tools/p3_reference.py` | 参考值（值 + 口径 + 查询语句，**缺一不可**） |
+| `tools/test_p3.py` | 对照测试：离线验证矩阵逻辑，在线复现实测值 |
+| `tools/build_phase3.py` | 生成 `phase3.html`（把上面三份源码切成页面代码块） |
+
+```bash
+py -3 tools/build_phase3.py            # 重新生成页面
+py -3 tools/test_p3.py --offline       # 离线对照（不需要联网）
+py -3 tools/test_p3.py                 # 全部（需要 neuPrint 可用）
+```
+
+> **为什么参考值是离线固化的**：写这一页时 neuPrint 出现过一次全线 502。
+> 学习页面不能因为服务器抖动就变成空白，所以页面不依赖实时查询。
+
+---
 
 ### 内容生成流程
 
@@ -298,11 +334,12 @@ python tools/decimate_meshes.py --preset low --scale 0.5
 ## 测试
 
 ```bash
-python validate_pages.py           # 五个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
+python validate_pages.py           # 六个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
 node tools/test-reader.js          # 阶段 2 阅读器：假 DOM 跑完整渲染链路（45 项）
 node tools/test-reader-scroll.js   # 阶段 2 左右滚动同步：虚拟布局 + 段落配对（29 项）
 node tools/verify-coverage.js      # 阶段 2 译文覆盖率核对（应为 216/216）
 node tools/test-neuprint-console.js  # 执行台：假 DOM + 假 fetch（83 项）
+py -3 tools/test_p3.py --offline   # 阶段 3：矩阵逻辑与阈值口径（离线 11 项）
 node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
 node tools/test-3d-official.js     # 官方网格解析·坐标范围·取景·遮挡（204 项）
 node tools/test-3d-boot.js         # 3D 页面接线：启动·事件·坐标系·面板（43 项）

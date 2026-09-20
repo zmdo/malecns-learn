@@ -15,7 +15,8 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # 顶层可导航页面（校验时一并检查其互链）
-TOP_PAGES = {"index.html", "phase0.html", "phase1.html", "phase2.html", "neuprint.html"}
+TOP_PAGES = {"index.html", "phase0.html", "phase1.html", "phase2.html",
+             "phase3.html", "neuprint.html"}
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
         "meta", "param", "source", "track", "wbr"}
 
@@ -138,18 +139,28 @@ def check_css_usage(path, html):
                                 f"（会渲染成无色纯文本）")
 
     # 2) 等宽块不能过宽（否则要横向滚动，读者会漏掉右半边）
+    #    跳过隐藏的数据容器 —— 它们不参与排版（例如 <pre id="refdata" style="display:none">）
     LIMIT = 92
-    for kind, pat in [(".formula", r'<div class="formula">([\s\S]*?)</div>'),
-                      ("pre", r"<pre[^>]*>([\s\S]*?)</pre>")]:
-        for i, b in enumerate(re.findall(pat, html), 1):
-            worst = 0
-            for ln in b.split("\n"):
-                vis = re.sub(r"<[^>]+>", "", ln)
-                vis = (vis.replace("&gt;", ">").replace("&lt;", "<")
-                          .replace("&amp;", "&").replace("&nbsp;", " "))
-                worst = max(worst, _display_width(vis))
-            if worst > LIMIT:
-                problems.append(f"{kind} 块 #{i} 最宽 {worst} 列，超过 {LIMIT}（等宽排版会横向溢出）")
+    VISIBLE = re.compile(
+        r"<(?:pre|div)\b(?![^>]*display\s*:\s*none)(?![^>]*\bhidden\b)[^>]*>([\s\S]*?)"
+        r"</(?:pre|div)>")
+    blocks = []
+    for m in re.finditer(r'<div class="formula">([\s\S]*?)</div>', html):
+        blocks.append((".formula", m.group(1)))
+    for m in re.finditer(r"<pre\b([^>]*)>([\s\S]*?)</pre>", html):
+        attrs, body = m.group(1), m.group(2)
+        if re.search(r"display\s*:\s*none", attrs) or re.search(r"\bhidden\b", attrs):
+            continue          # 隐藏容器不算排版内容
+        blocks.append(("pre", body))
+    for i, (kind, b) in enumerate(blocks, 1):
+        worst = 0
+        for ln in b.split("\n"):
+            vis = re.sub(r"<[^>]+>", "", ln)
+            vis = (vis.replace("&gt;", ">").replace("&lt;", "<")
+                      .replace("&amp;", "&").replace("&nbsp;", " "))
+            worst = max(worst, _display_width(vis))
+        if worst > LIMIT:
+            problems.append(f"{kind} 块 #{i} 最宽 {worst} 列，超过 {LIMIT}（等宽排版会横向溢出）")
 
     # 3) 导航类组件：用到就必须有定义（同样属于「静默失效」那一类问题）
     NAV_CLASSES = ["phaseswitch", "on", "p0", "p1", "foot", "now"]
