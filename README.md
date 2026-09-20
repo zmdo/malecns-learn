@@ -11,10 +11,11 @@
 | `phase1.html` | **阶段 1 · 在网页里逛** —— 在 neuPrint / Codex 里**亲手走通一条通路**，含逐跳可复现的查询与实测权重 |
 | **`phase2.html`** | **阶段 2 · 读论文** —— 论文阅读器：侧栏切换论文、**左原文右译文**、重点处**标注随滚动高亮** |
 | **`phase3.html`** | **阶段 3 · 拿数据与第一段代码** —— 六段可执行代码（从实测源码切出）+ **离线参考对照表** + 自己填数字的比对工具 |
+| **`flybody.html`** | **蝇体 + 大脑具身演示** —— **官方蝇体模型 flybody 接上 MaleCNS**，在 MuJoCo 里跑起来（含对照实验、实测数字、复现步骤） |
 | **`neuprint.html`** | **neuPrint 查询执行台** —— 在浏览器里**直接执行 Cypher 取回真实数据**（22 条预设、表头排序、导出 CSV） |
 
-> 六个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1 / 阶段 2 / 阶段 3 / 执行台），
-> 页脚也各有一个，方便来回跳。
+> 七个页面的**顶栏都有常驻的阶段切换器**（总览 / 阶段 0 / 阶段 1 / 阶段 2 / 阶段 3 / 执行台），
+> 页脚也各有一个，方便来回跳（`flybody.html` 是独立演示页，从总览第 5 张卡进入）。
 
 ---
 
@@ -28,6 +29,7 @@ phase0.html          ← 阶段 0：打地基
 phase1.html          ← 阶段 1：在网页里逛
 phase2.html          ← 阶段 2：读论文（原文/译文对照 + 标注）
 phase3.html          ← 阶段 3：拿数据与第一段代码（需 Python）
+flybody.html         ← 蝇体 + 大脑具身演示（视频已内置，打开即看）
 neuprint.html        ← neuPrint 查询执行台（需联网）
 ```
 
@@ -73,12 +75,13 @@ neuprint.html        ← neuPrint 查询执行台（需联网）
 > **两版数字有差异**（预印本 166,691 神经元 / 11,691 类型；正式版 166,700 / 11,710），
 > 页面顶部给出完整对照表，译文照译原文并标注正式版对应值。
 
-**翻译范围**：两篇论文的**摘要、正文全部章节、全部方法小节**都已逐段翻译，
-含 17 张图的图注。**唯一没译的是投稿元数据**（作者贡献、同行评审信息、
-竞争利益、补充材料清单等）—— 这类内容对学习连接组学没有价值，
-但仍保留在原文栏供查阅。
+**翻译范围**：三篇论文的**摘要、正文全部章节、全部方法小节**都已逐段翻译。
+**唯一没译的是投稿元数据**（作者贡献、同行评审信息、竞争利益、补充材料清单等）——
+这类内容对学习连接组学没有价值，但仍保留在原文栏供查阅。
 
-**标注规模**：章级 65 节 · 段级 30 处 · 图注 27 条。
+**标注规模**：章级 105 节 · 段级 43 处 · 图注 27 条
+（其中 Berg 有 40 节 + 13 处段级标注；图注 27 条来自 Dorkenwald 18 / Shiu 9，
+Berg 的 9 张图暂未作图注标注）。
 重点标注都指向阶段 2 的过关标准，例如：
 
 - ⭐ **`Connection threshold`（Dorkenwald 方法）** —— 阈值是 `>4`（即至少 5 个突触）、
@@ -89,8 +92,8 @@ neuprint.html        ← neuPrint 查询执行台（需联网）
 - 🟣 **Shiu 用的是 FAFB（雌性、仅脑）而非 MaleCNS**
 
 > **只接入 CC-BY 开放获取的论文。**
-> Berg et al. 2026 *Cell* 是订阅制，本站不转载其正文，只提供官方链接。
-> Schlegel et al. 2024 尚未接入。
+> Berg et al. 2026 *Cell* 正式版是订阅制，**转载的是 bioRxiv 预印本正文**（见上表）；
+> 需要正式版请走官方链接。Schlegel et al. 2024 尚未接入。
 
 ### 译文文件组织
 
@@ -131,12 +134,23 @@ assets/papers/
 | `tools/p3_reference.py` | 参考值（值 + 口径 + 查询语句，**缺一不可**） |
 | `tools/test_p3.py` | 对照测试：离线验证矩阵逻辑，在线复现实测值 |
 | `tools/build_phase3.py` | 生成 `phase3.html`（把上面三份源码切成页面代码块） |
+| `tools/fetch_flat_connectome.py` | 下载 flat-connectome：**断点续传 + 官方 MD5 校验**，默认落 `_data/` |
+| `tools/verify_feather.py` | **不联网**复现参考值：用下载的 feather 逐项核对 + 全图口径统计 |
 
 ```bash
 py -3 tools/build_phase3.py            # 重新生成页面
 py -3 tools/test_p3.py --offline       # 离线对照（不需要联网）
 py -3 tools/test_p3.py                 # 全部（需要 neuPrint 可用）
+
+py -3 tools/fetch_flat_connectome.py            # 下载阶段 3 需要的 2 个文件（约 1.1 GB）
+py -3 tools/fetch_flat_connectome.py --list     # 看官方全部 11 个文件（约 29 GB）
+py -3 tools/fetch_flat_connectome.py --verify   # 只校验已有文件
+py -3 tools/verify_feather.py                   # 用下载的数据复现 7 项参考值（离线）
 ```
+
+> **下载量**：阶段 3 只需要 `body-annotations` 与 `connectome-weights`
+> 两个文件（约 1.1 GB，落 `_data/`，已 gitignore）。
+> 目录下另有 9 个突触级/子集文件，合计约 29 GB，本教程用不到。
 
 > **为什么参考值是离线固化的**：写这一页时 neuPrint 出现过一次全线 502。
 > 学习页面不能因为服务器抖动就变成空白，所以页面不依赖实时查询。
@@ -184,7 +198,7 @@ Europe PMC 的 JATS 全文里，公式是 `<mml:math>` 形式的 MathML。
 | Shiu / Dorkenwald（Europe PMC JATS） | `<mml:math>` MathML | 4 | 转成 Unicode 数学文本，包 `<span class="math">` |
 | Berg（bioRxiv） | 公式**图片** `/embed/graphic-NN.gif` | 7 | 下载到 `assets/papers/berg/`，包 `<span class="matheq">` |
 
-⚠️ **两篇论文的公式形式完全不同** —— 这是踩过的坑：
+⚠️ **两种来源的公式形式完全不同** —— 这是踩过的坑：
 JATS 用 MathML，而 bioRxiv 把公式渲染成图片、在正文里没有任何 alt 文本，
 抽取时整个丢掉，于是"公式是空的"。
 
@@ -196,6 +210,67 @@ JATS 用 MathML，而 bioRxiv 把公式渲染成图片、在正文里没有任�
 
 `_papers/` 是可重新下载的中间产物，已在 `.gitignore` 中排除；
 仓库里保留的是 `assets/papers/*.js`。
+
+---
+
+## 蝇体 + 大脑具身演示
+
+`flybody.html` 把 MaleCNS **接上身体**：用官方解剖级蝇体模型当身体、
+用 166,700 个神经元 / 25,582,938 条连接当脑，在 MuJoCo 里真的跑起来。
+页面内置**两段视频**（对照 vs 接脑）、CNS 在体内的位置图、实测数字与复现步骤。
+
+**两个部件都是官方的，并且出自同一家研究所：**
+
+| 部件 | 来源 | 许可 | 引用 |
+|---|---|---|---|
+| 身体 `flybody` | Google DeepMind × HHMI Janelia，收录于 MuJoCo Menagerie | Apache-2.0 | Vaxenburg et al. 2024, bioRxiv |
+| 脑 MaleCNS v1.0 | HHMI Janelia FlyEM | CC-BY 4.0 | Berg et al. 2026, *Cell* |
+| 仿真与行为控制 | [`fly-arena`](https://github.com/artem-x-meta/fly-arena)（MaleCNS + NeuroMechFly） | MIT | — |
+
+**本机实测**（Apple Silicon，CPU，离屏渲染）：
+
+| 运行 | 仿真时长 | 墙钟 | 脉冲 | 位移 |
+|---|---|---|---|---|
+| 脚本控制（对照，不接脑） | 4.0 s | 11.4 s | 0 | 13.6 mm |
+| **接 MaleCNS** | 6.0 s | 19.0 s | **4,943,604** | 24.4 mm |
+
+也就是这个规模的全脑 + 身体约 **0.32 × 实时**（比实时慢约 3 倍）。
+
+> **诚实边界**：接线来自真实重建，但 **LIF 参数、递质符号、步态程序、下行解码全是工程选择**。
+> 这是「用真实连接组驱动的具身仿真」，不是「果蝇数字孪生」。页面第 07 节把这条界线逐条列出。
+
+### 演示资产与复现
+
+```
+assets/demo/
+  fly-body-demo.mp4     对照：脚本控制，无连接组（895 KB）
+  fly-connectome.mp4    接上 MaleCNS 跑 6 秒（1.1 MB）
+  cns-in-body.png       中枢神经系统置于蝇体内部（半透明身体）
+  flybody-hero.png      官方蝇体模型渲染图
+  poster-*.png          两段视频的封面帧
+tools/build_flybody.py  生成 flybody.html（复用 phase1 的设计系统）
+```
+
+```bash
+# 1) 官方蝇体模型（约 134 MB，只取 flybody 子目录）
+git clone --depth 1 --filter=blob:none --sparse \\
+  https://github.com/google-deepmind/mujoco_menagerie.git
+cd mujoco_menagerie && git sparse-checkout set flybody
+
+# 2) 脑：复用阶段 3 已经下载并校验过的 feather
+python tools/fetch_flat_connectome.py
+
+# 3) 用 fly-arena 接起来（它会用 SHA-256 重新校验，--raw 避免重复下载 1.1 GB）
+python -m fly_arena prepare --data arena-data --raw _data
+python -m fly_arena run --mode body-demo  --headless --video body-demo.mp4  --seconds 4
+python -m fly_arena run --mode connectome --headless --data arena-data \\
+  --video connectome.mp4 --seconds 6
+```
+
+渲染用离屏模式即可（macOS `MUJOCO_GL=cgl`，Linux 无显示器 `egl`），**不需要图形界面**。
+
+> 两个第三方项目都克隆在 `_ref/`（已 gitignore），Page 里的视频/图片是实跑产物。
+> 重新生成页面：`python tools/build_flybody.py`。
 
 ---
 
@@ -334,15 +409,18 @@ python tools/decimate_meshes.py --preset low --scale 0.5
 ## 测试
 
 ```bash
-python validate_pages.py           # 六个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
-node tools/test-reader.js          # 阶段 2 阅读器：假 DOM 跑完整渲染链路（45 项）
+python validate_pages.py           # 七个页面的结构 / 锚点 / 资源 / 内联 SVG / CSS 类名
+node tools/test-reader.js          # 阶段 2 阅读器：假 DOM 跑完整渲染链路（70 项）
 node tools/test-reader-scroll.js   # 阶段 2 左右滚动同步：虚拟布局 + 段落配对（29 项）
-node tools/verify-coverage.js      # 阶段 2 译文覆盖率核对（应为 216/216）
+node tools/verify-coverage.js      # 阶段 2 译文覆盖率核对（应为 416/416，含 Berg）
 node tools/test-neuprint-console.js  # 执行台：假 DOM + 假 fetch（83 项）
 py -3 tools/test_p3.py --offline   # 阶段 3：矩阵逻辑与阈值口径（离线 11 项）
+py -3 tools/test_p3.py             # 阶段 3：含在线复现（31 项，需 neuPrint 可用）
+py -3 tools/verify_feather.py      # 阶段 3：用下载的 feather 复现 7 项参考值（离线）
 node tools/test-3d.js              # 几何·投影·拾取（415 项，用示意图椭球）
 node tools/test-3d-official.js     # 官方网格解析·坐标范围·取景·遮挡（204 项）
 node tools/test-3d-boot.js         # 3D 页面接线：启动·事件·坐标系·面板（43 项）
+python tools/build_flybody.py      # 重新生成蝇体演示页
 ```
 
 > 三个 3D 测试需要先有 `assets/mcns-meshes.js`。
@@ -394,16 +472,25 @@ DOI `10.1016/j.cell.2026.08.015`）已更新：
 ## 引用
 
 ```
+# 大脑数据
 Berg et al. (2026). Whole-central nervous system connectome of the adult male
 Drosophila. Cell 189(18):5504-5526.e15. DOI 10.1016/j.cell.2026.08.015
+
+# 蝇体模型（flybody.html 演示用）
+Vaxenburg et al. (2024). Whole-body simulation of realistic fruit fly locomotion
+with deep reinforcement learning. bioRxiv. DOI 10.1101/2024.03.11.584515
 ```
 
 数据：FlyEM / HHMI Janelia、University of Cambridge、MRC LMB、Google Research。
 数据许可 **CC-BY 4.0**（Cell 正文本身为订阅制）。
+蝇体模型由 **Google DeepMind × HHMI Janelia** 开发，许可 **Apache-2.0**。
 
 ---
 
 ## 下一步
 
-**阶段 1 · 在网页里逛**：打开 Codex（MCNS）或 neuPrint，
-走通 `R1–R6 → … → DNg13` 或 `糖 GRN → SEZ → MN9`，并说出中间细胞类型。
+**阶段 4 · 跑仿真**：拿第 3 阶段建好的稀疏矩阵，写一个最小 LIF
+（dt=0.1 ms、τ=20 ms、权重=归一化接触数×符号），做**刺激 + 静默对照**。
+
+想直接看终点的样子，可以先进 [`flybody.html`](flybody.html) —— 那是阶段 5 的演示：
+官方蝇体 + MaleCNS 在 MuJoCo 里真的走起来。
