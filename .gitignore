@@ -93,3 +93,9 @@ move-cursor-data.ps1
 # 如果想提交未抽稀的完整网格（约 280 MB），请先确认托管方允许。
 mcns-meshes-full.js
 *-full.js
+
+# 临时调试脚本（下划线开头的 scratch 文件，用完就删）
+tools/_*.py
+_*.py
+_*.js
+_probe*.py
