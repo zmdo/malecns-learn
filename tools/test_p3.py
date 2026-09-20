@@ -237,9 +237,23 @@ def online() -> None:
         ok(int(M.sum()) == sum(w), "矩阵元素和 = 突触总数", int(M.sum()), sum(w))
         dg = degrees(M, ids)
         if 11074 in idx:
+            # ⚠️ fetch_edges 的 WHERE 只筛「源类型」（a.type IN …），
+            # 所以这批边只有这 5 类**发出**的边，没有指向它们的边。
+            # DNg13 的上游（CB0244 / LAL073 / GNG532 …）不在这 5 类里，
+            # 因此它在这个矩阵里的入度必然是 0 —— 这是查询口径的结果，
+            # 不是「DNg13 没有上游」。想同时拿到入边，要把
+            # OR b.type IN … 并进 WHERE。所以这里只能验证出方向。
+            print(f"  DNg13(11074) 出度 = {dg['out_partners'][11074]:,}"
+                  f"，输出突触 = {dg['out_synapses'][11074]:,}")
+            ok(dg["out_partners"][11074] > 0, "矩阵里 DNg13 有下游伙伴")
             print(f"  DNg13(11074) 入度 = {dg['in_partners'][11074]}"
-                  f"，输入突触 = {dg['in_synapses'][11074]:,}")
-            ok(dg["in_partners"][11074] > 0, "矩阵里 DNg13 有上游伙伴")
+                  f"（本次查询只取源方向，入度必然为 0）")
+            # 反向证一下：换用「谁指向 DNg13」的查询，上游立刻就有了。
+            up = timed("DNg13 上游", inputs_by_type, c, 11074, 3)
+            print(f"  DNg13 的上游类型（≥5 口径）："
+                  f"{'、'.join(f'{t} {w:,}' for t, w in up)}")
+            ok(len(up) > 0 and up[0][1] > 0,
+               "换用上游查询后 DNg13 有上游（证明矩阵里的 0 是查询口径造成的）")
 
 
 def main() -> int:

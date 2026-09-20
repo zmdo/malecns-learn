@@ -47,6 +47,25 @@ def snippet(path: str, start: str, end: str | None = None,
     return textwrap.dedent(seg)
 
 
+def style_of(path: str) -> str:
+    """取某个页面 <style> 块的全部内容（不含标签）。
+
+    为什么要整体取，而不是按标记切：
+      阶段 1 的「设计系统」（.wrap / .box / .tw / .lead / .num / .en / .pill /
+      .check …）和它自己的页面专属样式（.hero / .chip / .stat …）在 <style>
+      里是**交错**的 —— 按 ".wrap{" 之类的标记去切一定会漏掉前者。
+      历史上这里就出过一次事故：切到 ".wrap{"（在文件很靠前的位置），
+      结果 10940 字符的样式只留下 1844 字符，
+      阶段 3 于是掉了全部组件样式（表格、提示框、侧栏全部失效）。
+      多带几条本页用不到的规则没有任何代价，掉样式才是致命的。
+    """
+    src = open(os.path.join(ROOT, path), encoding="utf-8").read()
+    m = re.search(r"<style>([\s\S]*?)</style>", src)
+    if not m:
+        raise SystemExit(f"在 {path} 里找不到 <style> 块")
+    return m.group(1).strip("\n")
+
+
 def code(src: str, lang: str = "python", title: str = "") -> str:
     head = f'<div class="codeh"><span class="cl">{esc(title or lang)}</span></div>' if title else ""
     return (f'<div class="codewrap">{head}'
@@ -104,10 +123,14 @@ def ref_rows() -> str:
                     for k, v in val.items())
             else:
                 shown = f"{val:,}" if isinstance(val, int) else str(val)
+            # 有 ≥5 口径的项直接把两个数都列出来 —— 本页的核心结论就是
+            # 「同一对连接，换阈值数字就变」，藏起来反而要读者自己去别处找。
+            alt = it.get("alt_value_ge5")
+            alt_html = (f'<span class="altv">≥5 口径 {alt:,}</span>' if alt else "")
             q = it.get("query", "")
             out.append(
                 f"<tr><td>{esc(it['label'])}{flag}</td>"
-                f"<td class=\"n\">{esc(shown)}</td>"
+                f"<td class=\"n\">{esc(shown)}{alt_html}</td>"
                 f"<td><code class=\"q\">{esc(q)}</code></td></tr>")
     return "\n".join(out)
 
@@ -149,13 +172,9 @@ def dng13_rows() -> str:
 # 页面
 # ======================================================================
 def build() -> str:
-    # 沿用阶段 1 的设计系统：取 <style> 里从 :root 到 .wrap/nav.toc 之前的部分，
-    # 本页自己的组件样式在后面追加（见下方 <style> 块）
-    css = snippet("phase1.html", "  :root{", "  .wrap{")
-    # 阶段切换器的样式在 .wrap 之后，单独补进来（顶栏要用）
-    css += "\n" + snippet("phase1.html",
-                          "  /* ---------- 阶段切换器（顶栏与页脚共用） ---------- */",
-                          "  .toc h4{")
+    # 沿用阶段 1 的整套设计系统（含 .wrap / .box / .tw / .lead / .num / .en /
+    # .pill / .check / nav.toc …）。整体取，见 style_of() 里的说明。
+    css = style_of("phase1.html")
 
     toc = [
         ("env", "01 · 环境自检"),
@@ -207,9 +226,14 @@ def build() -> str:
   tr.grp td{{background:#101a2e; color:var(--cyan); font-weight:700;
     font-size:13px; letter-spacing:.03em}}
   tr.tot td{{border-top:1px solid var(--line2); color:var(--ink); font-weight:700}}
-  .bar{{display:inline-block; height:9px; background:linear-gradient(90deg,#22d3ee,#4ade80);
+  /* 表格里的占比条。注意必须限定在 .tw 之内 ——
+     阶段 1 的顶栏是 <header class="bar">，裸 .bar 会给它加上
+     margin-right / border-radius，顶栏右侧会裂开一道缝。 */
+  .tw .bar{{display:inline-block; height:9px; background:linear-gradient(90deg,#22d3ee,#4ade80);
     border-radius:5px; vertical-align:middle; margin-right:8px; min-width:2px}}
   .pc{{font-family:var(--mono); font-size:11.5px; color:var(--ink3)}}
+  /* 参考表里并列显示的第二个口径（未设阈值 vs ≥5） */
+  .altv{{display:block; font-size:11.5px; color:var(--dim); white-space:nowrap}}
 
   .verifier{{background:var(--panel); border:1px solid var(--line); border-radius:13px;
     padding:16px 18px; margin:20px 0}}
@@ -366,7 +390,7 @@ print(ask("MATCH (n:Neuron) RETURN count(n)"))
     <div class="box good">
       <div class="h">✅ 你可以完全不下载任何东西</div>
       <p style="margin-bottom:0">
-        阶段 3 的过关标准<b>不需要</b>下载那 24 GB 的 flat-connectome。
+        阶段 3 的过关标准<b>不需要</b>下载那 29 GB 的 flat-connectome。
         用匿名 API 就能把矩阵、度数、通路全部跑通。
         等你确定要做全图统计时，再下那 1.1 GB（只需 2 个文件）。
       </p>
@@ -482,11 +506,23 @@ print(ask("MATCH (n:Neuron) RETURN count(n)"))
       <div class="h">⚠️ 学习指南在这里有个数字错误（阶段 0 已修正）</div>
       <p>
         指南写"三个 feather 文件、约 1.1 GB"。
-        官方 flat-connectome 目录下实际是 <b>7 个文件、合计约 24 GB</b>，
+        官方 flat-connectome 目录下实际是 <b>11 个文件、合计约 29 GB</b>
+        （2026-09-20 按官方 bucket 清单核对），
         <b>1.1 GB 只是其中"连接矩阵"那一个文件</b>。
       </p>
       <p style="margin-bottom:0">
         但好消息是：<b>只建连接矩阵的话，2 个文件就够</b>（约 1.1 GB）。
+      </p>
+    </div>
+
+    <div class="box good">
+      <div class="h">✅ 别照下面这段手写 —— 仓库里有现成的工具</div>
+      <p style="margin-bottom:0">
+        <code>python tools/fetch_flat_connectome.py</code>：<b>带断点续传</b>（1 GB 下到
+        90% 断掉不用重来），下完自动用官方 MD5 校验，
+        默认落到 <code>_data/</code>（已在 <code>.gitignore</code> 里，不会被 git 收走）。
+        加 <code>--list</code> 看全部 11 个文件，<code>--verify</code> 只校验不下载。
+        下面这段是它的最小内核，看懂就行。
       </p>
     </div>
 
@@ -496,6 +532,9 @@ print(ask("MATCH (n:Neuron) RETURN count(n)"))
 #
 # 前缀：
 #   https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/
+#
+# ⚠️ 这段是最小演示，没有续传、没有校验。
+#    真要下载请用：python tools/fetch_flat_connectome.py
 
 BASE = ("https://storage.googleapis.com/flyem-male-cns/v1.0/"
         "connectome-data/flat-connectome/")
@@ -508,10 +547,13 @@ FILES = [
 # 注意文件名里的 minconf-0.5 —— 这就是阶段 2 过关标准里的
 # 「min confidence 0.5」，它是内嵌在文件名里的口径。
 
+# 落到 _data/：.gitignore 里已经排除，避免 1 GB 文件被 git 收进去。
+DATA = "_data"
+
 import os, urllib.request
-os.makedirs("data", exist_ok=True)
+os.makedirs(DATA, exist_ok=True)
 for f in FILES:
-    dst = os.path.join("data", f)
+    dst = os.path.join(DATA, f)
     if os.path.exists(dst):
         print("已有", f); continue
     print("下载", f, "…")
@@ -596,22 +638,29 @@ py -3 tools/test_p3.py --offline
 
     <div class="tw"><table>
       <thead><tr><th style="min-width:250px">检查项</th>
-        <th style="width:150px">实测值</th><th>查询语句</th></tr></thead>
+        <th style="width:180px">实测值 / 口径</th><th>查询语句</th></tr></thead>
       <tbody>
         {ref_rows()}
       </tbody>
     </table></div>
 
-    <div class="box warn">
-      <div class="h">⚠️ 有两项标了「待核实」—— 这是故意的</div>
+    <div class="box good">
+      <div class="h">✅ 原来标着「待核实」的三项，2026-09-20 结案了</div>
       <p>
         <code>L2 → Tm2</code> 阶段 1 记录为 <b>221,186</b>，
-        本次重测（同为未设阈值口径）得到 <b>219,357</b>，差约 1,800（0.8%）。
-        <b>这超出了阈值能解释的范围</b>，可能是当时记录口径不同，或数据集有过小幅更新。
+        后来重测得到 <b>219,357</b>，当时以为数据集变过，标成了「待核实」。
+        用官方 flat-connectome（minconf-0.5）逐项复核后：<b>两个数都精确复现</b> ——
+        221,186 是<b>未设阈值</b>口径，219,357 是 <b>≥5</b> 口径
+        （差 1,829，正好是被砍掉的那批弱边）。
+      </p>
+      <p>
+        <code>L2 → Tm1</code>（205,428 / ≥5 205,004）、<code>Tm2 → T5c</code>
+        （61,901 / ≥5 51,892）同理。所以<b>两个数都对，错的是当时没写口径</b>。
+        表里现在把两个口径并排列出。
       </p>
       <p style="margin-bottom:0">
-        <b>遇到这种情况不要硬凑数字</b> —— 标出来、写清楚，比假装一致更专业。
-        这也是阶段 2 学到的态度：数据不完美时给出保守结论并说明理由。
+        仍然是阶段 2 那条态度：数字对不上时，<b>先怀疑口径，再怀疑数据</b>；
+        真查不出来就标出来，不要硬凑。
       </p>
     </div>
 
@@ -890,7 +939,10 @@ def main() -> None:
         f.write(html_out)
     print(f"已写出 {DST}  （{len(html_out)/1024:.1f} KB）")
     print(f"  参考值 {len(REF.CHECKS)} 项 / {len(REF.by_group())} 组")
-    print(f"  嵌入代码段 {sum(1 for _ in re.finditer(r'class=\"codewrap\"', html_out))} 个")
+    # 不要把这个表达式写进 f-string：3.11 及以下不允许表达式里出现反斜杠，
+    # 会直接 SyntaxError（README 里写的是 py -3，很多机器还是 3.9/3.10）。
+    n_code = len(re.findall(r'class="codewrap"', html_out))
+    print(f"  嵌入代码段 {n_code} 个")
 
 
 if __name__ == "__main__":

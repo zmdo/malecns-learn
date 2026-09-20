@@ -112,10 +112,10 @@ CHECKS: List[Dict[str, Any]] = [
         "value": 221186,
         "alt_value_ge5": 219357,
         "tolerance": 2000,
-        "note": "本次重测（未设阈值）得到 219,357，与阶段 1 记录差约 1,800（0.8%）—— "
-                "超出阈值能解释的范围。**这一项标为待核实**：可能是当时记的口径不同，"
-                "或 neuPrint 数据集有过小幅更新。遇到这种情况不要硬凑数字，而是记下来。",
-        "status": "待核实",
+        "note": "2026-09-20 结案：用官方 flat-connectome（minconf-0.5）复核，"
+                "两个数都**精确复现** —— 221,186 是未设阈值口径，219,357 是 ≥5 口径"
+                "（差 1,829，正好是被砍掉的弱边）。当年「重测得到 219,357」不是数据集变了，"
+                "而是重测时用了 ≥5 口径却没写出来。两个数都对，错的是没带口径。",
         "query": "MATCH (a:Neuron {type:'L2'})-[r:ConnectsTo]->(b:Neuron {type:'Tm2'}) "
                  "RETURN sum(r.weight)",
     },
@@ -126,9 +126,9 @@ CHECKS: List[Dict[str, Any]] = [
         "kind": "pair",
         "src": "L2", "dst": "Tm1",
         "value": 205428,
+        "alt_value_ge5": 205004,
         "tolerance": 2000,
-        "note": "与 Tm2 同批记录，同样标为待核实（见上）。",
-        "status": "待核实",
+        "note": "与 Tm2 同批，同样已结案：未设阈值 205,428 / ≥5 口径 205,004（差 424）。",
         "query": "MATCH (a:Neuron {type:'L2'})-[r:ConnectsTo]->(b:Neuron {type:'Tm1'}) "
                  "RETURN sum(r.weight)",
     },
@@ -139,9 +139,12 @@ CHECKS: List[Dict[str, Any]] = [
         "kind": "pair",
         "src": "Tm2", "dst": "T5c",
         "value": 61901,
+        "alt_value_ge5": 51892,
         "tolerance": 3000,
-        "note": "T5a–d 一批（52,515–61,901）取其中较大者。待核实。",
-        "status": "待核实",
+        "note": "T5a–d 一批取其中较大者。未设阈值：T5a 57,808 / T5b 61,404 / "
+                "T5c 61,901 / T5d 52,515（所以区间是 52,515–61,901）；"
+                "≥5 口径：50,278 / 50,810 / 51,892 / 43,048。"
+                "已用 flat-connectome 复核，两个口径都精确复现。",
         "query": "MATCH (a:Neuron {type:'Tm2'})-[r:ConnectsTo]->(b:Neuron {type:'T5c'}) "
                  "RETURN sum(r.weight)",
     },
@@ -184,14 +187,21 @@ CHECKS: List[Dict[str, Any]] = [
                  "RETURN sum(r.weight)",
     },
     {
-        "id": "b1-gng015-mn9",
+        # ⚠️ 2026-09-20 修正：这一项原来写成 "GNG015 → MN9"，是错的。
+        # 153 对应的是 **GNG654 → MN9** 那一跳（阶段 1 的通路表里也是这么标的）。
+        # GNG015 → MN9 实测是 478，和下面 b2 的「MN9 最强上游」完全一致 ——
+        # 同一个文件里自己打架，就是这次数据核对抓出来的。
+        # 用下载的 feather 复核：GNG015→MN9 = 478，GNG654→MN9 = 153，两者都稳定。
+        "id": "b1-gng654-mn9",
         "group": "通路 B · 糖味觉→摄食",
-        "label": "GNG015 → MN9",
+        "label": "GNG654 → MN9",
         "kind": "pair",
-        "src": "GNG015", "dst": "MN9",
+        "src": "GNG654", "dst": "MN9",
         "value": 153,
         "tolerance": 20,
-        "query": "MATCH (a:Neuron {type:'GNG015'})-[r:ConnectsTo]->(b:Neuron {type:'MN9'}) "
+        "note": "通路 B 的最后一跳。GNG015/GNG654 都直接连到 MN9："
+                "GNG654→MN9 = 153，GNG015→MN9 = 478（见 b2 上游榜）。",
+        "query": "MATCH (a:Neuron {type:'GNG654'})-[r:ConnectsTo]->(b:Neuron {type:'MN9'}) "
                  "RETURN sum(r.weight)",
     },
     {

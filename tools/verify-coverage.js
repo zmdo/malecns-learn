@@ -83,8 +83,10 @@ for (const pid of Object.keys(PAPERS)) {
 console.log('='.repeat(74));
 const pct = (allDone / (allDone + allTodo) * 100).toFixed(1);
 console.log(`总计：已译 ${allDone} 段 / 待译 ${allTodo} 段  （${pct}%）`);
-const secN = Object.keys(NOTES.dorkenwald?.sections || {}).length + Object.keys(NOTES.shiu?.sections || {}).length;
-const parN = Object.keys(NOTES.dorkenwald?.paras || {}).length + Object.keys(NOTES.shiu?.paras || {}).length;
-const figN = Object.keys(NOTES.dorkenwald?.figs || {}).length + Object.keys(NOTES.shiu?.figs || {}).length;
+// 标注统计要对**所有**已接入的论文求和 —— 之前这里写死了 dorkenwald + shiu，
+// 后来接入 Berg 之后统计就少算了一篇（页面显示的图注数会偏低）。
+const secN = Object.values(NOTES).reduce((n, p) => n + Object.keys(p.sections || {}).length, 0);
+const parN = Object.values(NOTES).reduce((n, p) => n + Object.keys(p.paras || {}).length, 0);
+const figN = Object.values(NOTES).reduce((n, p) => n + Object.keys(p.figs || {}).length, 0);
 console.log(`标注：章级 ${secN} 节 · 段级 ${parN} 处 · 图注 ${figN} 条`);
 process.exitCode = gaps ? 1 : 0;

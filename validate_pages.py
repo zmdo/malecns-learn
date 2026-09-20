@@ -16,7 +16,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # 顶层可导航页面（校验时一并检查其互链）
 TOP_PAGES = {"index.html", "phase0.html", "phase1.html", "phase2.html",
-             "phase3.html", "neuprint.html"}
+             "phase3.html", "neuprint.html", "flybody.html"}
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
         "meta", "param", "source", "track", "wbr"}
 
@@ -212,6 +212,27 @@ def check_css_usage(path, html):
             allowed = m.group(1) if m else ""
             if "br" not in allowed:
                 problems.append("公式里的 <br> 不在内联白名单里（多行公式会挤成一行）")
+
+    # 6) 正文里出现的**每一个** class 都必须在本页 CSS 里有定义。
+    #    这一类错误同样是「静默失效」：类名漏了不会报错，只是那块内容
+    #    悄悄退回浏览器默认外观。历史事故就是它漏掉的 ——
+    #    build_phase3.py 从 phase1.html 切 CSS 时切早了，阶段 3 整个
+    #    .wrap / .box / .tw / .lead 体系全没定义，页面排版垮掉，
+    #    而当时所有检查都是绿的。
+    #    只扫标记（不含 <style>/<script>）：JS 里拼出来的类名扫不准，会误报。
+    #    注意：这里不能复用上面的 m —— 第 5 节把 m 重新赋成了白名单匹配。
+    markup = re.sub(r"<style>[\s\S]*?</style>", "", html)
+    markup = re.sub(r"<script[\s\S]*?</script>", "", markup)
+    used_classes = set()
+    for cm in re.finditer(r'class="([^"]+)"', markup):
+        used_classes.update(cm.group(1).split())
+    defined = set(re.findall(r"\.(-?[A-Za-z_][\w-]*)", css))
+    undefined = sorted(c for c in used_classes if c not in defined)
+    if undefined:
+        problems.append(f"以下 {len(undefined)} 个 class 在正文里用了但 CSS 没有定义"
+                        f"（会退化成默认外观）：" + "、".join("." + c for c in undefined))
+    else:
+        notes.append(f"正文 {len(used_classes)} 个 class 全部有定义")
 
     return notes, problems
 

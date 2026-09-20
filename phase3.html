@@ -5,51 +5,185 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>阶段 3 · 拿数据与第一段代码 | MaleCNS 学习指南</title>
 <style>
-:root{
-  --bg:#070b16; --panel:#0f172a; --panel2:#131c33; --line:#1e293b; --line2:#334155;
-  --ink:#e6edf7; --ink2:#b6c2d6; --ink3:#8494ad; --dim:#5b6b85;
-  --blue:#7dd3fc; --cyan:#22d3ee; --green:#4ade80; --amber:#fbbf24;
-  --red:#f87171; --pink:#f472b6; --violet:#a78bfa;
-  --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth; scroll-padding-top:76px}
-body{margin:0; background:var(--bg); color:var(--ink);
-  font-family:"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-  font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased}
-a{color:var(--blue); text-decoration:none}
-a:hover{text-decoration:underline; text-underline-offset:3px}
-code{font-family:var(--mono); font-size:.88em; background:#1a2338; padding:.12em .42em;
-  border-radius:5px; color:#a5d8ff; border:1px solid #223052}
-kbd{font-family:var(--mono); font-size:.82em; background:#1a2338; border:1px solid #223052;
-  border-bottom-width:2px; border-radius:4px; padding:.08em .42em; color:var(--ink2);
-  white-space:nowrap}
-pre{background:#0b1424; border:1px solid #223052; border-radius:12px; padding:16px 18px;
-  overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.72;
-  color:#c7d7ee; margin:16px 0}
-/* 代码块与「公式 / 图谱」块共用同一套着色词汇。
-   ⚠️ 这些类必须限定在 pre / .formula 之内 —— 否则 .n / .s 会污染
-      目录编号 <span class="n">00</span> 和表格单元格 <td class="n">。
-   注意不要把 .c 写成 .formula .c：那会前缀匹配到 .cmt，把注释也一起改色。 */
-pre .c,   .formula .cmt {color:var(--dim)}
-pre .s,   .formula .s   {color:var(--green)}
-pre .k,   .formula .k   {color:var(--pink)}
-pre .n,   .formula .n   {color:var(--amber)}
-pre .bl,  .formula .bl  {color:var(--blue)}
-pre .hl,  .formula .hl  {color:var(--amber); font-weight:600}
-/* ---------- 阶段切换器（顶栏与页脚共用） ---------- */
-.phaseswitch{display:inline-flex; align-items:center; gap:2px; background:#0b1424;
-  border:1px solid var(--line); border-radius:9px; padding:3px; flex:0 0 auto}
-.phaseswitch a, .phaseswitch span{display:block; padding:2px 11px; border-radius:6px;
-  font-family:var(--mono); font-size:11.5px; line-height:1.7; text-decoration:none;
-  color:var(--ink3); white-space:nowrap}
-.phaseswitch a:hover{color:var(--ink); background:#1a2338; text-decoration:none}
-.phaseswitch .now{margin-right:4px; color:var(--dim)}
-.phaseswitch .on{background:var(--line2); color:var(--ink)}
-.phaseswitch .on.p0{background:#16233d; color:var(--blue); font-weight:700}
-.phaseswitch .on.p1{background:#0d1a12; color:var(--green); font-weight:700}
-.phaseswitch.foot{margin-bottom:16px}
-@media(max-width:1180px){ .bar .t{display:none} }
+  :root{
+    --bg:#070b16; --panel:#0f172a; --panel2:#131c33; --line:#1e293b; --line2:#334155;
+    --ink:#e6edf7; --ink2:#b6c2d6; --ink3:#8494ad; --dim:#5b6b85;
+    --blue:#7dd3fc; --cyan:#22d3ee; --green:#4ade80; --amber:#fbbf24;
+    --red:#f87171; --pink:#f472b6; --violet:#a78bfa;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:76px}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased}
+  a{color:var(--blue); text-decoration:none}
+  a:hover{text-decoration:underline; text-underline-offset:3px}
+  code{font-family:var(--mono); font-size:.88em; background:#1a2338; padding:.12em .42em;
+    border-radius:5px; color:#a5d8ff; border:1px solid #223052}
+  kbd{font-family:var(--mono); font-size:.82em; background:#1a2338; border:1px solid #223052;
+    border-bottom-width:2px; border-radius:4px; padding:.08em .42em; color:var(--ink2);
+    white-space:nowrap}
+  pre{background:#0b1424; border:1px solid #223052; border-radius:12px; padding:16px 18px;
+    overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.72;
+    color:#c7d7ee; margin:16px 0}
+  /* 代码块与「公式 / 图谱」块共用同一套着色词汇。
+     ⚠️ 这些类必须限定在 pre / .formula 之内 —— 否则 .n / .s 会污染
+        目录编号 <span class="n">00</span> 和表格单元格 <td class="n">。
+     注意不要把 .c 写成 .formula .c：那会前缀匹配到 .cmt，把注释也一起改色。 */
+  pre .c,   .formula .cmt {color:var(--dim)}
+  pre .s,   .formula .s   {color:var(--green)}
+  pre .k,   .formula .k   {color:var(--pink)}
+  pre .n,   .formula .n   {color:var(--amber)}
+  pre .bl,  .formula .bl  {color:var(--blue)}
+  pre .hl,  .formula .hl  {color:var(--amber); font-weight:600}
+
+  .wrap{display:flex; max-width:1500px; margin:0 auto; align-items:flex-start}
+  nav.toc{position:sticky; top:56px; flex:0 0 268px; height:calc(100vh - 56px); overflow-y:auto;
+    padding:22px 14px 60px 22px; border-right:1px solid var(--line)}
+  main{flex:1 1 auto; min-width:0; padding:0 46px 120px; max-width:1010px}
+  @media(max-width:1080px){ nav.toc{display:none} main{padding:0 20px 80px} }
+
+  header.bar{position:sticky; top:0; z-index:50; height:56px; display:flex; align-items:center;
+    gap:14px; padding:0 24px; background:rgba(7,11,22,.9); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line)}
+  .bar .t{font-size:14.5px; color:var(--ink2); font-weight:600}
+  .bar .sp{flex:1}
+  .bar .meta{font-size:12.5px; color:var(--dim); font-family:var(--mono)}
+
+  /* ---------- 阶段切换器（顶栏与页脚共用） ---------- */
+  .phaseswitch{display:inline-flex; align-items:center; gap:2px; background:#0b1424;
+    border:1px solid var(--line); border-radius:9px; padding:3px; flex:0 0 auto}
+  .phaseswitch a, .phaseswitch span{display:block; padding:2px 11px; border-radius:6px;
+    font-family:var(--mono); font-size:11.5px; line-height:1.7; text-decoration:none;
+    color:var(--ink3); white-space:nowrap}
+  .phaseswitch a:hover{color:var(--ink); background:#1a2338; text-decoration:none}
+  .phaseswitch .now{margin-right:4px; color:var(--dim)}
+  .phaseswitch .on{background:var(--line2); color:var(--ink)}
+  .phaseswitch .on.p0{background:#16233d; color:var(--blue); font-weight:700}
+  .phaseswitch .on.p1{background:#0d1a12; color:var(--green); font-weight:700}
+  .phaseswitch.foot{margin-bottom:16px}
+  @media(max-width:1180px){ .bar .t{display:none} }
+
+  .toc h4{font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim);
+    margin:0 0 12px 10px; font-weight:700}
+  .toc a{display:block; padding:6px 10px; border-radius:8px; color:var(--ink2);
+    font-size:13.6px; line-height:1.5; border-left:2px solid transparent}
+  .toc a:hover{background:#131c33; text-decoration:none; color:var(--ink)}
+  .toc a.on{background:#16233d; color:var(--blue); border-left-color:var(--blue); font-weight:600}
+  .toc a .n{font-family:var(--mono); font-size:11.5px; color:var(--dim); margin-right:7px}
+  .toc a.on .n{color:var(--blue)}
+  .toc .sub{padding-left:22px; font-size:12.8px; color:var(--ink3)}
+  .toc .grp{margin-top:16px}
+
+  .hero{padding:58px 0 34px; border-bottom:1px solid var(--line); margin-bottom:38px}
+  .hero .eyebrow{font-family:var(--mono); font-size:12.5px; color:var(--green);
+    letter-spacing:.1em; text-transform:uppercase; margin-bottom:16px}
+  .hero h1{font-size:40px; line-height:1.24; margin:0 0 8px; letter-spacing:-.02em}
+  .hero h1 .accent{background:linear-gradient(100deg,#4ade80,#7dd3fc 55%,#fbbf24);
+    -webkit-background-clip:text; background-clip:text; color:transparent}
+  .hero .sub{font-size:18.5px; color:var(--ink2); max-width:800px; margin:0 0 24px}
+  .hero .facts{display:flex; flex-wrap:wrap; gap:10px}
+  .chip{display:inline-flex; align-items:center; gap:7px; font-size:13px; background:var(--panel);
+    border:1px solid var(--line); border-radius:20px; padding:5px 13px; color:var(--ink2)}
+  .chip b{color:var(--ink); font-weight:700}
+  .chip .dot{width:7px; height:7px; border-radius:50%; background:var(--blue)}
+  .chip.g .dot{background:var(--green)} .chip.a .dot{background:var(--amber)}
+  .chip.v .dot{background:var(--violet)} .chip.r .dot{background:var(--red)}
+
+  section{margin:0 0 58px; scroll-margin-top:70px}
+  h2{font-size:26px; margin:0 0 6px; letter-spacing:-.01em}
+  h2 .num{font-family:var(--mono); font-size:14px; color:var(--bg); background:var(--green);
+    padding:2px 9px; border-radius:7px; font-weight:800; display:inline-block;
+    vertical-align:2px; margin-right:9px}
+  h2 .en{font-size:13.5px; color:var(--dim); font-weight:500; margin-left:12px; letter-spacing:0}
+  h3{font-size:19px; margin:34px 0 10px}
+  h4{font-size:15.5px; margin:22px 0 8px; color:var(--blue)}
+  .lead{color:var(--ink2); font-size:15.5px; margin:0 0 18px}
+  p{margin:0 0 14px; color:var(--ink2)}
+  ul,ol{color:var(--ink2); padding-left:22px; margin:0 0 16px}
+  li{margin:5px 0}
+  strong{color:var(--ink); font-weight:700}
+  .kw{color:var(--amber); font-weight:700}
+  hr{border:none; border-top:1px solid var(--line); margin:34px 0}
+
+  .box{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--blue);
+    border-radius:12px; padding:16px 20px; margin:20px 0}
+  .box .h{font-weight:700; color:var(--ink); margin-bottom:6px; font-size:15px}
+  .box p:last-child,.box ul:last-child{margin-bottom:0}
+  .box.warn{border-left-color:var(--amber); background:#1a1608}
+  .box.warn .h{color:var(--amber)}
+  .box.danger{border-left-color:var(--red); background:#1c0f12}
+  .box.danger .h{color:var(--red)}
+  .box.good{border-left-color:var(--green); background:#0d1a12}
+  .box.good .h{color:var(--green)}
+  .box.violet{border-left-color:var(--violet); background:#151027}
+  .box.violet .h{color:var(--violet)}
+
+  .tw{overflow-x:auto; margin:20px 0; border:1px solid var(--line); border-radius:12px}
+  table{border-collapse:collapse; width:100%; font-size:14px; min-width:520px}
+  th{background:#131c33; color:var(--ink); text-align:left; padding:11px 15px; font-weight:700;
+    font-size:13.5px; border-bottom:1px solid var(--line2); white-space:nowrap}
+  td{padding:10px 15px; border-bottom:1px solid var(--line); color:var(--ink2); vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#101a2e}
+  td.n{font-family:var(--mono); color:var(--blue); white-space:nowrap}
+  td.y{font-family:var(--mono); color:var(--amber); white-space:nowrap}
+
+  figure{margin:26px 0; background:var(--panel); border:1px solid var(--line);
+    border-radius:14px; padding:14px}
+  figure img,figure svg{width:100%; height:auto; display:block; border-radius:9px}
+  figcaption{font-size:13.2px; color:var(--ink3); margin-top:12px; padding:0 4px}
+  figcaption b{color:var(--ink2)}
+
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:15px 16px}
+  .stat .v{font-family:var(--mono); font-size:23px; font-weight:700; color:var(--blue); line-height:1.2}
+  .stat .l{font-size:12.8px; color:var(--ink3); margin-top:6px; line-height:1.5}
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:12px; margin:22px 0}
+  .stat.a .v{color:var(--amber)} .stat.g .v{color:var(--green)}
+  .stat.r .v{color:var(--red)} .stat.v2 .v{color:var(--violet)}
+
+  .formula{background:#0b1424; border:1px solid #223052; border-radius:12px; padding:18px 20px;
+    font-family:var(--mono); font-size:13px; color:#cfe4ff; margin:18px 0; overflow-x:auto;
+    line-height:1.95; white-space:pre}
+  .formula .cmt{color:var(--dim)}
+
+  .check{background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:6px 20px 16px; margin:20px 0}
+  .check .item{display:flex; gap:13px; padding:13px 0; border-bottom:1px solid var(--line); align-items:flex-start}
+  .check .item:last-child{border-bottom:none}
+  .check .bx{flex:0 0 auto; width:21px; height:21px; border-radius:6px; border:1.6px solid var(--line2);
+    margin-top:3px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:transparent; transition:.15s; user-select:none}
+  .check .bx:hover{border-color:var(--green)}
+  .check .item.done .bx{background:var(--green); border-color:var(--green); color:#08130c}
+  .check .q{font-size:14.8px; color:var(--ink)}
+  .check .a{font-size:13.4px; color:var(--ink3); margin-top:4px; display:none}
+  .check .item.done .a{display:block}
+  .check .hint{font-size:12.5px; color:var(--dim); padding-top:12px}
+
+  .pill{display:inline-block; font-family:var(--mono); font-size:11.5px; padding:2px 8px;
+    border-radius:6px; background:#1a2338; color:var(--ink3); border:1px solid #223052}
+  .pill.b{color:var(--blue); border-color:#1e3a5f}
+  .pill.a{color:var(--amber); border-color:#3b3212}
+  .pill.g{color:var(--green); border-color:#17411f}
+  .pill.r{color:var(--red); border-color:#3b1a1a}
+
+  .step{background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:1px 20px 14px; margin:18px 0}
+  .step .sh{display:flex; align-items:center; gap:11px; margin:16px 0 10px}
+  .step .sn{flex:0 0 auto; width:26px; height:26px; border-radius:8px; background:var(--green);
+    color:#08130c; font-family:var(--mono); font-weight:800; font-size:13px;
+    display:flex; align-items:center; justify-content:center}
+  .step .st{font-size:15.5px; font-weight:700; color:var(--ink)}
+  .step p:last-child{margin-bottom:0}
+
+  .toTop{position:fixed; right:24px; bottom:24px; width:42px; height:42px; border-radius:11px;
+    background:var(--panel2); border:1px solid var(--line2); color:var(--ink2);
+    display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer;
+    z-index:60; opacity:0; pointer-events:none; transition:.2s}
+  .toTop.show{opacity:1; pointer-events:auto}
+  footer{border-top:1px solid var(--line); padding:30px 0 10px; color:var(--dim); font-size:13.2px}
   /* ---------- 本页新增组件 ---------- */
   nav.toc a{display:block; padding:6px 10px; border-radius:8px; color:var(--ink3);
     font-size:14px; border-left:2px solid transparent; margin-bottom:2px}
@@ -78,9 +212,14 @@ pre .hl,  .formula .hl  {color:var(--amber); font-weight:600}
   tr.grp td{background:#101a2e; color:var(--cyan); font-weight:700;
     font-size:13px; letter-spacing:.03em}
   tr.tot td{border-top:1px solid var(--line2); color:var(--ink); font-weight:700}
-  .bar{display:inline-block; height:9px; background:linear-gradient(90deg,#22d3ee,#4ade80);
+  /* 表格里的占比条。注意必须限定在 .tw 之内 ——
+     阶段 1 的顶栏是 <header class="bar">，裸 .bar 会给它加上
+     margin-right / border-radius，顶栏右侧会裂开一道缝。 */
+  .tw .bar{display:inline-block; height:9px; background:linear-gradient(90deg,#22d3ee,#4ade80);
     border-radius:5px; vertical-align:middle; margin-right:8px; min-width:2px}
   .pc{font-family:var(--mono); font-size:11.5px; color:var(--ink3)}
+  /* 参考表里并列显示的第二个口径（未设阈值 vs ≥5） */
+  .altv{display:block; font-size:11.5px; color:var(--dim); white-space:nowrap}
 
   .verifier{background:var(--panel); border:1px solid var(--line); border-radius:13px;
     padding:16px 18px; margin:20px 0}
@@ -245,7 +384,7 @@ print(ask("MATCH (n:Neuron) RETURN count(n)"))
     <div class="box good">
       <div class="h">✅ 你可以完全不下载任何东西</div>
       <p style="margin-bottom:0">
-        阶段 3 的过关标准<b>不需要</b>下载那 24 GB 的 flat-connectome。
+        阶段 3 的过关标准<b>不需要</b>下载那 29 GB 的 flat-connectome。
         用匿名 API 就能把矩阵、度数、通路全部跑通。
         等你确定要做全图统计时，再下那 1.1 GB（只需 2 个文件）。
       </p>
@@ -368,11 +507,23 @@ print(ask("MATCH (n:Neuron) RETURN count(n)"))
       <div class="h">⚠️ 学习指南在这里有个数字错误（阶段 0 已修正）</div>
       <p>
         指南写"三个 feather 文件、约 1.1 GB"。
-        官方 flat-connectome 目录下实际是 <b>7 个文件、合计约 24 GB</b>，
+        官方 flat-connectome 目录下实际是 <b>11 个文件、合计约 29 GB</b>
+        （2026-09-20 按官方 bucket 清单核对），
         <b>1.1 GB 只是其中"连接矩阵"那一个文件</b>。
       </p>
       <p style="margin-bottom:0">
         但好消息是：<b>只建连接矩阵的话，2 个文件就够</b>（约 1.1 GB）。
+      </p>
+    </div>
+
+    <div class="box good">
+      <div class="h">✅ 别照下面这段手写 —— 仓库里有现成的工具</div>
+      <p style="margin-bottom:0">
+        <code>python tools/fetch_flat_connectome.py</code>：<b>带断点续传</b>（1 GB 下到
+        90% 断掉不用重来），下完自动用官方 MD5 校验，
+        默认落到 <code>_data/</code>（已在 <code>.gitignore</code> 里，不会被 git 收走）。
+        加 <code>--list</code> 看全部 11 个文件，<code>--verify</code> 只校验不下载。
+        下面这段是它的最小内核，看懂就行。
       </p>
     </div>
 
@@ -382,6 +533,9 @@ print(ask("MATCH (n:Neuron) RETURN count(n)"))
 #
 # 前缀：
 #   https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/
+#
+# ⚠️ 这段是最小演示，没有续传、没有校验。
+#    真要下载请用：python tools/fetch_flat_connectome.py
 
 BASE = ("https://storage.googleapis.com/flyem-male-cns/v1.0/"
         "connectome-data/flat-connectome/")
@@ -394,10 +548,13 @@ FILES = [
 # 注意文件名里的 minconf-0.5 —— 这就是阶段 2 过关标准里的
 # 「min confidence 0.5」，它是内嵌在文件名里的口径。
 
+# 落到 _data/：.gitignore 里已经排除，避免 1 GB 文件被 git 收进去。
+DATA = "_data"
+
 import os, urllib.request
-os.makedirs("data", exist_ok=True)
+os.makedirs(DATA, exist_ok=True)
 for f in FILES:
-    dst = os.path.join("data", f)
+    dst = os.path.join(DATA, f)
     if os.path.exists(dst):
         print("已有", f); continue
     print("下载", f, "…")
@@ -669,7 +826,7 @@ py -3 tools/test_p3.py --offline
 
     <div class="tw"><table>
       <thead><tr><th style="min-width:250px">检查项</th>
-        <th style="width:150px">实测值</th><th>查询语句</th></tr></thead>
+        <th style="width:180px">实测值 / 口径</th><th>查询语句</th></tr></thead>
       <tbody>
         <tr class="grp"><td colspan="3">自检</td></tr>
 <tr><td>匿名 API 可用（无需 token）</td><td class="n">176,422</td><td><code class="q">MATCH (n:Neuron) RETURN count(n)</code></td></tr>
@@ -679,31 +836,38 @@ py -3 tools/test_p3.py --offline
 <tr><td>MN9 的 bodyId 是 10331 / 16949，superclass = cb_motor</td><td class="n">bodyId = 10331/16949；superclass = cb_motor</td><td><code class="q">MATCH (n:Neuron) WHERE n.type = 'MN9' RETURN n.bodyId, n.instance, n.superclass ORDER BY n.bodyId</code></td></tr>
 <tr><td>全库唯一 type 含 'Taste' 的类型是 BM_Taste</td><td class="n">BM_Taste</td><td><code class="q">MATCH (n:Neuron) WHERE n.type CONTAINS 'Taste' RETURN DISTINCT n.type</code></td></tr>
 <tr class="grp"><td colspan="3">通路 A · 视觉→运动</td></tr>
-<tr><td>R1–R6 → L2</td><td class="n">107,646</td><td><code class="q">MATCH (a:Neuron {type:'R1-R6'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'L2'}) RETURN sum(r.weight)</code></td></tr>
+<tr><td>R1–R6 → L2</td><td class="n">107,646<span class="altv">≥5 口径 107,572</span></td><td><code class="q">MATCH (a:Neuron {type:'R1-R6'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'L2'}) RETURN sum(r.weight)</code></td></tr>
 <tr><td>R1–R6 → L1</td><td class="n">103,405</td><td><code class="q">MATCH (a:Neuron {type:'R1-R6'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'L1'}) RETURN sum(r.weight)</code></td></tr>
-<tr><td>L2 → Tm2<span class="pill r" style="margin-left:6px">待核实</span></td><td class="n">221,186</td><td><code class="q">MATCH (a:Neuron {type:'L2'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'Tm2'}) RETURN sum(r.weight)</code></td></tr>
-<tr><td>L2 → Tm1<span class="pill r" style="margin-left:6px">待核实</span></td><td class="n">205,428</td><td><code class="q">MATCH (a:Neuron {type:'L2'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'Tm1'}) RETURN sum(r.weight)</code></td></tr>
-<tr><td>Tm2 → T5c<span class="pill r" style="margin-left:6px">待核实</span></td><td class="n">61,901</td><td><code class="q">MATCH (a:Neuron {type:'Tm2'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'T5c'}) RETURN sum(r.weight)</code></td></tr>
+<tr><td>L2 → Tm2</td><td class="n">221,186<span class="altv">≥5 口径 219,357</span></td><td><code class="q">MATCH (a:Neuron {type:'L2'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'Tm2'}) RETURN sum(r.weight)</code></td></tr>
+<tr><td>L2 → Tm1</td><td class="n">205,428<span class="altv">≥5 口径 205,004</span></td><td><code class="q">MATCH (a:Neuron {type:'L2'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'Tm1'}) RETURN sum(r.weight)</code></td></tr>
+<tr><td>Tm2 → T5c</td><td class="n">61,901<span class="altv">≥5 口径 51,892</span></td><td><code class="q">MATCH (a:Neuron {type:'Tm2'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'T5c'}) RETURN sum(r.weight)</code></td></tr>
 <tr class="grp"><td colspan="3">通路 A · 终点 DNg13</td></tr>
 <tr><td>DNg13 的 pre / post / upstream / downstream</td><td class="n">pre = 2127；post = 6500；upstream = 6500；downstream = 15479</td><td><code class="q">MATCH (n:Neuron {bodyId: 11074}) RETURN n.pre, n.post, n.upstream, n.downstream</code></td></tr>
 <tr><td>DNg13 最强的上游类型（前 5）</td><td class="n">CB0244 167，LAL073 161，GNG532 156，DNg97 140，DNpe027 127</td><td><code class="q">MATCH (a:Neuron)-[r:ConnectsTo]-&gt;(b:Neuron {bodyId: 11074}) RETURN a.type, sum(r.weight) AS w ORDER BY w DESC LIMIT 5</code></td></tr>
 <tr class="grp"><td colspan="3">通路 B · 糖味觉→摄食</td></tr>
 <tr><td>BM_Taste → GNG015</td><td class="n">1,376</td><td><code class="q">MATCH (a:Neuron {type:'BM_Taste'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'GNG015'}) RETURN sum(r.weight)</code></td></tr>
-<tr><td>GNG015 → MN9</td><td class="n">153</td><td><code class="q">MATCH (a:Neuron {type:'GNG015'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'MN9'}) RETURN sum(r.weight)</code></td></tr>
+<tr><td>GNG654 → MN9</td><td class="n">153</td><td><code class="q">MATCH (a:Neuron {type:'GNG654'})-[r:ConnectsTo]-&gt;(b:Neuron {type:'MN9'}) RETURN sum(r.weight)</code></td></tr>
 <tr><td>MN9 最强的上游类型（前 5）</td><td class="n">DNge062 556，GNG015 478，GNG120 443，GNG095 436，GNG117 413</td><td><code class="q">MATCH (a:Neuron)-[r:ConnectsTo]-&gt;(b:Neuron {type:'MN9'}) RETURN a.type, sum(r.weight) AS w ORDER BY w DESC LIMIT 5</code></td></tr>
       </tbody>
     </table></div>
 
-    <div class="box warn">
-      <div class="h">⚠️ 有两项标了「待核实」—— 这是故意的</div>
+    <div class="box good">
+      <div class="h">✅ 原来标着「待核实」的三项，2026-09-20 结案了</div>
       <p>
         <code>L2 → Tm2</code> 阶段 1 记录为 <b>221,186</b>，
-        本次重测（同为未设阈值口径）得到 <b>219,357</b>，差约 1,800（0.8%）。
-        <b>这超出了阈值能解释的范围</b>，可能是当时记录口径不同，或数据集有过小幅更新。
+        后来重测得到 <b>219,357</b>，当时以为数据集变过，标成了「待核实」。
+        用官方 flat-connectome（minconf-0.5）逐项复核后：<b>两个数都精确复现</b> ——
+        221,186 是<b>未设阈值</b>口径，219,357 是 <b>≥5</b> 口径
+        （差 1,829，正好是被砍掉的那批弱边）。
+      </p>
+      <p>
+        <code>L2 → Tm1</code>（205,428 / ≥5 205,004）、<code>Tm2 → T5c</code>
+        （61,901 / ≥5 51,892）同理。所以<b>两个数都对，错的是当时没写口径</b>。
+        表里现在把两个口径并排列出。
       </p>
       <p style="margin-bottom:0">
-        <b>遇到这种情况不要硬凑数字</b> —— 标出来、写清楚，比假装一致更专业。
-        这也是阶段 2 学到的态度：数据不完美时给出保守结论并说明理由。
+        仍然是阶段 2 那条态度：数字对不上时，<b>先怀疑口径，再怀疑数据</b>；
+        真查不出来就标出来，不要硬凑。
       </p>
     </div>
 
@@ -849,7 +1013,7 @@ py -3 tools/test_p3.py --offline
   </main>
 </div>
 
-<pre id="refdata" style="display:none">[{"id": "api-alive", "label": "匿名 API 可用（无需 token）", "value": 176422, "tol": 0, "src": "", "dst": ""}, {"id": "a1-r16-l2", "label": "R1–R6 → L2", "value": 107646, "tol": 5, "src": "R1-R6", "dst": "L2"}, {"id": "a1-r16-l1", "label": "R1–R6 → L1", "value": 103405, "tol": 5, "src": "R1-R6", "dst": "L1"}, {"id": "a2-l2-tm2", "label": "L2 → Tm2", "value": 221186, "tol": 2000, "src": "L2", "dst": "Tm2"}, {"id": "a2-l2-tm1", "label": "L2 → Tm1", "value": 205428, "tol": 2000, "src": "L2", "dst": "Tm1"}, {"id": "a3-tm2-t5", "label": "Tm2 → T5c", "value": 61901, "tol": 3000, "src": "Tm2", "dst": "T5c"}, {"id": "b1-bmtaste-gng015", "label": "BM_Taste → GNG015", "value": 1376, "tol": 50, "src": "BM_Taste", "dst": "GNG015"}, {"id": "b1-gng015-mn9", "label": "GNG015 → MN9", "value": 153, "tol": 20, "src": "GNG015", "dst": "MN9"}]</pre>
+<pre id="refdata" style="display:none">[{"id": "api-alive", "label": "匿名 API 可用（无需 token）", "value": 176422, "tol": 0, "src": "", "dst": ""}, {"id": "a1-r16-l2", "label": "R1–R6 → L2", "value": 107646, "tol": 5, "src": "R1-R6", "dst": "L2"}, {"id": "a1-r16-l1", "label": "R1–R6 → L1", "value": 103405, "tol": 5, "src": "R1-R6", "dst": "L1"}, {"id": "a2-l2-tm2", "label": "L2 → Tm2", "value": 221186, "tol": 2000, "src": "L2", "dst": "Tm2"}, {"id": "a2-l2-tm1", "label": "L2 → Tm1", "value": 205428, "tol": 2000, "src": "L2", "dst": "Tm1"}, {"id": "a3-tm2-t5", "label": "Tm2 → T5c", "value": 61901, "tol": 3000, "src": "Tm2", "dst": "T5c"}, {"id": "b1-bmtaste-gng015", "label": "BM_Taste → GNG015", "value": 1376, "tol": 50, "src": "BM_Taste", "dst": "GNG015"}, {"id": "b1-gng654-mn9", "label": "GNG654 → MN9", "value": 153, "tol": 20, "src": "GNG654", "dst": "MN9"}]</pre>
 
 <script>
 (function () {
