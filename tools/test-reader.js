@@ -269,6 +269,40 @@ ok(out.indexOf('onerror=') === -1 || out.indexOf('&lt;img') >= 0,
   '原文里的 <img onerror> 未被转义');
 info('恶意标签已被转义');
 
+// 带属性的 span 只允许 class，且属性值必须是安全字符
+const evilSpan = '<span class="a" onclick="x()">t</span><span class="b"><i>ok</i></span>';
+sandbox.MCNS_PAPERS.__evil2 = {
+  meta: { title: 'x' },
+  blocks: [{ kind: 'section', level: 1, title: 'T', paras: [evilSpan], figs: [] }]
+};
+RD.papers.push({ id: '__evil2', oa: true, title: 'x', titleZh: 'x', cite: 'x', doi: 'd', pmcid: 'P', pdf: 'p', why: 'w' });
+RD.select('__evil2');
+const out2 = els.origCol.innerHTML;
+ok(out2.indexOf('onclick') === -1, 'span 上的 onclick 未被剥离');
+ok(/<span class="b">/.test(out2), 'span 的合法 class 应被保留');
+ok(/<i>ok<\/i>/.test(out2), '白名单内联标签应被保留');
+
+section('11. 公式渲染');
+// 公式由 tools/mathfix.py 从 <mml:math> 还原，形如 <span class="math">…<br>…</span>
+RD.select('shiu');
+const so = els.origCol.innerHTML;
+ok(/class="math"/.test(so), '原文栏未找到任何公式');
+ok(/dv_i\/dt/.test(so), '未找到 LIF 的膜电位方程');
+ok(/dg_i\/dt/.test(so), '未找到电导衰减方程');
+ok(/<br>/.test(so), '公式里的换行 <br> 未被保留（多行公式会挤成一行）');
+info('Shiu 原文栏含公式：' + (so.match(/class="math"/g) || []).length + ' 处');
+RD.select('dorkenwald');
+const doo = els.origCol.innerHTML;
+ok(/class="math"/.test(doo), 'Dorkenwald 原文栏未找到公式');
+ok(/TP \+ FP/.test(doo), '未找到精确率/召回率定义式');
+info('Dorkenwald 原文栏含公式：' + (doo.match(/class="math"/g) || []).length + ' 处');
+// 公式必须成对闭合，不能破坏页面结构
+for (const [label, h] of [['shiu', so], ['dorkenwald', doo]]) {
+  const open = (h.match(/<span class="math">/g) || []).length;
+  const close = (h.match(/<\/span>/g) || []).length;
+  ok(close >= open, `${label}: span 标签未闭合（开 ${open} 关 ${close}）`);
+}
+
 /* ---------------- 汇总 ---------------- */
 console.log('\n' + '='.repeat(62));
 console.log(`结果: ${pass} 通过, ${fail} 失败`);

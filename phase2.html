@@ -136,6 +136,17 @@
 
   .orig-p{margin:0 0 0; position:relative}
   .trans-p{margin:0}
+
+  /* ---------- 公式（由 tools/mathfix.py 从 <mml:math> 还原） ---------- */
+  .math{display:block; margin:12px 0; padding:11px 16px;
+    font-family:var(--mono); font-size:14.5px; line-height:2.05;
+    color:#cfe4ff; background:#0b1424; border:1px solid #223052;
+    border-left:3px solid var(--cyan); border-radius:0 9px 9px 0;
+    overflow-x:auto; white-space:nowrap}
+  body.paper .orig .math{background:#eef3fb; color:#12305c;
+    border-color:var(--paper-line); border-left-color:#1a6fc4}
+  body.paper .trans .math{background:#eef3fb; color:#12305c;
+    border-color:var(--paper-line); border-left-color:#1a6fc4}
   /* 译文缺失时的提示 */
   .missing{font-size:13px; color:var(--dim); font-style:italic; padding:6px 0;
     border-left:2px solid var(--line2); padding-left:10px}
@@ -192,6 +203,10 @@
   body.paper .trans .missing{color:var(--paper-dim); border-left-color:var(--paper-line)}
   body.paper .trans .pair.hot{background:#eef3fb}
   body.paper .orig{background:#f7f8fa; color:#2b3038}
+
+  /* 译文侧引用同一公式时用稍弱的样式 */
+  body:not(.paper) .trans .math{background:#0d1526; border-left-color:var(--dim)}
+  body.paper .trans .math{background:#f0f4fa; color:#12305c; border-color:#d7dee8}
 
   footer{padding:26px 26px 40px; border-top:1px solid var(--line); color:var(--dim); font-size:13px}
   .phaseswitch.foot{margin-bottom:14px}
@@ -391,13 +406,24 @@
         return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c];
       });
   }
-  /* 正文与标注里允许极少量内联标签，其余一律转义（防注入） */
-  var ALLOWED = /^(\/?)(b|i|em|strong|sub|sup|code|span)$/i;
+  /* 正文与标注里允许极少量内联标签，其余一律转义（防注入）。
+     注意：公式里的换行是 <br>，也必须放行，否则公式会挤成一行。 */
+  var ALLOWED = /^(\/?)(b|i|em|strong|sub|sup|code|br|span)$/i;
   function inline(s) {
-    // 先把尖括号全部转义，再把白名单标签还原
-    return esc(s).replace(/&lt;(\/?[A-Za-z]+)&gt;/g, function (m, tag) {
-      return ALLOWED.test(tag) ? '<' + tag + '>' : m;
-    });
+    // 先把尖括号全部转义，再把白名单标签还原（含带 class 的 span）
+    return esc(s)
+      .replace(/&lt;(\/?[A-Za-z]+)((?:\s+[a-z-]+=&quot;[^&]*&quot;)*)\s*(\/?)&gt;/g,
+        function (m, close, attrs, selfclose) {
+          var tag = close.replace('/', '');
+          if (!ALLOWED.test(close)) return m;
+          // 只允许 span 带 class，且 class 只取安全值
+          var keep = '';
+          if (tag.toLowerCase() === 'span' && attrs) {
+            var cm = /class=&quot;([a-z0-9 _-]*)&quot;/i.exec(attrs);
+            if (cm) keep = ' class="' + cm[1] + '"';
+          }
+          return '<' + close + keep + (selfclose ? '/' : '') + '>';
+        });
   }
 
   /* ---------------- 侧栏 ---------------- */

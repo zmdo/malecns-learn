@@ -122,7 +122,27 @@ python tools/build_paper_assets.py    # -> assets/papers/<name>.js
 
 # 4. 查看译文覆盖率（按页面真实的合并逻辑核对）
 node tools/verify-coverage.js
+
+# 5. Berg 那篇走 bioRxiv（见 tools/extract_berg.py / fetch_berg_figures.py）
 ```
+
+### 公式是怎么处理的
+
+Europe PMC 的 JATS 全文里，公式是 `<mml:math>` 形式的 MathML。
+原来的抽取脚本会把所有标签一并剥掉，导致 **LIF 的两个微分方程、精确率/召回率定义式**
+变成连在一起的符号串或直接消失。
+
+现在由 `tools/mathfix.py` 负责：
+
+1. `mml_math_to_text()` 把 MathML 转成可读的 **Unicode 数学文本**
+   （下标用 `_`、上标用 `^`、分式用 `(a)/(b)`）；
+2. 按「章节标题 + 原文锚点」把公式接回对应段落，包成 `<span class="math">`；
+3. 页面用 `.math` 样式渲染成独立的公式块，`<br>` 保留换行。
+
+⚠️ **锚点必须用英文原文片段** —— 抽取发生在翻译之前（这一点踩过坑）。
+
+共恢复 4 个公式：Shiu 的 LIF 膜电位方程与电导衰减方程、
+Dorkenwald 的 P/R/F₁ 定义式（其中两处重复引用）。
 
 `_papers/` 是可重新下载的中间产物，已在 `.gitignore` 中排除；
 仓库里保留的是 `assets/papers/*.js`。

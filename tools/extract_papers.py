@@ -16,6 +16,9 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mathfix import restore_math  # noqa: E402  公式恢复
+
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAPERS = os.path.join(ROOT, "_papers")
@@ -224,6 +227,8 @@ def build(name):
             blocks.append({"kind": "section", "level": 1, "title": s["title"],
                            "paras": paras, "figs": figs, "subs": subs})
     meta["blocks"] = len(blocks)
+    # 把 <mml:math> 公式恢复成可读文本并接回对应段落
+    restore_math(name, blocks, xml)
     meta["paras"] = sum(len(b["paras"]) + sum(len(x["paras"]) for x in b.get("subs", [])) for b in blocks)
     meta["figs"] = sum(len(b["figs"]) + sum(len(x["figs"]) for x in b.get("subs", [])) for b in blocks)
     meta["chars"] = sum(len(p) for b in blocks

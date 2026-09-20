@@ -176,6 +176,32 @@ def check_css_usage(path, html):
             problems.append(f"用了 {used} 处 <{tag}>，但 CSS 没有该标签的样式"
                             f"（会退化成浏览器默认外观）")
 
+    # 5) 公式：只有引用了论文数据的页面才检查（其余页面不含数据）
+    root = os.path.dirname(os.path.abspath(path))
+    refs_papers = ("assets/papers/" in html)
+    if refs_papers:
+        math_in_data = 0
+        pdir = os.path.join(root, "assets", "papers")
+        if os.path.isdir(pdir):
+            for fn in os.listdir(pdir):
+                if not fn.endswith(".js") or fn.startswith("notes-"):
+                    continue
+                try:
+                    txt = open(os.path.join(pdir, fn), encoding="utf-8").read()
+                except OSError:
+                    continue
+                math_in_data += txt.count('class=\\"math\\"') + txt.count('class="math"')
+        if math_in_data:
+            if re.search(r"(^|[\n,}}])\s*\.math\s*[,{{]", css):
+                notes.append(f"公式类 .math 有样式（数据里 {math_in_data} 处）")
+            else:
+                problems.append(f"数据里有 {math_in_data} 处公式，但 CSS 没有 .math 样式")
+            # 公式里的 <br> 必须放行，否则多行公式会被转义成纯文本挤成一行
+            m = re.search(r"var\s+ALLOWED\s*=\s*/(.+?)/[a-z]*;", html)
+            allowed = m.group(1) if m else ""
+            if "br" not in allowed:
+                problems.append("公式里的 <br> 不在内联白名单里（多行公式会挤成一行）")
+
     return notes, problems
 
 
