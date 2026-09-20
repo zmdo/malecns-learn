@@ -31,6 +31,69 @@ SKIP = {
     "Supplementary Information", "Data availability", "Code availability",
 }
 
+# ----------------------------------------------------------------------
+# bioRxiv 把公式渲染成图片（/embed/graphic-NN.gif），不是 MathML。
+# 这些图片在正文里没有 alt 文本，抽取时会整个丢掉 —— 于是"公式是空的"。
+# 这里按「章节标题 + 英文原文锚点」把公式图片接回对应段落。
+# 锚点必须是英文原文片段（抽取发生在翻译之前）。
+# ----------------------------------------------------------------------
+BERG_FORMULAS = [
+    ("Sensorimotor information flow analysis",
+     "Laplacian of the input-normalized flow adjacency matrix", "graphic-13.gif",
+     "L = 输入归一化流量邻接矩阵 F 的拉普拉斯矩阵；l = L⁺ × 1"),
+    ("Edge normalization",
+     "input normalization is calculated as", "graphic-14.gif",
+     "输入归一化：A→B 的连接强度 ÷ B 的全部输入突触数"),
+    ("Edge normalization",
+     "output normalization is calculated as", "graphic-15.gif",
+     "输出归一化：A→B 的连接强度 ÷ A 的全部输出突触数"),
+    ("Definition of dimorphic edges",
+     "is defined as:", "graphic-17.gif",
+     "t_AB = (x̄_m − x̄_f) / s_p"),
+    ("Definition of dimorphic edges",
+     "The pooled standard deviation", "graphic-18.gif",
+     "s_p = √( ((n_m−1)s_m² + (n_f−1)s_f²) / (n_m + n_f − 2) )"),
+    ("Definition of dimorphic edges",
+     "this expression for", "graphic-19.gif",
+     "n_m = n_f = 2 时 s_p 的化简式"),
+    ("Definition of dimorphic edges",
+     "And the combined expression is therefore", "graphic-20.gif",
+     "合并后的 t 统计量完整表达式"),
+]
+
+
+def attach_formulas(blocks):
+    """把公式图片插入对应段落（独立成块，便于阅读与排版）。"""
+    if not BERG_FORMULAS:
+        return blocks
+    done = set()
+
+    def patch(paras, title):
+        for i, p in enumerate(paras):
+            for sec, needle, gif, alt in BERG_FORMULAS:
+                if sec != title or needle in done:
+                    continue
+                if needle in p:
+                    src = "assets/papers/berg/" + gif
+                    if not os.path.isfile(os.path.join(ROOT, src)):
+                        continue
+                    paras[i] = (p + '<span class="matheq">'
+                                '<img src="' + src + '" alt="' + html.escape(alt) + '" '
+                                'loading="lazy"></span>')
+                    done.add(needle)
+                    break
+
+    for b in blocks:
+        patch(b.get("paras", []), b.get("title", ""))
+        for s in b.get("subs", []):
+            patch(s.get("paras", []), s.get("title", ""))
+    missing = [n for _, n, _, _ in BERG_FORMULAS if n not in done]
+    if missing:
+        print("  ⚠ 未接上的公式锚点：", missing)
+    else:
+        print(f"  已接上 {len(done)} 个公式图片")
+    return blocks
+
 KEEP_INLINE = ("b", "i", "sub", "sup", "em", "strong")
 
 
@@ -260,6 +323,9 @@ def main():
                          "两者数字有差异（预印本 166,691 神经元 / 11,691 类型；"
                          "正式版 166,700 / 11,710），引用请以正式版为准。",
     }
+    # 把公式图片接回对应段落（见文件开头的 BERG_FORMULAS 说明）
+    attach_formulas(blocks)
+
     meta_out["paras"] = sum(len(b["paras"]) + sum(len(x["paras"]) for x in b.get("subs", []))
                             for b in blocks)
     meta_out["figs"] = sum(len(b["figs"]) + sum(len(x["figs"]) for x in b.get("subs", []))

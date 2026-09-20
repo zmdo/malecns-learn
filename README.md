@@ -141,8 +141,22 @@ Europe PMC 的 JATS 全文里，公式是 `<mml:math>` 形式的 MathML。
 
 ⚠️ **锚点必须用英文原文片段** —— 抽取发生在翻译之前（这一点踩过坑）。
 
-共恢复 4 个公式：Shiu 的 LIF 膜电位方程与电导衰减方程、
-Dorkenwald 的 P/R/F₁ 定义式（其中两处重复引用）。
+共恢复 11 个公式：
+
+| 来源 | 形式 | 数量 | 处理方式 |
+|---|---|---|---|
+| Shiu / Dorkenwald（Europe PMC JATS） | `<mml:math>` MathML | 4 | 转成 Unicode 数学文本，包 `<span class="math">` |
+| Berg（bioRxiv） | 公式**图片** `/embed/graphic-NN.gif` | 7 | 下载到 `assets/papers/berg/`，包 `<span class="matheq">` |
+
+⚠️ **两篇论文的公式形式完全不同** —— 这是踩过的坑：
+JATS 用 MathML，而 bioRxiv 把公式渲染成图片、在正文里没有任何 alt 文本，
+抽取时整个丢掉，于是"公式是空的"。
+
+译文侧的处理：公式图片只在原文段落里，所以页面渲染后会把图片的 `alt`
+（人类可读的公式文本）**镜像到译文侧**对应段落，保证左右两边都读得到公式。
+
+渲染公式需要放行 `<img>` 与 `<br>`，且 `img` 只允许 `src`/`alt`/`loading`
+三个属性、禁止 `javascript:`/`data:`/`vbscript:` 伪协议。
 
 `_papers/` 是可重新下载的中间产物，已在 `.gitignore` 中排除；
 仓库里保留的是 `assets/papers/*.js`。

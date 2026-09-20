@@ -84,7 +84,7 @@ function missingIn(html) { return (html.match(/class="missing"/g) || []).length;
 
 const document = {
   body: makeEl('body'),
-  getElementById: id => els[id] || null,
+  getElementById: id => els[id] || (/^p-\d+(-t)?$/.test(id) ? pairEl(id) : null),
   querySelector: () => null,
   /* 页面用到的选择器只有几个，直接从 innerHTML 里数出来，
      这样「滚动联动加 hot 类」之类的行为也能被断言到。 */
@@ -103,11 +103,70 @@ const document = {
       });
     }
     if (want === '.pair.hot' || want === '.anno') return [];
+    if (want === '.matheq') return matheqEls(els.origCol.innerHTML);
     return [];
   },
+  _pairs: {},
   createElement: t => makeEl(t),
   addEventListener() {}
 };
+
+/* 内容区也要能查到 .matheq —— 页面的 mirrorFormulas 用的是
+   origCol.querySelectorAll('.matheq')，不是 document.querySelectorAll。 */
+els.origCol.querySelectorAll = function (sel) {
+  const want = String(sel).trim();
+  if (want === '.matheq') return matheqEls(els.origCol.innerHTML);
+  if (want === '.pair') {
+    const out = []; let m;
+    const re = /<div class="pair" id="([^"]+)"/g;
+    while ((m = re.exec(els.origCol.innerHTML)) !== null) {
+      const e = makeEl('div', m[1]); e._where = 'orig'; out.push(e);
+    }
+    return out;
+  }
+  return [];
+};
+
+/* 记录译文侧段落元素，便于断言"公式被镜像过去了" */
+const pairEls = {};
+function pairEl(pid) {
+  if (!pairEls[pid]) {
+    const e = makeEl('div', pid);
+    e._kids = [];
+    e.appendChild = c => { e._kids.push(c); return c; };
+    pairEls[pid] = e;
+  }
+  return pairEls[pid];
+}
+
+/* 构造镜像用的最小 DOM：.matheq → 其祖先 .pair(id) → 内含 img[alt] */
+function matheqEls(html) {
+  const out = [];
+  // 段落切分：<div class="pair" id="p-N">…</div>（同一段内部可能含 .matheq）
+  const re = /<div class="pair" id="([^"]+)">([\s\S]*?)(?=<div class="pair"|$)/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const pid = m[1], body = m[2];
+    if (body.indexOf('class="matheq"') === -1) continue;
+    // 从 .matheq 块内部取 img 的 alt（不是段落到处第一张图）
+    const meq = /<span class="matheq">([\s\S]*?)<\/span>/.exec(body);
+    const inner = meq ? meq[1] : body;
+    const altM = /<img[^>]*?\salt="([^"]*)"/.exec(inner);
+    const img = makeEl('img');
+    if (!img._attr) img._attr = {};
+    img._attr.alt = altM ? altM[1] : '';
+    img.getAttribute = a => (a in img._attr ? img._attr[a] : null);
+    img.querySelector = () => null;
+    const holder = makeEl('span');
+    holder.querySelector = sel => (String(sel).trim() === 'img' ? img : null);
+    const parEl = makeEl('div', pid);
+    parEl.classList.add('pair');
+    holder.parentNode = parEl;
+    holder.getAttribute = () => null;
+    out.push(holder);
+  }
+  return out;
+}
 
 /* ---------------- 装载 ---------------- */
 section('0. 装载');
@@ -184,7 +243,7 @@ ok(oP === tP, `原文 ${oP} 段 / 译文 ${tP} 段，两侧应一一对应`);
 info(`段落配对 ${oP} 对`);
 ok(figsIn(els.origCol.innerHTML) > 0, '原文栏没有渲染插图');
 info(`插图 ${figsIn(els.origCol.innerHTML)} 张`);
-// 插图地址允许两种：Europe PMC 的 CDN，或本地化的 assets/papers/berg/
+// 插图地址允许三种：Europe PMC 的 CDN、本地化的 berg/ 或 embeds/
 const IMG_OK = /src="(https:\/\/cdn\.ncbi\.nlm\.nih\.gov|assets\/papers\/berg\/)/;
 ok(IMG_OK.test(els.origCol.innerHTML), '插图未使用可用的地址（CDN 或本地）');
 ok(/<figure/.test(els.origCol.innerHTML), '插图未用 figure 包裹');
@@ -222,7 +281,8 @@ ok(missingIn(els.transCol.innerHTML) > 0,
   '本应存在未翻译段落（诚实标注），但没有找到 missing 提示');
 
 section('7. 切换论文');
-const other = RD.papers.find(p => p.id !== st.id);
+// dorkenwald 的插图是本地 asset（不是 CDN），所以用 shiu（Europe PMC CDN）来验证地址
+const other = RD.papers.find(p => p.id === 'shiu') || RD.papers.find(p => p.id !== st.id);
 RD.select(other.id);
 ok(st.id === other.id, '切换后 state.id 未更新');
 info(`切换到 ${other.id}`);
@@ -302,6 +362,44 @@ for (const [label, h] of [['shiu', so], ['dorkenwald', doo]]) {
   const close = (h.match(/<\/span>/g) || []).length;
   ok(close >= open, `${label}: span 标签未闭合（开 ${open} 关 ${close}）`);
 }
+
+section('12. Berg 的公式图片（bioRxiv 用图片而非 MathML）');
+RD.select('berg');
+const bo = els.origCol.innerHTML;
+const figCount = (bo.match(/class="matheq"/g) || []).length;
+ok(figCount > 0, 'Berg 原文栏未找到公式图片');
+info(`Berg 公式图片：${figCount} 处`);
+ok(/assets\/papers\/berg\/graphic-\d+\.gif/.test(bo), '公式图片未使用本地路径');
+ok(/alt="[^"]{6,}"/.test(bo), '公式图片缺少可读的 alt 文本');
+
+// 镜像功能要求页面能查到 .matheq 元素
+// 注意：页面里 mirrorFormulas 用的是 origCol.querySelectorAll，
+// 所以假 DOM 的内容区也必须实现它（不能只在 document 上实现）
+const mq = els.origCol.querySelectorAll('.matheq');
+info(`原文侧 .matheq 元素：${mq.length} 个`);
+ok(mq.length === figCount, `matheq 元素数(${mq.length}) 应与图片数(${figCount}) 一致`);
+if (mq.length) {
+  const h = mq[0];
+  const pn = h.parentNode;
+  const im = h.querySelector('img');
+  const alt = im ? im.getAttribute('alt') : null;
+  ok(!!alt, '公式图片没有可读的 alt');
+  // 图片标签必须真正渲染出来，而不是被转义成 &lt;img …&gt; 的文本
+  ok(!/&lt;img/.test(bo), '公式图片被转义成了文本（img 不在内联白名单里）');
+  ok(/<img[^>]*\salt="/.test(bo), '公式图片的 alt 属性未保留');
+  ok(!!document.getElementById((pn && pn.id) + '-t'), '译文侧对应段落元素查不到');
+}
+
+// 译文侧应当被镜像同样的公式文本
+for (const k of Object.keys(pairEls)) { delete pairEls[k]; }
+RD.select('berg');
+const mirrored = Object.keys(pairEls).filter(k => pairEls[k]._kids.length > 0);
+ok(mirrored.length > 0, '译文侧没有被镜像任何公式');
+info(`镜像到译文侧的公式：${mirrored.length} 处`);
+const sample = mirrored.length ? pairEls[mirrored[0]]._kids[0] : null;
+ok(sample && sample.className === 'math', '镜像的不是 .math 元素');
+ok(sample && String(sample.textContent).length > 4, '镜像的公式文本为空');
+if (sample) info('镜像示例：' + sample.textContent.slice(0, 60));
 
 /* ---------------- 汇总 ---------------- */
 console.log('\n' + '='.repeat(62));

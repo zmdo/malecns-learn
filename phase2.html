@@ -208,6 +208,13 @@
   body:not(.paper) .trans .math{background:#0d1526; border-left-color:var(--dim)}
   body.paper .trans .math{background:#f0f4fa; color:#12305c; border-color:#d7dee8}
 
+  /* Berg 那篇（bioRxiv）的公式是图片，不是文本。
+     图片本身是白底黑字，所以直接给白底卡片，避免在深色主题下发灰。 */
+  .matheq{display:block; margin:14px 0}
+  .matheq img{display:block; max-width:100%; height:auto; padding:10px 14px;
+    background:#fff; border:1px solid var(--line); border-radius:9px}
+  body.paper .matheq img{border-color:#d7dee8}
+
   footer{padding:26px 26px 40px; border-top:1px solid var(--line); color:var(--dim); font-size:13px}
   .phaseswitch.foot{margin-bottom:14px}
 
@@ -407,23 +414,41 @@
       });
   }
   /* 正文与标注里允许极少量内联标签，其余一律转义（防注入）。
-     注意：公式里的换行是 <br>，也必须放行，否则公式会挤成一行。 */
-  var ALLOWED = /^(\/?)(b|i|em|strong|sub|sup|code|br|span)$/i;
+     需要放行的三类：
+       · <br>  —— 多行公式的换行
+       · <span class="…"> —— 公式文本与公式图片容器
+       · <img> —— Berg 那篇（bioRxiv）的公式是图片，必须真正渲染出来，
+                  否则会被转义成一段 &lt;img …&gt; 的乱码文本 */
+  var ALLOWED = /^(\/?)(b|i|em|strong|sub|sup|code|br|span|img)$/i;
+  // img 只允许这三个属性，且值限定为安全字符（不含引号与斜杠以外的协议）
+  var SAFE_ATTR = /^(src|alt|loading)$/i;
+
   function inline(s) {
-    // 先把尖括号全部转义，再把白名单标签还原（含带 class 的 span）
-    return esc(s)
-      .replace(/&lt;(\/?[A-Za-z]+)((?:\s+[a-z-]+=&quot;[^&]*&quot;)*)\s*(\/?)&gt;/g,
-        function (m, close, attrs, selfclose) {
-          var tag = close.replace('/', '');
-          if (!ALLOWED.test(close)) return m;
-          // 只允许 span 带 class，且 class 只取安全值
-          var keep = '';
-          if (tag.toLowerCase() === 'span' && attrs) {
-            var cm = /class=&quot;([a-z0-9 _-]*)&quot;/i.exec(attrs);
-            if (cm) keep = ' class="' + cm[1] + '"';
+    // 先把尖括号全部转义，再按白名单还原标签（含受控的属性）
+    return esc(s).replace(
+      /&lt;(\/?[A-Za-z]+)((?:\s+[A-Za-z-]+=&quot;[^&]*&quot;)*)\s*(\/?)&gt;/g,
+      function (m, close, attrs, selfclose) {
+        if (!ALLOWED.test(close)) return m;
+        var tag = close.replace('/', '').toLowerCase();
+        var keep = '';
+        if (attrs) {
+          var re = /([A-Za-z-]+)=&quot;([^&]*)&quot;/g;
+          var a;
+          while ((a = re.exec(attrs)) !== null) {
+            var name = a[1], val = a[2];
+            if (tag === 'span' && /^class$/i.test(name) &&
+                /^[a-z0-9 _-]*$/i.test(val)) {
+              keep += ' class="' + val + '"';
+            } else if (tag === 'img' && SAFE_ATTR.test(name) &&
+                       !/["'<>]/.test(val) &&
+                       // 拒绝伪协议（javascript: / data: / vbscript:）
+                       !/^\s*(?:javascript|data|vbscript)\s*:/i.test(val)) {
+              keep += ' ' + name + '="' + val + '"';
+            }
           }
-          return '<' + close + keep + (selfclose ? '/' : '') + '>';
-        });
+        }
+        return '<' + close + keep + (selfclose ? '/' : '') + '>';
+      });
   }
 
   /* ---------------- 侧栏 ---------------- */
@@ -498,6 +523,7 @@
 
     origCol.innerHTML = oHtml.join('');
     transCol.innerHTML = tHtml.join('');
+    mirrorFormulas();
 
     // 目录
     secList.innerHTML = toc.map(function (t) {
@@ -591,6 +617,36 @@
     });
     h += '</div>';
     return h;
+  }
+
+  /** 渲染后处理：把原文侧公式图片对应的文字形式补到译文侧。
+   *
+   *  Berg 那篇（bioRxiv）的公式是图片，抽取时只可能落在原文段落里，
+   *  于是译文栏对应位置是空的。这里取图片的 alt（人类可读的公式文本），
+   *  以 .math 放到译文侧同一个 .pair 之下，保证左右两边都能读到公式。
+   */
+  function mirrorFormulas() {
+    var imgs = origCol.querySelectorAll('.matheq');
+    if (!imgs || !imgs.length) return;
+    var seen = {};
+    for (var i = 0; i < imgs.length; i++) {
+      var par = imgs[i].parentNode;
+      while (par && par !== origCol &&
+             !(par.classList && par.classList.contains('pair'))) {
+        par = par.parentNode;
+      }
+      if (!par || !par.id || seen[par.id]) continue;
+      seen[par.id] = true;
+      var img = imgs[i].querySelector('img');
+      var alt = (img && img.getAttribute('alt')) || '';
+      if (!alt) continue;
+      var slot = document.getElementById(par.id + '-t');
+      if (!slot) continue;
+      var box = document.createElement('span');
+      box.className = 'math';
+      box.textContent = alt;
+      slot.appendChild(box);
+    }
   }
 
   /* ---------------- 切换论文 ---------------- */
